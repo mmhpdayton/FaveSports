@@ -7,8 +7,8 @@
 <link rel="icon" type="image/png" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="FaveSports">
-<title>FaveSports</title>
+<meta name="apple-mobile-web-app-title" content="Dayton Sports">
+<title>Dayton Sports</title>
 <style>
 :root{--bg:#07111f;--card:#102039;--muted:#91a4bb;--line:#243650;--text:#f6f8fb;--gold:#e7bd66}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at top right,#173458 0,#0a1727 34%,#06101c 78%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -32,7 +32,7 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 </head>
 <body>
 <div class="wrap">
-<header><div class="brand"><img src="apple-touch-icon.png" class="brand-icon" alt=""><div><h1>FaveSports</h1><p>Your teams. Your schedule. Your sports.</p></div></div>
+<header><div class="brand"><img src="apple-touch-icon.png" class="brand-icon" alt=""><div><h1>Dayton Sports</h1><p>Our teams. Our games. One place.</p></div></div>
 <nav><button class="active" data-view="home">Home</button><button data-view="schedules">Schedules</button><button data-view="standings">Standings</button><button data-view="rankings">Rankings</button></nav></header>
 
 <main id="home" class="view">
@@ -52,15 +52,15 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 <section class="section" id="football-rankings"><h2>College Football</h2><div class="card rank-card" style="margin-top:12px"><div class="poll-toggle"><button class="view-schedule pollBtn active" data-poll="ap">AP Top 25</button><button class="view-schedule pollBtn" data-poll="coaches">Coaches Poll</button></div><div id="ap" class="poll active"></div><div id="coaches" class="poll"></div></div></section>
 <section class="section" id="volleyball-rankings"><h2>Women’s Volleyball — AVCA Top 25</h2><div class="card rank-card" id="avca" style="margin-top:12px"></div></section>
 </main>
-<div class="footer">FaveSports · V7</div>
+<div class="footer">Dayton Sports · V7</div>
 </div>
 
 <script src="sports-data.js"></script>
 <script>
 const D=window.FAVE_DATA;
 const logos={
-payton:"https://www.google.com/s2/favicons?domain=wpcp.org&sz=128",
-amundsen:"https://www.google.com/s2/favicons?domain=amundsenhs.org&sz=128",
+payton:"https://www.wpcp.org/pics/lov-logo.png",
+amundsen:"https://static.wixstatic.com/media/1003d0_d61af30229da410688feea254d55b56e~mv2.png",
 nd:"https://a.espncdn.com/i/teamlogos/ncaa/500/87.png",
 wisc:"https://a.espncdn.com/i/teamlogos/ncaa/500/275.png",
 lfc:"https://a.espncdn.com/i/teamlogos/soccer/500/364.png",
