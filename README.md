@@ -1,3 +1,3 @@
-# FaveSports V4
+# FaveSports V5
 
-UX-focused build with Next Up, collapsible schedules, collapsed standings, AP/Coaches toggle, full AVCA Top 25, kids teams first, and Bills ahead of Colts.
+Polished + fun build: richer logos/branding, Next Up hero cards, collapsible schedules and standings, clickable team standings/rankings, AP/Coaches toggle, full AVCA Top 25, kids first, Bills ahead of Colts.

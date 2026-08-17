@@ -1,11 +1,5 @@
 {
-  "version": "v4",
+  "version": "v5",
   "teams": 9,
-  "ux": [
-    "next-up-first",
-    "collapsible-schedules",
-    "collapsed-standings",
-    "AP-Coaches-toggle",
-    "AVCA-top-25"
-  ]
+  "note": "UI snapshot; automated sports-data refresh is the next phase."
 }
