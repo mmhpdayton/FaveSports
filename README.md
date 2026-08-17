@@ -1,13 +1,7 @@
-# Dayton Sports V9
+# Dayton Sports V9.1
 
-Branding correction build.
-
-## Changes
-- Payton JV Volleyball now uses the official Walter Payton College Prep school crest published on wpcp.org.
-- Amundsen JV Football now uses the official Amundsen Athletics Foundation athletics mark.
-- Removed the generic/substitute Payton and Amundsen letter logos.
-- Dayton Sports branding and V8 functionality remain intact.
-
-## Logo sources
-- Payton: https://www.wpcp.org/pics/lov-logo.png
-- Amundsen Athletics Foundation: https://static.wixstatic.com/media/1003d0_d61af30229da410688feea254d55b56e~mv2.png
+Half-update / logo correction:
+- Payton is now a local navy/orange Payton P mark.
+- Amundsen is now a local red/black AHS Vikings mark.
+- Both are stored inside the repo, so they no longer depend on fragile external image links.
+- All V9 functionality is otherwise unchanged.
