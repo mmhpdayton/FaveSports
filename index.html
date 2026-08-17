@@ -52,7 +52,7 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 <section class="section" id="football-rankings"><h2>College Football</h2><div class="card rank-card" style="margin-top:12px"><div class="poll-toggle"><button class="view-schedule pollBtn active" data-poll="ap">AP Top 25</button><button class="view-schedule pollBtn" data-poll="coaches">Coaches Poll</button></div><div id="ap" class="poll active"></div><div id="coaches" class="poll"></div></div></section>
 <section class="section" id="volleyball-rankings"><h2>Women’s Volleyball — AVCA Top 25</h2><div class="card rank-card" id="avca" style="margin-top:12px"></div></section>
 </main>
-<div class="footer">Dayton Sports · V10</div>
+<div class="footer">Dayton Sports · V11</div>
 </div>
 
 <script src="sports-data.js"></script>
@@ -79,14 +79,28 @@ function gameMinutes(g){const m=(g.time||"").match(/(\d{1,2}):(\d{2})\s*(AM|PM)/
 function upcomingFromSchedules(){
   const today=new Date();today.setHours(0,0,0,0);
   const horizon=new Date(today);horizon.setDate(horizon.getDate()+14);
+  const kidIds=new Set(["payton","amundsen"]);
+  const excludedUpcomingIds=new Set(["ind"]);
   const rows=[];
-  D.teams.forEach(t=>(t.schedule||[]).forEach(g=>{
+  const makeRow=(t,g,d)=>({id:t.id,date:d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}).toUpperCase().replace(","," ·"),time:g.time||"TBA",opp:`${g.ha==="AWAY"?"@ ":""}${g.opp||""}`,where:[g.ha,g.event].filter(Boolean).join(" · "),tv:g.tv||"TBD",_date:d,_mins:gameMinutes(g)});
+
+  D.teams.filter(t=>kidIds.has(t.id)).forEach(t=>{
+    const next=(t.schedule||[]).map(g=>({g,d:gameDate(g)})).filter(x=>x.d&&x.d>=today).sort((a,b)=>a.d-b.d||gameMinutes(a.g)-gameMinutes(b.g))[0];
+    if(next)rows.push(makeRow(t,next.g,next.d));
+  });
+
+  D.teams.filter(t=>!kidIds.has(t.id)&&!excludedUpcomingIds.has(t.id)).forEach(t=>(t.schedule||[]).forEach(g=>{
     const d=gameDate(g);
-    if(!d||d<today||d>horizon||!g.tv)return;
-    rows.push({id:t.id,date:d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}).toUpperCase().replace(","," ·"),time:g.time||"TBA",opp:`${g.ha==="AWAY"?"@ ":""}${g.opp||""}`,where:[g.ha,g.event].filter(Boolean).join(" · "),tv:g.tv||"TBD",_date:d,_mins:gameMinutes(g)});
+    if(!d||d<today||d>horizon)return;
+    if(g.event==="Preseason")return;
+    if(!g.tv)return;
+    rows.push(makeRow(t,g,d));
   }));
+
+  const unique=[];const seen=new Set();
   rows.sort((a,b)=>a._date-b._date||a._mins-b._mins);
-  return rows.slice(0,10);
+  rows.forEach(r=>{const key=`${r.id}|${r._date.toDateString()}|${r.opp}`;if(!seen.has(key)){seen.add(key);unique.push(r)}});
+  return unique.slice(0,10);
 }
 const upcomingGames=upcomingFromSchedules();
 document.getElementById("upcoming").innerHTML=upcomingGames.map(upCard).join("");
