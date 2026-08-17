@@ -10,83 +10,93 @@
 <meta name="apple-mobile-web-app-title" content="FaveSports">
 <title>FaveSports</title>
 <style>
-:root{--bg:#07111f;--card:#101d30;--muted:#91a3b8;--line:#22324a;--text:#f5f8fc;--gold:#e6b85c}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at top right,#132844 0,#081421 34%,#06101c 75%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-.wrap{max-width:1160px;margin:auto;padding:22px}.hero{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 0 12px}.brand{display:flex;align-items:center;gap:13px}.brand-icon{width:56px;height:56px;border-radius:15px;box-shadow:0 8px 30px #0008}.brand h1{margin:0;font-size:34px}.brand p{margin:3px 0 0;color:var(--muted)}
-.nav{display:flex;gap:7px;flex-wrap:wrap}.nav button{background:#0c192a;border:1px solid var(--line);color:var(--text);padding:10px 14px;border-radius:999px;cursor:pointer}.nav button.active{background:#182a42;border-color:#60799d}
-.section{margin:26px 0}.section-title{display:flex;align-items:end;justify-content:space-between;margin-bottom:11px}.section h2{font-size:19px;margin:0}.section-note{font-size:12px;color:var(--muted)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(285px,1fr));gap:13px}.card{background:linear-gradient(145deg,rgba(18,33,53,.98),rgba(11,23,39,.98));border:1px solid var(--line);border-radius:20px;box-shadow:0 12px 34px rgba(0,0,0,.18);overflow:hidden}
-.next-card{padding:15px;position:relative}.next-card:before,.team-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--team)}
-.next-top{display:flex;gap:12px;align-items:center}.logo-wrap{width:54px;height:54px;border-radius:14px;background:#07111f;border:1px solid #ffffff12;display:grid;place-items:center;flex:none}.logo{max-width:43px;max-height:43px;object-fit:contain}.fallback-logo{font-size:20px;font-weight:900;color:white}.eyebrow{font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}.next-team{font-weight:800;font-size:16px}.matchup{margin-top:10px;font-size:15px}.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.chip{font-size:10px;font-weight:800;letter-spacing:.04em;padding:4px 8px;border-radius:999px;background:#07111f;border:1px solid #2a3a50;color:#d9e4f0}
-.team-card{position:relative;padding:16px}.team-head{display:flex;gap:12px;align-items:center}.team-name{font-weight:850;font-size:16px}.record{font-size:13px;color:#d4deea;margin-top:2px}.context-link{display:inline-block;margin-top:5px;color:#f1cf81;text-decoration:none;font-weight:750;font-size:12px}.context-link:hover{text-decoration:underline}.next-line{margin-top:14px;padding-top:12px;border-top:1px solid #ffffff0d}.small{font-size:12px;color:var(--muted)}.next-value{margin-top:3px;font-size:14px}.actions{margin-top:13px}.btn{border:1px solid var(--line);background:#0a1727;color:var(--text);padding:9px 12px;border-radius:10px;cursor:pointer;font-size:12px;font-weight:700}.schedule{display:none;margin-top:12px;border-top:1px solid var(--line);padding-top:8px}.schedule.open{display:block}.game{display:grid;grid-template-columns:112px 1fr auto;gap:10px;padding:9px 0;border-bottom:1px solid #ffffff0a;font-size:12px}.game:last-child{border:0}.badge{font-size:10px;font-weight:800;padding:3px 7px;border:1px solid #2a3a50;background:#07111f;border-radius:999px;height:max-content}
-.rank-card{padding:16px}.poll-toggle{display:flex;gap:7px;margin-bottom:12px}.poll{display:none}.poll.active{display:block}.rank-row{display:grid;grid-template-columns:34px 1fr;gap:8px;padding:7px 8px;border-bottom:1px solid #ffffff09;font-size:13px}.rank-row.focus{background:#e6b85c15;border:1px solid #e6b85c35;border-radius:9px;font-weight:800}.standings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:13px}.standing-card{padding:16px}.standing-table{display:none;margin-top:10px}.standing-table.open{display:block}.standing-row{display:grid;grid-template-columns:1fr auto;gap:8px;padding:7px 0;border-bottom:1px solid #ffffff09;font-size:12px}.standing-row.focus{font-weight:850;color:#f1cf81}
+:root{--bg:#07111f;--card:#102039;--muted:#91a4bb;--line:#243650;--text:#f6f8fb;--gold:#e7bd66}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at top right,#173458 0,#0a1727 34%,#06101c 78%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.wrap{max-width:1180px;margin:auto;padding:22px}
+header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 0 14px}.brand{display:flex;align-items:center;gap:13px}.brand-icon{width:58px;height:58px;border-radius:16px;box-shadow:0 12px 36px #0008}.brand h1{margin:0;font-size:34px}.brand p{margin:3px 0 0;color:var(--muted)}
+nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid var(--line);background:#0c1a2d;color:var(--text);padding:10px 14px;border-radius:999px;cursor:pointer;font-weight:700}nav button.active,.team-chip.active{background:#1a2e49;border-color:#7088aa}
+.section{margin:28px 0}.section-title{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:12px}.section h2{font-size:19px;margin:0}.note{font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(285px,1fr));gap:13px}.card{background:linear-gradient(145deg,rgba(18,36,61,.98),rgba(10,23,40,.98));border:1px solid var(--line);border-radius:21px;box-shadow:0 12px 36px rgba(0,0,0,.18)}
+.up-card,.team-card{position:relative;padding:16px;overflow:hidden}.up-card:before,.team-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--team)}
+.row{display:flex;align-items:center;gap:12px}.logo-box{width:54px;height:54px;border-radius:14px;background:#07111f;border:1px solid #ffffff12;display:grid;place-items:center;flex:none}.logo{max-width:44px;max-height:44px;object-fit:contain}.fallback{font-weight:900;font-size:18px}.eyebrow{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}.team-name{font-weight:850;font-size:16px}.record{font-size:13px;color:#d7e1ec;margin-top:2px}.context{display:inline-block;margin-top:5px;color:#f3d287;text-decoration:none;font-size:12px;font-weight:800}.context:hover{text-decoration:underline}.match{margin-top:12px;font-size:15px;font-weight:750}.time{margin-top:2px;font-size:13px;color:#d8e2ed}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.chip{font-size:10px;font-weight:850;padding:4px 8px;border-radius:999px;background:#07111f;border:1px solid #2d405b}.tvchip{border-color:#4e76a3;color:#c1dcff}
+.next{margin-top:14px;padding-top:12px;border-top:1px solid #ffffff0d}.next strong{display:block;margin-top:3px;font-size:14px}.next .tvline{font-size:12px;color:#bdd8ff;margin-top:5px}.view-schedule{margin-top:13px;border:1px solid var(--line);background:#0a1727;color:#fff;padding:9px 12px;border-radius:10px;font-size:12px;font-weight:750;cursor:pointer}
+.team-selector{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}.team-chip{white-space:nowrap;display:flex;align-items:center;gap:7px}.team-chip img{width:22px;height:22px;object-fit:contain}
+.schedule-hero{display:flex;align-items:center;gap:14px;margin:16px 0 14px}.schedule-hero .logo-box{width:64px;height:64px}.schedule-hero .logo{max-width:52px;max-height:52px}.schedule-meta{color:var(--muted);font-size:13px}.schedule-list{display:grid;gap:13px}
+.game-card{padding:18px;position:relative;overflow:hidden}.game-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--team)}.game-top{display:flex;justify-content:space-between;gap:15px}.game-date{font-size:12px;font-weight:850;letter-spacing:.06em;color:#d4e2f1}.game-time{font-size:12px;color:#d4e2f1}.game-main{display:flex;align-items:center;gap:15px;margin-top:14px}.game-title{font-size:19px;font-weight:900}.game-sub{margin-top:3px;color:var(--muted);font-size:12px}.game-bottom{display:flex;justify-content:space-between;gap:15px;align-items:end;margin-top:14px;padding-top:12px;border-top:1px solid #ffffff0d}.venue{font-size:12px;color:#b9c8d9}.broadcast{font-size:12px;color:#c4ddff;font-weight:800}.result{font-size:13px;font-weight:900;color:#f1cf81}
+.tournament-card{padding:18px}.tour-title{font-weight:900;font-size:18px}.tour-games{margin-top:12px}.tour-row{display:grid;grid-template-columns:80px 1fr auto;gap:10px;padding:8px 0;border-bottom:1px solid #ffffff0a;font-size:12px}
+.rank-card,.standing-card{padding:16px}.poll-toggle{display:flex;gap:7px;margin-bottom:12px}.poll{display:none}.poll.active{display:block}.rank-row{display:grid;grid-template-columns:34px 1fr;gap:8px;padding:7px 8px;border-bottom:1px solid #ffffff09;font-size:13px}.rank-row.focus{background:#e7bd6615;border:1px solid #e7bd6635;border-radius:9px;font-weight:850}.standings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:13px}
 .footer{text-align:center;color:var(--muted);font-size:11px;padding:28px 0}
-@media(max-width:720px){.wrap{padding:14px}.hero{align-items:flex-start;flex-direction:column}.brand h1{font-size:29px}.grid{grid-template-columns:1fr}.game{grid-template-columns:92px 1fr}.game .badge{grid-column:2}.brand-icon{width:49px;height:49px}}
+@media(max-width:760px){.wrap{padding:14px}header{align-items:flex-start;flex-direction:column}.brand h1{font-size:29px}.grid{grid-template-columns:1fr}.game-main{align-items:flex-start}.game-bottom{align-items:flex-start;flex-direction:column}.brand-icon{width:50px;height:50px}}
 </style>
 </head>
-<body><div class="wrap">
-<header class="hero"><div class="brand"><img class="brand-icon" src="apple-touch-icon.png" alt=""><div><h1>FaveSports</h1><p>Your family’s teams. Scores, schedules, standings & rankings.</p></div></div>
-<nav class="nav"><button class="active" data-target="home">Home</button><button data-target="schedules">Schedules</button><button data-target="standings">Standings</button><button data-target="rankings">Rankings</button><button data-target="watch">Watch</button></nav></header>
+<body>
+<div class="wrap">
+<header><div class="brand"><img src="apple-touch-icon.png" class="brand-icon" alt=""><div><h1>FaveSports</h1><p>Your teams. Your schedule. Your sports.</p></div></div>
+<nav><button class="active" data-view="home">Home</button><button data-view="schedules">Schedules</button><button data-view="standings">Standings</button><button data-view="rankings">Rankings</button></nav></header>
 
 <main id="home" class="view">
-<section class="section"><div class="section-title"><h2>Next Up</h2><span class="section-note">Across all your teams</span></div><div id="nextGrid" class="grid"></div></section>
-<section class="section"><div class="section-title"><h2>My Teams</h2><span class="section-note">Kids first · then favorites</span></div><div id="teams" class="grid"></div></section>
+<section class="section"><div class="section-title"><h2>Upcoming & Where to Watch</h2><span class="note">Quick glance</span></div><div id="upcoming" class="grid"></div></section>
+<section class="section"><div class="section-title"><h2>My Teams</h2><span class="note">Kids first · then favorites</span></div><div id="myteams" class="grid"></div></section>
 </main>
-<main id="schedules" class="view" style="display:none"><section class="section"><div class="section-title"><h2>Schedules</h2><span class="section-note">Tap any team to expand</span></div><div id="scheduleTeams" class="grid"></div></section></main>
-<main id="standings" class="view" style="display:none"><section class="section"><h2>League Standings</h2><div id="standingsGrid" class="standings-grid" style="margin-top:12px"></div></section></main>
+
+<main id="schedules" class="view" style="display:none">
+<section class="section"><div class="section-title"><h2>Schedules</h2><span class="note">Full detail · one team at a time</span></div><div id="teamSelector" class="team-selector"></div><div id="scheduleArea"></div></section>
+</main>
+
+<main id="standings" class="view" style="display:none">
+<section class="section"><h2>Standings</h2><div class="standings-grid" style="margin-top:12px" id="standingsGrid"></div></section>
+</main>
+
 <main id="rankings" class="view" style="display:none">
-<section class="section" id="football-rankings"><h2>College Football Rankings</h2><div class="card rank-card" style="margin-top:12px"><div class="poll-toggle"><button class="btn pollBtn active" data-poll="ap">AP Top 25</button><button class="btn pollBtn" data-poll="coaches">Coaches Poll</button></div><div id="ap" class="poll active"></div><div id="coaches" class="poll"></div></div></section>
+<section class="section" id="football-rankings"><h2>College Football</h2><div class="card rank-card" style="margin-top:12px"><div class="poll-toggle"><button class="view-schedule pollBtn active" data-poll="ap">AP Top 25</button><button class="view-schedule pollBtn" data-poll="coaches">Coaches Poll</button></div><div id="ap" class="poll active"></div><div id="coaches" class="poll"></div></div></section>
 <section class="section" id="volleyball-rankings"><h2>Women’s Volleyball — AVCA Top 25</h2><div class="card rank-card" id="avca" style="margin-top:12px"></div></section>
 </main>
-<main id="watch" class="view" style="display:none"><section class="section"><h2>Where do I watch?</h2><div class="card rank-card" style="margin-top:12px">TV and streaming information will populate here with the live-data layer.</div></section></main>
-<div class="footer">FaveSports · Built for the Dayton family</div>
+<div class="footer">FaveSports · V7</div>
 </div>
+
+<script src="sports-data.js"></script>
 <script>
-const teams=[
-{id:"payton",name:"Payton Girls JV Volleyball",short:"Payton JV Volleyball",abbr:"P",color:"#f47b20",record:"0–0",context:"",contextTarget:"",next:"Aug 24 · 5:00 PM · vs Willowbrook",tag:"HOME",schedule:[["Aug 24 · 5:00 PM","vs Willowbrook","HOME"],["Aug 26 · 5:00 PM","vs Saint Ignatius","HOME"],["Sep 1 · 5:00 PM","@ Whitney Young","AWAY"]]},
-{id:"amundsen",name:"Amundsen Boys JV Football",short:"Amundsen JV Football",abbr:"A",color:"#b61f2e",record:"0–0",context:"",contextTarget:"",next:"Aug 20 · 4:30 PM · vs Farragut",tag:"HOME",schedule:[["Aug 20 · 4:30 PM","vs Farragut","HOME"],["Aug 27 · 4:30 PM","@ Westinghouse","AWAY"],["Sep 3 · 4:30 PM","vs Payton","HOME"],["Sep 10 · 4:30 PM","@ Lane Tech","AWAY"]]},
-{id:"nd",name:"Notre Dame Football",short:"Notre Dame",abbr:"ND",color:"#c99700",record:"0–0",context:"#4 AP · #5 Coaches",contextTarget:"football-rankings",next:"Sep 6 · vs Wisconsin",tag:"HOME",schedule:[["Sep 6","vs Wisconsin","HOME"],["Sep 12","@ Miami","AWAY"],["Sep 19","vs Purdue","HOME"]]},
-{id:"lfc",name:"Liverpool FC",short:"Liverpool",abbr:"LFC",color:"#c8102e",record:"0–0–0",context:"Premier League · —",contextTarget:"standings",next:"Aug 23 · @ Newcastle",tag:"AWAY",schedule:[["Aug 23","@ Newcastle","AWAY"],["Aug 30","vs Arsenal","HOME"],["Sep 12","@ Burnley","AWAY"]]},
-{id:"wisc",name:"Wisconsin Volleyball",short:"Wisconsin Volleyball",abbr:"W",color:"#c5050c",record:"0–0",context:"#6 AVCA",contextTarget:"volleyball-rankings",next:"Aug 21 · vs Kentucky",tag:"HOME",schedule:[["Aug 21","vs Kentucky","HOME"],["Aug 28","vs Opponent","HOME"]]},
-{id:"gb",name:"Green Bay Packers",short:"Packers",abbr:"G",color:"#203731",record:"0–0",context:"NFC North · —",contextTarget:"standings",next:"Aug 21 · @ Denver",tag:"PRESEASON",schedule:[["Aug 21","@ Denver","PRESEASON"],["Sep 13","Regular-season opener","HOME"]]},
-{id:"buf",name:"Buffalo Bills",short:"Bills",abbr:"BUF",color:"#00338d",record:"0–0",context:"AFC East · —",contextTarget:"standings",next:"Aug 22 · Preseason",tag:"PRESEASON",schedule:[["Aug 22","Preseason game","PRESEASON"],["Sep 13","Regular-season opener","HOME"]]},
-{id:"ind",name:"Indianapolis Colts",short:"Colts",abbr:"IND",color:"#002c5f",record:"0–0",context:"AFC South · —",contextTarget:"standings",next:"Aug 22 · vs Atlanta",tag:"PRESEASON",schedule:[["Aug 22","vs Atlanta","PRESEASON"],["Sep 13","Regular-season opener","HOME"]]},
-{id:"cubs",name:"Chicago Cubs",short:"Cubs",abbr:"C",color:"#0e3386",record:"72–53",context:"NL Central · 2nd",contextTarget:"standings",next:"Tonight · vs White Sox",tag:"HOME",schedule:[["Aug 17","vs White Sox","HOME"],["Aug 18","vs White Sox","HOME"],["Aug 19","vs White Sox","HOME"]]}
-];
-const logoUrls={
+const D=window.FAVE_DATA;
+const logos={
 payton:"https://www.google.com/s2/favicons?domain=wpcp.org&sz=128",
 amundsen:"https://www.google.com/s2/favicons?domain=amundsenhs.org&sz=128",
 nd:"https://a.espncdn.com/i/teamlogos/ncaa/500/87.png",
-lfc:"https://a.espncdn.com/i/teamlogos/soccer/500/364.png",
 wisc:"https://a.espncdn.com/i/teamlogos/ncaa/500/275.png",
+lfc:"https://a.espncdn.com/i/teamlogos/soccer/500/364.png",
 gb:"https://a.espncdn.com/i/teamlogos/nfl/500/gb.png",
 buf:"https://a.espncdn.com/i/teamlogos/nfl/500/buf.png",
 ind:"https://a.espncdn.com/i/teamlogos/nfl/500/ind.png",
-cubs:"https://a.espncdn.com/i/teamlogos/mlb/500/chc.png"
-};
-function logo(t){return `<div class="logo-wrap"><img class="logo" src="${logoUrls[t.id]}" alt="${t.short} logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="fallback-logo" style="display:none">${t.abbr}</span></div>`}
-function teamCard(t){const context=t.context?`<a class="context-link jump" href="#" data-target="${t.contextTarget}">${t.context} ›</a>`:"";return `<article class="card team-card" style="--team:${t.color}"><div class="team-head">${logo(t)}<div><div class="team-name">${t.name}</div><div class="record">${t.record}</div>${context}</div></div><div class="next-line"><div class="small">NEXT</div><div class="next-value">${t.next}</div><div class="chips"><span class="chip">${t.tag}</span></div></div><div class="actions"><button class="btn toggleSchedule" data-count="${t.schedule.length}">View full schedule (${t.schedule.length}) ▾</button></div><div class="schedule">${t.schedule.map(g=>`<div class="game"><span>${g[0]}</span><span>${g[1]}</span><span class="badge">${g[2]}</span></div>`).join("")}</div></article>`}
-function nextCard(t){return `<article class="card next-card" style="--team:${t.color}"><div class="next-top">${logo(t)}<div><div class="eyebrow">${t.next.split(" · ")[0]}</div><div class="next-team">${t.short}</div></div></div><div class="matchup">${t.next}</div><div class="chips"><span class="chip">${t.tag}</span></div></article>`}
-document.getElementById("nextGrid").innerHTML=teams.slice(0,6).map(nextCard).join("");
-document.getElementById("teams").innerHTML=teams.map(teamCard).join("");
-document.getElementById("scheduleTeams").innerHTML=teams.map(teamCard).join("");
-function bindSchedules(){document.querySelectorAll(".toggleSchedule").forEach(btn=>btn.onclick=()=>{const s=btn.closest(".team-card").querySelector(".schedule");s.classList.toggle("open");btn.textContent=s.classList.contains("open")?"Hide schedule ▴":`View full schedule (${btn.dataset.count}) ▾`})}bindSchedules();
-function showView(id,anchor){document.querySelectorAll(".view").forEach(v=>v.style.display="none");const view=(id==="football-rankings"||id==="volleyball-rankings")?"rankings":id;document.getElementById(view).style.display="block";document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.target===view));if(anchor)setTimeout(()=>document.getElementById(anchor)?.scrollIntoView({behavior:"smooth"}),50);window.scrollTo({top:0,behavior:"smooth"})}
-document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>showView(b.dataset.target));
-document.addEventListener("click",e=>{const a=e.target.closest(".jump");if(a){e.preventDefault();const target=a.dataset.target;if(target==="football-rankings"||target==="volleyball-rankings")showView("rankings",target);else showView(target)}});
+cubs:"https://a.espncdn.com/i/teamlogos/mlb/500/chc.png"};
+const byId=Object.fromEntries(D.teams.map(t=>[t.id,t]));
+function logo(t,small=false){return `<div class="logo-box"><img class="logo" src="${logos[t.id]}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="fallback" style="display:none">${t.abbr}</span></div>`}
+function nextEvent(t){return t.schedule[0]||{}}
+function homeTeamCard(t){const n=nextEvent(t);return `<article class="card team-card" style="--team:${t.color}"><div class="row">${logo(t)}<div><div class="team-name">${t.name}</div><div class="record">${t.record}</div>${t.context?`<a class="context jump" href="#" data-target="${t.target}">${t.context} ›</a>`:""}</div></div><div class="next"><span class="eyebrow">NEXT</span><strong>${n.date||""} · ${n.time||""} · ${n.ha==="AWAY"?"@":"vs"} ${n.opp||""}</strong>${n.tv?`<div class="tvline">📺 ${n.tv}</div>`:""}</div><button class="view-schedule gotoSchedule" data-team="${t.id}">View schedule ›</button></article>`}
+function upCard(u){const t=byId[u.id];return `<article class="card up-card" style="--team:${t.color}"><div class="row">${logo(t)}<div><div class="eyebrow">${u.date}</div><div class="team-name">${t.name}</div></div></div><div class="match">${u.opp}</div><div class="time">${u.time}</div><div class="chips"><span class="chip">${u.where}</span><span class="chip tvchip">📺 ${u.tv}</span></div></article>`}
+document.getElementById("upcoming").innerHTML=D.upcoming.map(upCard).join("");
+document.getElementById("myteams").innerHTML=D.teams.map(homeTeamCard).join("");
 
-const ap=["Ohio State","Texas","Penn State","Notre Dame","Georgia","Clemson","Oregon","Alabama","LSU","Miami","Arizona State","Illinois","South Carolina","Florida","Ole Miss","SMU","Kansas State","Oklahoma","Texas A&M","Indiana","Tennessee","Iowa State","Texas Tech","Utah","Boise State"];
-const coaches=["Texas","Ohio State","Penn State","Georgia","Notre Dame","Clemson","Oregon","Alabama","LSU","Miami","Arizona State","South Carolina","Florida","Illinois","Ole Miss","SMU","Kansas State","Oklahoma","Texas A&M","Indiana","Tennessee","Iowa State","Texas Tech","Utah","Boise State"];
-const avca=["Nebraska","Texas","Kentucky","Pittsburgh","Stanford","Wisconsin","Penn State","Louisville","Creighton","Florida","Purdue","Minnesota","SMU","Arizona State","Kansas","BYU","Georgia Tech","Tennessee","Baylor","USC","UCLA","TCU","Utah","Marquette","Dayton"];
-function poll(id,arr){document.getElementById(id).innerHTML=arr.map((n,i)=>`<div class="rank-row ${(n==="Notre Dame"||n==="Wisconsin")?"focus":""}"><span>${i+1}</span><span>${n}</span></div>`).join("")}poll("ap",ap);poll("coaches",coaches);poll("avca",avca);
+function showView(v,anchor){document.querySelectorAll(".view").forEach(x=>x.style.display="none");document.getElementById(v).style.display="block";document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));window.scrollTo({top:0,behavior:"smooth"});if(anchor)setTimeout(()=>document.getElementById(anchor)?.scrollIntoView({behavior:"smooth"}),80)}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>showView(b.dataset.view));
+document.addEventListener("click",e=>{const j=e.target.closest(".jump");if(j){e.preventDefault();const q=j.dataset.target;(q==="football-rankings"||q==="volleyball-rankings")?showView("rankings",q):showView(q)}});
+
+document.getElementById("teamSelector").innerHTML=D.teams.map((t,i)=>`<button class="team-chip ${i===0?"active":""}" data-team="${t.id}"><img src="${logos[t.id]}" onerror="this.style.display='none'">${t.name}</button>`).join("");
+
+function renderSchedule(id){
+  const t=byId[id];
+  document.querySelectorAll(".team-chip").forEach(b=>b.classList.toggle("active",b.dataset.team===id));
+  const tour=t.schedule.filter(g=>g.tournament);
+  const normal=t.schedule.filter(g=>!g.tournament);
+  let cards=normal.map(g=>`<article class="card game-card" style="--team:${t.color}"><div class="game-top"><span class="game-date">${g.date}</span><span class="game-time">${g.time}</span></div><div class="game-main">${logo(t)}<div><div class="game-title">${g.ha==="AWAY"?"@ ":""}${g.opp}</div><div class="game-sub">${g.event||""}</div></div></div><div class="game-bottom"><div><div class="chips"><span class="chip">${g.ha}</span>${g.conference?`<span class="chip">CONFERENCE</span>`:""}</div>${g.venue?`<div class="venue" style="margin-top:7px">📍 ${g.venue}</div>`:""}</div><div class="broadcast">${g.tv?`📺 ${g.tv}`:""}</div></div></article>`).join("");
+  if(tour.length){cards+=`<article class="card tournament-card" style="border-left:5px solid ${t.color}"><div class="game-top"><span class="game-date">SEP 12</span><span class="game-time">TBA</span></div><div class="tour-title">Rickover Naval Academy JV Tournament</div><div class="tour-games">${tour.map((g,i)=>`<div class="tour-row"><strong>Game ${i+1}</strong><span>Opponent TBA</span><span>TBA</span></div>`).join("")}</div></article>`}
+  document.getElementById("scheduleArea").innerHTML=`<div class="schedule-hero">${logo(t)}<div><h2 style="margin:0">${t.name}</h2><div class="schedule-meta">${t.record}${t.context?` · ${t.context}`:""}</div></div></div><div class="schedule-list">${cards}</div>`;
+}
+renderSchedule(D.teams[0].id);
+document.querySelectorAll(".team-chip").forEach(b=>b.onclick=()=>renderSchedule(b.dataset.team));
+document.querySelectorAll(".gotoSchedule").forEach(b=>b.onclick=()=>{showView("schedules");renderSchedule(b.dataset.team)});
+
+function poll(id,arr){document.getElementById(id).innerHTML=arr.map((n,i)=>`<div class="rank-row ${(n==="Notre Dame"||n==="Wisconsin")?"focus":""}"><span>${i+1}</span><span>${n}</span></div>`).join("")}
+poll("ap",D.rankings.ap);poll("coaches",D.rankings.coaches);poll("avca",D.rankings.avca);
 document.querySelectorAll(".pollBtn").forEach(b=>b.onclick=()=>{document.querySelectorAll(".pollBtn").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".poll").forEach(x=>x.classList.remove("active"));document.getElementById(b.dataset.poll).classList.add("active")});
-const standingData=[
-["Green Bay Packers","NFC North",["Packers","Lions","Vikings","Bears"]],
-["Buffalo Bills","AFC East",["Bills","Dolphins","Patriots","Jets"]],
-["Indianapolis Colts","AFC South",["Colts","Texans","Jaguars","Titans"]],
-["Liverpool","Premier League",["Liverpool","Arsenal","Manchester City","Chelsea"]],
-["Chicago Cubs","NL Central",["Brewers","Cubs","Reds","Cardinals","Pirates"]]
-];
-document.getElementById("standingsGrid").innerHTML=standingData.map(([team,league,rows])=>`<article class="card standing-card"><strong>${team}</strong><div class="small">${league}</div><button class="btn toggleStanding" style="margin-top:10px">View ${league} ▾</button><div class="standing-table">${rows.map((r,i)=>`<div class="standing-row ${r.includes(team.split(" ").pop())||r===team?"focus":""}"><span>${i+1}. ${r}</span><span>—</span></div>`).join("")}</div></article>`).join("");
-document.querySelectorAll(".toggleStanding").forEach(btn=>btn.onclick=()=>{const t=btn.nextElementSibling;t.classList.toggle("open");btn.textContent=t.classList.contains("open")?"Hide standings ▴":`View ${btn.closest(".standing-card").querySelector(".small").textContent} ▾`});
+document.getElementById("standingsGrid").innerHTML=[["Liverpool","Premier League"],["Packers","NFC North"],["Bills","AFC East"],["Colts","AFC South"],["Cubs","NL Central"]].map(([a,b])=>`<div class="card standing-card"><strong>${a}</strong><div class="note">${b}</div><div style="margin-top:10px" class="note">Full live table will populate here in the automated-data build.</div></div>`).join("");
 </script></body></html>

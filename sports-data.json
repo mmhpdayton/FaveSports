@@ -1,5 +1,927 @@
 {
-  "version": "v5",
-  "teams": 9,
-  "note": "UI snapshot; automated sports-data refresh is the next phase."
+  "version": "v7",
+  "teams": [
+    {
+      "id": "payton",
+      "name": "Payton JV Volleyball",
+      "abbr": "P",
+      "color": "#f47b20",
+      "record": "0\u20130",
+      "context": "",
+      "target": "",
+      "schedule": [
+        {
+          "date": "Aug 24",
+          "time": "5:00 PM",
+          "opp": "Willowbrook",
+          "ha": "HOME",
+          "conference": false
+        },
+        {
+          "date": "Sep 3",
+          "time": "5:00 PM",
+          "opp": "St. Ignatius College Prep",
+          "ha": "HOME",
+          "conference": false
+        },
+        {
+          "date": "Sep 8",
+          "time": "5:00 PM",
+          "opp": "Whitney Young",
+          "ha": "AWAY",
+          "conference": true
+        },
+        {
+          "date": "Sep 9",
+          "time": "5:00 PM",
+          "opp": "Niles West",
+          "ha": "AWAY",
+          "conference": false
+        },
+        {
+          "date": "Sep 10",
+          "time": "5:00 PM",
+          "opp": "Chicago Washington",
+          "ha": "HOME",
+          "conference": true
+        },
+        {
+          "date": "Sep 12",
+          "time": "TBA",
+          "opp": "Rickover JV Tournament \u2014 Game 1",
+          "ha": "NEUTRAL",
+          "conference": false,
+          "tournament": true
+        },
+        {
+          "date": "Sep 12",
+          "time": "TBA",
+          "opp": "Rickover JV Tournament \u2014 Game 2",
+          "ha": "NEUTRAL",
+          "conference": false,
+          "tournament": true
+        },
+        {
+          "date": "Sep 12",
+          "time": "TBA",
+          "opp": "Rickover JV Tournament \u2014 Game 3",
+          "ha": "NEUTRAL",
+          "conference": false,
+          "tournament": true
+        },
+        {
+          "date": "Sep 12",
+          "time": "TBA",
+          "opp": "Rickover JV Tournament \u2014 Game 4",
+          "ha": "NEUTRAL",
+          "conference": false,
+          "tournament": true
+        },
+        {
+          "date": "Sep 15",
+          "time": "5:00 PM",
+          "opp": "Amundsen",
+          "ha": "AWAY",
+          "conference": true
+        },
+        {
+          "date": "Sep 17",
+          "time": "5:00 PM",
+          "opp": "Hancock",
+          "ha": "HOME",
+          "conference": true
+        },
+        {
+          "date": "Sep 22",
+          "time": "5:00 PM",
+          "opp": "Northside",
+          "ha": "HOME",
+          "conference": true
+        },
+        {
+          "date": "Sep 23",
+          "time": "5:00 PM",
+          "opp": "Montini Catholic",
+          "ha": "AWAY",
+          "conference": false
+        },
+        {
+          "date": "Sep 24",
+          "time": "5:00 PM",
+          "opp": "Kenwood",
+          "ha": "AWAY",
+          "conference": true
+        },
+        {
+          "date": "Sep 29",
+          "time": "5:00 PM",
+          "opp": "Lane Tech",
+          "ha": "HOME",
+          "conference": true
+        },
+        {
+          "date": "Sep 30",
+          "time": "5:00 PM",
+          "opp": "Elmwood Park",
+          "ha": "AWAY",
+          "conference": false
+        },
+        {
+          "date": "Oct 1",
+          "time": "5:00 PM",
+          "opp": "Lincoln Park",
+          "ha": "AWAY",
+          "conference": true
+        },
+        {
+          "date": "Oct 6",
+          "time": "5:00 PM",
+          "opp": "Jones",
+          "ha": "HOME",
+          "conference": true
+        }
+      ]
+    },
+    {
+      "id": "amundsen",
+      "name": "Amundsen JV Football",
+      "abbr": "A",
+      "color": "#b61f2e",
+      "record": "0\u20130",
+      "context": "",
+      "target": "",
+      "schedule": [
+        {
+          "date": "Aug 20",
+          "time": "4:30 PM",
+          "opp": "Farragut",
+          "ha": "HOME"
+        },
+        {
+          "date": "Aug 26",
+          "time": "4:30 PM",
+          "opp": "Westinghouse",
+          "ha": "HOME"
+        },
+        {
+          "date": "Sep 5",
+          "time": "9:00 AM",
+          "opp": "Payton College Prep",
+          "ha": "HOME"
+        },
+        {
+          "date": "Sep 14",
+          "time": "4:30 PM",
+          "opp": "Lane Tech",
+          "ha": "HOME"
+        },
+        {
+          "date": "Sep 21",
+          "time": "4:30 PM",
+          "opp": "Lincoln Park",
+          "ha": "HOME"
+        },
+        {
+          "date": "Sep 28",
+          "time": "4:30 PM",
+          "opp": "Payton College Prep",
+          "ha": "HOME"
+        },
+        {
+          "date": "Oct 5",
+          "time": "4:30 PM",
+          "opp": "Taft",
+          "ha": "AWAY"
+        },
+        {
+          "date": "Oct 12",
+          "time": "4:30 PM",
+          "opp": "Whitney Young",
+          "ha": "AWAY"
+        }
+      ]
+    },
+    {
+      "id": "nd",
+      "name": "Notre Dame",
+      "abbr": "ND",
+      "color": "#c99700",
+      "record": "0\u20130",
+      "context": "#4 AP \u00b7 #5 Coaches",
+      "target": "football-rankings",
+      "schedule": [
+        {
+          "date": "Sep 6",
+          "time": "6:30 PM CT",
+          "opp": "Wisconsin",
+          "ha": "NEUTRAL",
+          "venue": "Lambeau Field \u00b7 Green Bay",
+          "event": "Shamrock Series",
+          "tv": "NBC \u00b7 Peacock"
+        },
+        {
+          "date": "Sep 12",
+          "time": "2:30 PM CT",
+          "opp": "Rice",
+          "ha": "HOME",
+          "venue": "Notre Dame Stadium",
+          "tv": "NBC \u00b7 Peacock"
+        },
+        {
+          "date": "Sep 19",
+          "time": "6:30 PM CT",
+          "opp": "Michigan State",
+          "ha": "HOME",
+          "venue": "Notre Dame Stadium",
+          "tv": "NBC \u00b7 Peacock"
+        },
+        {
+          "date": "Sep 26",
+          "time": "TBA",
+          "opp": "Purdue",
+          "ha": "AWAY",
+          "venue": "Ross-Ade Stadium",
+          "tv": "TBD"
+        },
+        {
+          "date": "Oct 3",
+          "time": "TBA",
+          "opp": "North Carolina",
+          "ha": "AWAY",
+          "venue": "Kenan Memorial Stadium",
+          "tv": "TBD"
+        },
+        {
+          "date": "Oct 10",
+          "time": "2:30 PM CT",
+          "opp": "Stanford",
+          "ha": "HOME",
+          "venue": "Notre Dame Stadium",
+          "tv": "NBC \u00b7 Peacock"
+        },
+        {
+          "date": "Oct 17",
+          "time": "TBA",
+          "opp": "BYU",
+          "ha": "AWAY",
+          "venue": "LaVell Edwards Stadium",
+          "tv": "TBD"
+        },
+        {
+          "date": "Oct 31",
+          "time": "TBA",
+          "opp": "Navy",
+          "ha": "NEUTRAL",
+          "venue": "Foxborough, MA",
+          "tv": "TBD"
+        },
+        {
+          "date": "Nov 7",
+          "time": "6:30 PM CT",
+          "opp": "Miami",
+          "ha": "HOME",
+          "venue": "Notre Dame Stadium",
+          "tv": "NBC \u00b7 Peacock"
+        },
+        {
+          "date": "Nov 14",
+          "time": "2:30 PM CT",
+          "opp": "Boston College",
+          "ha": "HOME",
+          "venue": "Notre Dame Stadium",
+          "tv": "NBC \u00b7 Peacock"
+        },
+        {
+          "date": "Nov 21",
+          "time": "6:30 PM CT",
+          "opp": "SMU",
+          "ha": "HOME",
+          "venue": "Notre Dame Stadium",
+          "tv": "NBC \u00b7 Peacock"
+        },
+        {
+          "date": "Nov 28",
+          "time": "TBA",
+          "opp": "Syracuse",
+          "ha": "AWAY",
+          "venue": "JMA Wireless Dome",
+          "tv": "TBD"
+        }
+      ]
+    },
+    {
+      "id": "wisc",
+      "name": "Wisconsin Volleyball",
+      "abbr": "W",
+      "color": "#c5050c",
+      "record": "0\u20130",
+      "context": "#6 AVCA",
+      "target": "volleyball-rankings",
+      "schedule": [
+        {
+          "date": "Aug 21",
+          "time": "8:00 PM CT",
+          "opp": "#3 Kentucky",
+          "ha": "NEUTRAL",
+          "venue": "Fiserv Forum \u00b7 Milwaukee",
+          "event": "AVCA First Serve",
+          "tv": "ESPN platform \u2014 network TBD"
+        },
+        {
+          "date": "Aug 22",
+          "time": "3:00 PM CT",
+          "opp": "#7 Louisville",
+          "ha": "NEUTRAL",
+          "venue": "Fiserv Forum \u00b7 Milwaukee",
+          "event": "AVCA First Serve",
+          "tv": "FOX"
+        },
+        {
+          "date": "Aug 28",
+          "time": "8:00 PM CT",
+          "opp": "#5 Stanford",
+          "ha": "NEUTRAL",
+          "venue": "Pittsburgh, PA",
+          "tv": "ESPN2"
+        },
+        {
+          "date": "Aug 30",
+          "time": "11:00 AM CT",
+          "opp": "#4 Pittsburgh",
+          "ha": "AWAY",
+          "venue": "Pittsburgh, PA",
+          "tv": "ESPN"
+        },
+        {
+          "date": "Sep 2",
+          "time": "7:00 PM CT",
+          "opp": "#17 Florida",
+          "ha": "HOME",
+          "venue": "UW Field House",
+          "tv": "FS1"
+        },
+        {
+          "date": "Sep 3",
+          "time": "7:00 PM CT",
+          "opp": "Auburn",
+          "ha": "HOME",
+          "venue": "UW Field House",
+          "tv": "FS1"
+        },
+        {
+          "date": "Sep 11",
+          "time": "8:00 PM CT",
+          "opp": "#8 Texas A&M",
+          "ha": "AWAY",
+          "venue": "College Station, TX",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 13",
+          "time": "2:00 PM CT",
+          "opp": "#2 Texas",
+          "ha": "AWAY",
+          "venue": "Austin, TX",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 17",
+          "time": "7:00 PM CT",
+          "opp": "Marquette",
+          "ha": "HOME",
+          "venue": "UW Field House",
+          "tv": "Big Ten Network"
+        },
+        {
+          "date": "Sep 18",
+          "time": "7:00 PM CT",
+          "opp": "Milwaukee",
+          "ha": "HOME",
+          "venue": "UW Field House",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 24",
+          "time": "7:00 PM CT",
+          "opp": "#25 Oregon",
+          "ha": "HOME",
+          "venue": "UW Field House",
+          "tv": "B1G+"
+        },
+        {
+          "date": "Sep 27",
+          "time": "3:00 PM CT",
+          "opp": "#9 Purdue",
+          "ha": "AWAY",
+          "venue": "West Lafayette, IN",
+          "tv": "Big Ten Network"
+        },
+        {
+          "date": "Oct 1",
+          "time": "8:00 PM CT",
+          "opp": "#16 Indiana",
+          "ha": "HOME",
+          "venue": "UW Field House",
+          "tv": "Big Ten Network"
+        },
+        {
+          "date": "Oct 4",
+          "time": "5:00 PM CT",
+          "opp": "#14 Minnesota",
+          "ha": "AWAY",
+          "venue": "Minneapolis, MN",
+          "tv": "Big Ten Network"
+        },
+        {
+          "date": "Oct 8",
+          "time": "7:30 PM CT",
+          "opp": "Illinois",
+          "ha": "AWAY",
+          "venue": "Champaign, IL",
+          "tv": "Big Ten Network"
+        },
+        {
+          "date": "Oct 10",
+          "time": "TBA",
+          "opp": "#1 Nebraska",
+          "ha": "AWAY",
+          "venue": "Lincoln, NE",
+          "tv": "FOX"
+        },
+        {
+          "date": "Oct 16",
+          "time": "7:00 PM CT",
+          "opp": "Maryland",
+          "ha": "HOME",
+          "venue": "UW Field House",
+          "tv": "B1G+"
+        },
+        {
+          "date": "Oct 18",
+          "time": "1:00 PM CT",
+          "opp": "Iowa",
+          "ha": "AWAY",
+          "venue": "Iowa City, IA",
+          "tv": "Big Ten Network"
+        },
+        {
+          "date": "Oct 23",
+          "time": "8:00 PM CT",
+          "opp": "Washington",
+          "ha": "HOME",
+          "venue": "UW Field House",
+          "tv": "Big Ten Network"
+        },
+        {
+          "date": "Oct 25",
+          "time": "12:00 PM CT",
+          "opp": "Michigan",
+          "ha": "HOME",
+          "venue": "UW Field House",
+          "tv": "FS1"
+        },
+        {
+          "date": "Oct 30",
+          "time": "5:00 PM CT",
+          "opp": "#20 USC",
+          "ha": "AWAY",
+          "venue": "Los Angeles, CA",
+          "tv": "B1G+"
+        },
+        {
+          "date": "Nov 1",
+          "time": "4:00 PM CT",
+          "opp": "UCLA",
+          "ha": "AWAY",
+          "venue": "Los Angeles, CA",
+          "tv": "B1G+"
+        },
+        {
+          "date": "Nov 5",
+          "time": "7:00 PM CT",
+          "opp": "Michigan State",
+          "ha": "HOME",
+          "venue": "UW Field House",
+          "tv": "B1G+"
+        },
+        {
+          "date": "Nov 8",
+          "time": "TBA",
+          "opp": "#10 Penn State",
+          "ha": "HOME",
+          "venue": "UW Field House",
+          "tv": "FS1"
+        },
+        {
+          "date": "Nov 12",
+          "time": "5:00 PM CT",
+          "opp": "Rutgers",
+          "ha": "AWAY",
+          "venue": "Piscataway, NJ",
+          "tv": "B1G+"
+        },
+        {
+          "date": "Nov 13",
+          "time": "6:00 PM CT",
+          "opp": "Ohio State",
+          "ha": "AWAY",
+          "venue": "Columbus, OH",
+          "tv": "B1G+"
+        },
+        {
+          "date": "Nov 17",
+          "time": "7:00 PM CT",
+          "opp": "Northwestern",
+          "ha": "HOME",
+          "venue": "UW Field House",
+          "tv": "B1G+"
+        },
+        {
+          "date": "Nov 20",
+          "time": "TBA",
+          "opp": "Big Ten Tournament",
+          "ha": "NEUTRAL",
+          "venue": "TBD",
+          "tv": "TBD"
+        }
+      ]
+    },
+    {
+      "id": "lfc",
+      "name": "Liverpool",
+      "abbr": "LFC",
+      "color": "#c8102e",
+      "record": "0\u20130\u20130",
+      "context": "Premier League \u00b7 \u2014",
+      "target": "standings",
+      "schedule": [
+        {
+          "date": "Aug 23",
+          "time": "11:30 AM CT",
+          "opp": "Newcastle United",
+          "ha": "AWAY",
+          "venue": "St. James' Park",
+          "event": "Premier League",
+          "tv": "USA Network"
+        },
+        {
+          "date": "Aug 29",
+          "time": "6:30 AM CT",
+          "opp": "Nottingham Forest",
+          "ha": "HOME",
+          "venue": "Anfield",
+          "event": "Premier League",
+          "tv": "USA/Peacock TBD"
+        },
+        {
+          "date": "Sep 4",
+          "time": "2:00 PM CT",
+          "opp": "Ipswich Town",
+          "ha": "AWAY",
+          "venue": "Portman Road",
+          "event": "Premier League",
+          "tv": "USA/Peacock TBD"
+        },
+        {
+          "date": "Sep 12",
+          "time": "9:00 AM CT",
+          "opp": "Fulham",
+          "ha": "HOME",
+          "venue": "Anfield",
+          "event": "Premier League",
+          "tv": "USA/Peacock TBD"
+        },
+        {
+          "date": "Sep 20",
+          "time": "8:00 AM CT",
+          "opp": "AFC Bournemouth",
+          "ha": "AWAY",
+          "venue": "Vitality Stadium",
+          "event": "Premier League",
+          "tv": "USA/Peacock TBD"
+        }
+      ]
+    },
+    {
+      "id": "gb",
+      "name": "Packers",
+      "abbr": "G",
+      "color": "#203731",
+      "record": "0\u20130",
+      "context": "NFC North \u00b7 \u2014",
+      "target": "standings",
+      "schedule": [
+        {
+          "date": "Aug 21",
+          "time": "8:00 PM CT",
+          "opp": "Denver Broncos",
+          "ha": "AWAY",
+          "event": "Preseason",
+          "tv": "Packers TV Network"
+        },
+        {
+          "date": "Aug 28",
+          "time": "7:00 PM CT",
+          "opp": "Arizona Cardinals",
+          "ha": "HOME",
+          "event": "Preseason",
+          "tv": "Packers TV Network"
+        },
+        {
+          "date": "Sep 13",
+          "time": "3:25 PM CT",
+          "opp": "Minnesota Vikings",
+          "ha": "AWAY",
+          "event": "Regular Season",
+          "tv": "CBS"
+        },
+        {
+          "date": "Sep 20",
+          "time": "12:00 PM CT",
+          "opp": "New York Jets",
+          "ha": "AWAY",
+          "event": "Regular Season",
+          "tv": "FOX"
+        },
+        {
+          "date": "Sep 24",
+          "time": "7:15 PM CT",
+          "opp": "Atlanta Falcons",
+          "ha": "HOME",
+          "event": "Regular Season",
+          "tv": "Prime Video"
+        }
+      ]
+    },
+    {
+      "id": "buf",
+      "name": "Bills",
+      "abbr": "BUF",
+      "color": "#00338d",
+      "record": "0\u20130",
+      "context": "AFC East \u00b7 \u2014",
+      "target": "standings",
+      "schedule": [
+        {
+          "date": "Aug 22",
+          "time": "12:00 PM CT",
+          "opp": "Cleveland Browns",
+          "ha": "AWAY",
+          "event": "Preseason",
+          "tv": "NFL Network / WIVB"
+        },
+        {
+          "date": "Aug 27",
+          "time": "7:00 PM CT",
+          "opp": "Pittsburgh Steelers",
+          "ha": "HOME",
+          "event": "Preseason",
+          "tv": "NFL Network / WIVB"
+        },
+        {
+          "date": "Sep 13",
+          "time": "12:00 PM CT",
+          "opp": "Houston Texans",
+          "ha": "AWAY",
+          "event": "Regular Season",
+          "tv": "CBS"
+        },
+        {
+          "date": "Sep 17",
+          "time": "7:15 PM CT",
+          "opp": "Detroit Lions",
+          "ha": "HOME",
+          "event": "Regular Season",
+          "tv": "Prime Video"
+        }
+      ]
+    },
+    {
+      "id": "ind",
+      "name": "Colts",
+      "abbr": "IND",
+      "color": "#002c5f",
+      "record": "0\u20130",
+      "context": "AFC South \u00b7 \u2014",
+      "target": "standings",
+      "schedule": [
+        {
+          "date": "Aug 22",
+          "time": "12:00 PM CT",
+          "opp": "Atlanta Falcons",
+          "ha": "HOME",
+          "event": "Preseason",
+          "tv": "CBS4"
+        },
+        {
+          "date": "Aug 29",
+          "time": "12:00 PM CT",
+          "opp": "Detroit Lions",
+          "ha": "HOME",
+          "event": "Preseason",
+          "tv": "CBS4"
+        },
+        {
+          "date": "Sep 13",
+          "time": "12:00 PM CT",
+          "opp": "Baltimore Ravens",
+          "ha": "HOME",
+          "event": "Regular Season",
+          "tv": "CBS"
+        },
+        {
+          "date": "Sep 20",
+          "time": "7:20 PM CT",
+          "opp": "Kansas City Chiefs",
+          "ha": "AWAY",
+          "event": "Regular Season",
+          "tv": "NBC"
+        }
+      ]
+    },
+    {
+      "id": "cubs",
+      "name": "Cubs",
+      "abbr": "C",
+      "color": "#0e3386",
+      "record": "72\u201353",
+      "context": "NL Central \u00b7 2nd",
+      "target": "standings",
+      "schedule": [
+        {
+          "date": "Aug 17",
+          "time": "7:05 PM CT",
+          "opp": "Chicago White Sox",
+          "ha": "HOME",
+          "venue": "Wrigley Field",
+          "tv": "Marquee Sports Network"
+        },
+        {
+          "date": "Aug 18",
+          "time": "7:05 PM CT",
+          "opp": "Chicago White Sox",
+          "ha": "HOME",
+          "venue": "Wrigley Field",
+          "tv": "TBS / truTV / Marquee"
+        },
+        {
+          "date": "Aug 19",
+          "time": "1:20 PM CT",
+          "opp": "Chicago White Sox",
+          "ha": "HOME",
+          "venue": "Wrigley Field",
+          "tv": "Marquee Sports Network"
+        },
+        {
+          "date": "Aug 21",
+          "time": "9:10 PM CT",
+          "opp": "Seattle Mariners",
+          "ha": "AWAY",
+          "venue": "T-Mobile Park",
+          "tv": "Marquee Sports Network"
+        },
+        {
+          "date": "Aug 22",
+          "time": "6:15 PM CT",
+          "opp": "Seattle Mariners",
+          "ha": "AWAY",
+          "venue": "T-Mobile Park",
+          "tv": "FOX / Marquee"
+        }
+      ]
+    }
+  ],
+  "upcoming": [
+    {
+      "id": "wisc",
+      "date": "FRI \u00b7 AUG 21",
+      "time": "8:00 PM CT",
+      "opp": "#3 Kentucky",
+      "where": "NEUTRAL",
+      "tv": "ESPN platform \u2014 network TBD"
+    },
+    {
+      "id": "gb",
+      "date": "FRI \u00b7 AUG 21",
+      "time": "8:00 PM CT",
+      "opp": "@ Denver Broncos",
+      "where": "AWAY \u00b7 PRESEASON",
+      "tv": "Packers TV Network"
+    },
+    {
+      "id": "wisc",
+      "date": "SAT \u00b7 AUG 22",
+      "time": "3:00 PM CT",
+      "opp": "#7 Louisville",
+      "where": "NEUTRAL",
+      "tv": "FOX"
+    },
+    {
+      "id": "buf",
+      "date": "SAT \u00b7 AUG 22",
+      "time": "12:00 PM CT",
+      "opp": "@ Cleveland Browns",
+      "where": "AWAY \u00b7 PRESEASON",
+      "tv": "NFL Network / WIVB"
+    },
+    {
+      "id": "ind",
+      "date": "SAT \u00b7 AUG 22",
+      "time": "12:00 PM CT",
+      "opp": "vs Atlanta Falcons",
+      "where": "HOME \u00b7 PRESEASON",
+      "tv": "CBS4"
+    },
+    {
+      "id": "lfc",
+      "date": "SUN \u00b7 AUG 23",
+      "time": "11:30 AM CT",
+      "opp": "@ Newcastle United",
+      "where": "AWAY",
+      "tv": "USA Network"
+    }
+  ],
+  "rankings": {
+    "ap": [
+      "Ohio State",
+      "Texas",
+      "Penn State",
+      "Notre Dame",
+      "Georgia",
+      "Clemson",
+      "Oregon",
+      "Alabama",
+      "LSU",
+      "Miami",
+      "Arizona State",
+      "Illinois",
+      "South Carolina",
+      "Florida",
+      "Ole Miss",
+      "SMU",
+      "Kansas State",
+      "Oklahoma",
+      "Texas A&M",
+      "Indiana",
+      "Tennessee",
+      "Iowa State",
+      "Texas Tech",
+      "Utah",
+      "Boise State"
+    ],
+    "coaches": [
+      "Texas",
+      "Ohio State",
+      "Penn State",
+      "Georgia",
+      "Notre Dame",
+      "Clemson",
+      "Oregon",
+      "Alabama",
+      "LSU",
+      "Miami",
+      "Arizona State",
+      "South Carolina",
+      "Florida",
+      "Illinois",
+      "Ole Miss",
+      "SMU",
+      "Kansas State",
+      "Oklahoma",
+      "Texas A&M",
+      "Indiana",
+      "Tennessee",
+      "Iowa State",
+      "Texas Tech",
+      "Utah",
+      "Boise State"
+    ],
+    "avca": [
+      "Nebraska",
+      "Texas",
+      "Kentucky",
+      "Pittsburgh",
+      "Stanford",
+      "Wisconsin",
+      "Penn State",
+      "Texas A&M",
+      "Louisville",
+      "Creighton",
+      "Florida",
+      "Purdue",
+      "Minnesota",
+      "SMU",
+      "Arizona State",
+      "Kansas",
+      "BYU",
+      "Georgia Tech",
+      "Tennessee",
+      "USC",
+      "Baylor",
+      "UCLA",
+      "TCU",
+      "Utah",
+      "Marquette"
+    ]
+  }
 }
