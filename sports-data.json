@@ -1,0 +1,29 @@
+{
+  "asOf": "2026-08-17",
+  "teams": [
+    "Notre Dame Football",
+    "Liverpool",
+    "Wisconsin Volleyball",
+    "Green Bay Packers",
+    "Buffalo Bills",
+    "Indianapolis Colts",
+    "Chicago Cubs",
+    "Walter Payton College Prep Girls JV Volleyball",
+    "Amundsen Boys JV Football"
+  ],
+  "recordPolicy": "NFL headline records exclude preseason games",
+  "collegeFootballPolls": [
+    "AP Top 25",
+    "US LBM Coaches Poll"
+  ],
+  "note": "Static fallback snapshot. Future automated refresh can update this file while index.html remains the presentation layer.",
+  "rankings": {
+    "collegeFootball": [
+      "AP Top 25",
+      "US LBM Coaches Poll"
+    ],
+    "womensVolleyball": [
+      "AVCA Division I Top 25"
+    ]
+  }
+}
