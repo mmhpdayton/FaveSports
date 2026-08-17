@@ -52,7 +52,7 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 <section class="section" id="football-rankings"><h2>College Football</h2><div class="card rank-card" style="margin-top:12px"><div class="poll-toggle"><button class="view-schedule pollBtn active" data-poll="ap">AP Top 25</button><button class="view-schedule pollBtn" data-poll="coaches">Coaches Poll</button></div><div id="ap" class="poll active"></div><div id="coaches" class="poll"></div></div></section>
 <section class="section" id="volleyball-rankings"><h2>Women’s Volleyball — AVCA Top 25</h2><div class="card rank-card" id="avca" style="margin-top:12px"></div></section>
 </main>
-<div class="footer">Dayton Sports · V11</div>
+<div class="footer">Dayton Sports · V7</div>
 </div>
 
 <script src="sports-data.js"></script>
@@ -73,37 +73,7 @@ function logo(t,small=false){return `<div class="logo-box"><img class="logo" src
 function nextEvent(t){return t.schedule[0]||{}}
 function homeTeamCard(t){const n=nextEvent(t);return `<article class="card team-card" style="--team:${t.color}"><div class="row">${logo(t)}<div><div class="team-name">${t.name}</div><div class="record">${t.record}</div>${t.context?`<a class="context jump" href="#" data-target="${t.target}">${t.context} ›</a>`:""}</div></div><div class="next"><span class="eyebrow">NEXT</span><strong>${n.date||""} · ${n.time||""} · ${n.ha==="AWAY"?"@":"vs"} ${n.opp||""}</strong>${n.tv?`<div class="tvline">📺 ${n.tv}</div>`:""}</div><button class="view-schedule gotoSchedule" data-team="${t.id}">View schedule ›</button></article>`}
 function upCard(u){const t=byId[u.id];return `<article class="card up-card" style="--team:${t.color}"><div class="row">${logo(t)}<div><div class="eyebrow">${u.date}</div><div class="team-name">${t.name}</div></div></div><div class="match">${u.opp}</div><div class="time">${u.time}</div><div class="chips"><span class="chip">${u.where}</span><span class="chip tvchip">📺 ${u.tv}</span></div></article>`}
-const monthIndex={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-function gameDate(g){const m=(g.date||"").match(/^([A-Z][a-z]{2})\s+(\d{1,2})$/);if(!m)return null;const now=new Date();let d=new Date(now.getFullYear(),monthIndex[m[1]],Number(m[2]));if(d<new Date(now.getFullYear(),now.getMonth()-6,1))d.setFullYear(d.getFullYear()+1);return d}
-function gameMinutes(g){const m=(g.time||"").match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);if(!m)return 1440;let h=Number(m[1])%12;if(m[3].toUpperCase()==="PM")h+=12;return h*60+Number(m[2])}
-function upcomingFromSchedules(){
-  const today=new Date();today.setHours(0,0,0,0);
-  const horizon=new Date(today);horizon.setDate(horizon.getDate()+14);
-  const kidIds=new Set(["payton","amundsen"]);
-  const excludedUpcomingIds=new Set(["ind"]);
-  const rows=[];
-  const makeRow=(t,g,d)=>({id:t.id,date:d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}).toUpperCase().replace(","," ·"),time:g.time||"TBA",opp:`${g.ha==="AWAY"?"@ ":""}${g.opp||""}`,where:[g.ha,g.event].filter(Boolean).join(" · "),tv:g.tv||"TBD",_date:d,_mins:gameMinutes(g)});
-
-  D.teams.filter(t=>kidIds.has(t.id)).forEach(t=>{
-    const next=(t.schedule||[]).map(g=>({g,d:gameDate(g)})).filter(x=>x.d&&x.d>=today).sort((a,b)=>a.d-b.d||gameMinutes(a.g)-gameMinutes(b.g))[0];
-    if(next)rows.push(makeRow(t,next.g,next.d));
-  });
-
-  D.teams.filter(t=>!kidIds.has(t.id)&&!excludedUpcomingIds.has(t.id)).forEach(t=>(t.schedule||[]).forEach(g=>{
-    const d=gameDate(g);
-    if(!d||d<today||d>horizon)return;
-    if(g.event==="Preseason")return;
-    if(!g.tv)return;
-    rows.push(makeRow(t,g,d));
-  }));
-
-  const unique=[];const seen=new Set();
-  rows.sort((a,b)=>a._date-b._date||a._mins-b._mins);
-  rows.forEach(r=>{const key=`${r.id}|${r._date.toDateString()}|${r.opp}`;if(!seen.has(key)){seen.add(key);unique.push(r)}});
-  return unique.slice(0,10);
-}
-const upcomingGames=upcomingFromSchedules();
-document.getElementById("upcoming").innerHTML=upcomingGames.map(upCard).join("");
+document.getElementById("upcoming").innerHTML=D.upcoming.map(upCard).join("");
 document.getElementById("myteams").innerHTML=D.teams.map(homeTeamCard).join("");
 
 function showView(v,anchor){document.querySelectorAll(".view").forEach(x=>x.style.display="none");document.getElementById(v).style.display="block";document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));window.scrollTo({top:0,behavior:"smooth"});if(anchor)setTimeout(()=>document.getElementById(anchor)?.scrollIntoView({behavior:"smooth"}),80)}
