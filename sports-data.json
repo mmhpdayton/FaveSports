@@ -1,5 +1,5 @@
 {
-  "version": "v9.1",
+  "version": "v9.4",
   "teams": [
     {
       "id": "payton",
@@ -697,49 +697,6 @@
       ]
     },
     {
-      "id": "ind",
-      "name": "Colts",
-      "abbr": "IND",
-      "color": "#002c5f",
-      "record": "0\u20130",
-      "context": "AFC South \u00b7 \u2014",
-      "target": "standings",
-      "schedule": [
-        {
-          "date": "Aug 22",
-          "time": "12:00 PM CT",
-          "opp": "Atlanta Falcons",
-          "ha": "HOME",
-          "event": "Preseason",
-          "tv": "CBS4"
-        },
-        {
-          "date": "Aug 29",
-          "time": "12:00 PM CT",
-          "opp": "Detroit Lions",
-          "ha": "HOME",
-          "event": "Preseason",
-          "tv": "CBS4"
-        },
-        {
-          "date": "Sep 13",
-          "time": "12:00 PM CT",
-          "opp": "Baltimore Ravens",
-          "ha": "HOME",
-          "event": "Regular Season",
-          "tv": "CBS"
-        },
-        {
-          "date": "Sep 20",
-          "time": "7:20 PM CT",
-          "opp": "Kansas City Chiefs",
-          "ha": "AWAY",
-          "event": "Regular Season",
-          "tv": "NBC"
-        }
-      ]
-    },
-    {
       "id": "cubs",
       "name": "Cubs",
       "abbr": "C",
@@ -789,9 +746,60 @@
           "tv": "FOX / Marquee"
         }
       ]
+    },
+    {
+      "id": "ind",
+      "name": "Colts",
+      "abbr": "IND",
+      "color": "#002c5f",
+      "record": "0\u20130",
+      "context": "AFC South \u00b7 \u2014",
+      "target": "standings",
+      "schedule": [
+        {
+          "date": "Aug 22",
+          "time": "12:00 PM CT",
+          "opp": "Atlanta Falcons",
+          "ha": "HOME",
+          "event": "Preseason",
+          "tv": "CBS4"
+        },
+        {
+          "date": "Aug 29",
+          "time": "12:00 PM CT",
+          "opp": "Detroit Lions",
+          "ha": "HOME",
+          "event": "Preseason",
+          "tv": "CBS4"
+        },
+        {
+          "date": "Sep 13",
+          "time": "12:00 PM CT",
+          "opp": "Baltimore Ravens",
+          "ha": "HOME",
+          "event": "Regular Season",
+          "tv": "CBS"
+        },
+        {
+          "date": "Sep 20",
+          "time": "7:20 PM CT",
+          "opp": "Kansas City Chiefs",
+          "ha": "AWAY",
+          "event": "Regular Season",
+          "tv": "NBC"
+        }
+      ]
     }
   ],
   "upcoming": [
+    {
+      "id": "amundsen",
+      "date": "THU \u00b7 AUG 20",
+      "time": "4:30 PM",
+      "opp": "vs Farragut",
+      "where": "HOME",
+      "tv": ""
+    },
     {
       "id": "wisc",
       "date": "FRI \u00b7 AUG 21",
@@ -799,14 +807,6 @@
       "opp": "#3 Kentucky",
       "where": "NEUTRAL",
       "tv": "ESPN platform \u2014 network TBD"
-    },
-    {
-      "id": "gb",
-      "date": "FRI \u00b7 AUG 21",
-      "time": "8:00 PM CT",
-      "opp": "@ Denver Broncos",
-      "where": "AWAY \u00b7 PRESEASON",
-      "tv": "Packers TV Network"
     },
     {
       "id": "wisc",
@@ -817,28 +817,20 @@
       "tv": "FOX"
     },
     {
-      "id": "buf",
-      "date": "SAT \u00b7 AUG 22",
-      "time": "12:00 PM CT",
-      "opp": "@ Cleveland Browns",
-      "where": "AWAY \u00b7 PRESEASON",
-      "tv": "NFL Network / WIVB"
-    },
-    {
-      "id": "ind",
-      "date": "SAT \u00b7 AUG 22",
-      "time": "12:00 PM CT",
-      "opp": "vs Atlanta Falcons",
-      "where": "HOME \u00b7 PRESEASON",
-      "tv": "CBS4"
-    },
-    {
       "id": "lfc",
       "date": "SUN \u00b7 AUG 23",
       "time": "11:30 AM CT",
       "opp": "@ Newcastle United",
       "where": "AWAY",
       "tv": "USA Network"
+    },
+    {
+      "id": "payton",
+      "date": "MON \u00b7 AUG 24",
+      "time": "5:00 PM",
+      "opp": "vs Willowbrook",
+      "where": "HOME",
+      "tv": ""
     }
   ],
   "rankings": {

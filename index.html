@@ -28,6 +28,11 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 .rank-card,.standing-card{padding:16px}.poll-toggle{display:flex;gap:7px;margin-bottom:12px}.poll{display:none}.poll.active{display:block}.rank-row{display:grid;grid-template-columns:34px 1fr;gap:8px;padding:7px 8px;border-bottom:1px solid #ffffff09;font-size:13px}.rank-row.focus{background:#e7bd6615;border:1px solid #e7bd6635;border-radius:9px;font-weight:850}.standings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:13px}
 .footer{text-align:center;color:var(--muted);font-size:11px;padding:28px 0}
 @media(max-width:760px){.wrap{padding:14px}header{align-items:flex-start;flex-direction:column}.brand h1{font-size:29px}.grid{grid-template-columns:1fr}.game-main{align-items:flex-start}.game-bottom{align-items:flex-start;flex-direction:column}.brand-icon{width:50px;height:50px}}
+
+.team-card.colts-muted{opacity:.62;filter:saturate(.65);transform:scale(.985)}
+.team-card.colts-muted:before{opacity:.35}
+.team-card.colts-muted .team-name{color:#b8c1cc}
+.team-card.colts-muted .context{color:#8f9eae}
 </style>
 </head>
 <body>
@@ -52,7 +57,7 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 <section class="section" id="football-rankings"><h2>College Football</h2><div class="card rank-card" style="margin-top:12px"><div class="poll-toggle"><button class="view-schedule pollBtn active" data-poll="ap">AP Top 25</button><button class="view-schedule pollBtn" data-poll="coaches">Coaches Poll</button></div><div id="ap" class="poll active"></div><div id="coaches" class="poll"></div></div></section>
 <section class="section" id="volleyball-rankings"><h2>Women’s Volleyball — AVCA Top 25</h2><div class="card rank-card" id="avca" style="margin-top:12px"></div></section>
 </main>
-<div class="footer">Dayton Sports · V7</div>
+<div class="footer">Dayton Sports · V9.4</div>
 </div>
 
 <script src="sports-data.js"></script>
@@ -71,7 +76,7 @@ cubs:"https://a.espncdn.com/i/teamlogos/mlb/500/chc.png"};
 const byId=Object.fromEntries(D.teams.map(t=>[t.id,t]));
 function logo(t,small=false){return `<div class="logo-box"><img class="logo" src="${logos[t.id]}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="fallback" style="display:none">${t.abbr}</span></div>`}
 function nextEvent(t){return t.schedule[0]||{}}
-function homeTeamCard(t){const n=nextEvent(t);return `<article class="card team-card" style="--team:${t.color}"><div class="row">${logo(t)}<div><div class="team-name">${t.name}</div><div class="record">${t.record}</div>${t.context?`<a class="context jump" href="#" data-target="${t.target}">${t.context} ›</a>`:""}</div></div><div class="next"><span class="eyebrow">NEXT</span><strong>${n.date||""} · ${n.time||""} · ${n.ha==="AWAY"?"@":"vs"} ${n.opp||""}</strong>${n.tv?`<div class="tvline">📺 ${n.tv}</div>`:""}</div><button class="view-schedule gotoSchedule" data-team="${t.id}">View schedule ›</button></article>`}
+function homeTeamCard(t){const n=nextEvent(t);return `<article class="card team-card ${t.id==="ind"?"colts-muted":""}" style="--team:${t.color}"><div class="row">${logo(t)}<div><div class="team-name">${t.name}</div><div class="record">${t.record}</div>${t.context?`<a class="context jump" href="#" data-target="${t.target}">${t.context} ›</a>`:""}</div></div><div class="next"><span class="eyebrow">NEXT</span><strong>${n.date||""} · ${n.time||""} · ${n.ha==="AWAY"?"@":"vs"} ${n.opp||""}</strong>${n.tv?`<div class="tvline">📺 ${n.tv}</div>`:""}</div><button class="view-schedule gotoSchedule" data-team="${t.id}">View schedule ›</button></article>`}
 function upCard(u){const t=byId[u.id];return `<article class="card up-card" style="--team:${t.color}"><div class="row">${logo(t)}<div><div class="eyebrow">${u.date}</div><div class="team-name">${t.name}</div></div></div><div class="match">${u.opp}</div><div class="time">${u.time}</div><div class="chips"><span class="chip">${u.where}</span><span class="chip tvchip">📺 ${u.tv}</span></div></article>`}
 document.getElementById("upcoming").innerHTML=D.upcoming.map(upCard).join("");
 document.getElementById("myteams").innerHTML=D.teams.map(homeTeamCard).join("");
