@@ -67,7 +67,7 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 <section class="section" id="football-rankings"><h2>College Football</h2><div class="card rank-card" style="margin-top:12px"><div class="poll-toggle"><button class="view-schedule pollBtn active" data-poll="ap">AP Top 25</button><button class="view-schedule pollBtn" data-poll="coaches">Coaches Poll</button></div><div id="ap" class="poll active"></div><div id="coaches" class="poll"></div></div></section>
 <section class="section" id="volleyball-rankings"><h2>Women’s Volleyball — AVCA Top 25</h2><div class="card rank-card" id="avca" style="margin-top:12px"></div></section>
 </main>
-<div class="footer">Dayton Sports · V10</div>
+<div class="footer">Dayton Sports · V10.3.3.2</div>
 </div>
 
 <script src="sports-data.js"></script>
@@ -85,7 +85,7 @@ ind:"https://a.espncdn.com/i/teamlogos/nfl/500/ind.png",
 cubs:"https://a.espncdn.com/i/teamlogos/mlb/500/chc.png"};
 const byId=Object.fromEntries(D.teams.map(t=>[t.id,t]));
 function logo(t,small=false){return `<div class="logo-box"><img class="logo" src="${logos[t.id]}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="fallback" style="display:none">${t.abbr}</span></div>`}
-function nextEvent(t){return t.schedule[0]||{}}
+function scheduleDateValue(g){const months={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};const m=(g.date||"").match(/([A-Z][a-z]{2})\s+(\d{1,2})/);if(!m)return Number.POSITIVE_INFINITY;const now=new Date();let y=2026;const mon=months[m[1]];if(mon<=5&&now.getMonth()>=6)y=2027;return new Date(y,mon,Number(m[2])).getTime()}function nextEvent(t){const today=new Date();today.setHours(0,0,0,0);return t.schedule.find(g=>scheduleDateValue(g)>=today.getTime()&&!g.result)||t.schedule.find(g=>scheduleDateValue(g)>=today.getTime())||t.schedule[t.schedule.length-1]||{}}
 function homeTeamCard(t){const n=nextEvent(t);return `<article class="card team-card ${t.id==="ind"?"colts-muted":""}" style="--team:${t.color}"><div class="row">${logo(t)}<div><div class="team-name">${t.name}</div><div class="record">${t.record}</div>${t.context?`<a class="context jump" href="#" data-target="${t.target}">${t.context} ›</a>`:""}</div></div><div class="next"><span class="eyebrow">NEXT</span><strong>${n.date||""} · ${n.time||""} · ${n.ha==="AWAY"?"@":"vs"} ${n.opp||""}</strong>${n.tv?`<div class="tvline">📺 ${n.tv}</div>`:""}</div><button class="view-schedule gotoSchedule" data-team="${t.id}">View schedule ›</button></article>`}
 function upCard(u){const t=byId[u.id];const s=u._score;const score=s?`<div class="scoreline"><span>${s.awayName} ${s.awayScore}</span><span>·</span><span>${s.homeName} ${s.homeScore}</span></div><div class="${s.live?"live-badge":"final-badge"}">${s.live?"LIVE":"FINAL"}</div>`:"";return `<article class="card up-card ${s?"has-result":""}" style="--team:${t.color}"><div class="row">${logo(t)}<div><div class="eyebrow">${u.date}</div><div class="team-name">${t.name}</div></div></div><div class="match">${u.opp}</div><div class="time">${u.time}</div>${score}<div class="chips"><span class="chip">${u.where}</span>${u.tv?`<span class="chip tvchip">📺 ${u.tv}</span>`:""}</div></article>`}
 document.getElementById("upcoming").innerHTML=D.upcoming.map(upCard).join("");
@@ -104,7 +104,7 @@ function renderSchedule(id){
   const normal=t.schedule.filter(g=>!g.tournament);
   let cards=normal.map(g=>{const s=g._score;const score=s?`<div class="scoreline"><span class="${s.awayWinner?"winner":""}">${s.awayName} ${s.awayScore}</span><span>·</span><span class="${s.homeWinner?"winner":""}">${s.homeName} ${s.homeScore}</span></div><div class="${s.live?"live-badge":"final-badge"}">${s.live?"LIVE":"FINAL"}</div><div class="score-source">Score automatically refreshed when available.</div>`:"";return `<article class="card game-card ${s?"has-result":""}" style="--team:${t.color}"><div class="game-top"><span class="game-date">${g.date}</span><span class="game-time">${g.time}</span></div><div class="game-main">${logo(t)}<div><div class="game-title">${g.ha==="AWAY"?"@ ":""}${g.opp}</div><div class="game-sub">${g.event||""}</div>${score}</div></div><div class="game-bottom"><div><div class="chips"><span class="chip">${g.ha}</span>${g.conference?`<span class="chip">CONFERENCE</span>`:""}</div>${g.venue?`<div class="venue" style="margin-top:7px">📍 ${g.venue}</div>`:""}</div><div class="broadcast">${g.tv?`📺 ${g.tv}`:""}</div></div></article>`}).join("");
   if(tour.length){cards+=`<article class="card tournament-card" style="border-left:5px solid ${t.color}"><div class="game-top"><span class="game-date">SEP 12</span><span class="game-time">TBA</span></div><div class="tour-title">Rickover Naval Academy JV Tournament</div><div class="tour-games">${tour.map((g,i)=>`<div class="tour-row"><strong>Game ${i+1}</strong><span>Opponent TBA</span><span>TBA</span></div>`).join("")}</div></article>`}
-  document.getElementById("scheduleArea").innerHTML=`<div class="schedule-hero">${logo(t)}<div><h2 style="margin:0">${t.name}</h2><div class="schedule-meta">${t.record}${t.context?` · ${t.context}`:""}</div></div></div><div class="schedule-list">${cards}</div>`;
+  document.getElementById("scheduleArea").innerHTML=`<div class="schedule-hero">${logo(t)}<div><h2 style="margin:0">${t.name}</h2><div class="schedule-meta">${t.record}${t.context?` · ${t.context}`:""} · ${t.schedule.length} games${t._fullSeasonLoaded?" · Full 2026 regular season":""}</div></div></div><div class="schedule-list">${cards}</div>`;
 }
 renderSchedule(D.teams[0].id);
 document.querySelectorAll(".team-chip").forEach(b=>b.onclick=()=>renderSchedule(b.dataset.team));
@@ -130,9 +130,11 @@ const SCORE_FEEDS={
 function norm(x){return (x||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim()}
 function dateCode(dateText){
   const map={Jan:"01",Feb:"02",Mar:"03",Apr:"04",May:"05",Jun:"06",Jul:"07",Aug:"08",Sep:"09",Oct:"10",Nov:"11",Dec:"12"};
+  const monthIndex={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
   const m=(dateText||"").match(/([A-Z][a-z]{2})\s+(\d{1,2})/);
   if(!m)return null;
-  return "2026"+map[m[1]]+String(m[2]).padStart(2,"0");
+  const now=new Date(); const mon=monthIndex[m[1]]; const year=(mon<=5&&now.getMonth()>=6)?2027:2026;
+  return String(year)+map[m[1]]+String(m[2]).padStart(2,"0");
 }
 function teamMatches(comp, aliases){
   return comp.some(c=>{
@@ -178,7 +180,9 @@ async function hydrateTeamScores(t){
   if(!feed)return;
   const grouped={};
   t.schedule.forEach(g=>{const dc=dateCode(g.date);if(dc)(grouped[dc]??=[]).push(g)});
+  const todayCode=(()=>{const n=new Date();return String(n.getFullYear())+String(n.getMonth()+1).padStart(2,"0")+String(n.getDate()).padStart(2,"0")})();
   for(const [dc,games] of Object.entries(grouped)){
+    if(dc>todayCode) continue;
     try{
       const json=await fetchDay(feed,dc);
       const events=json.events||[];
@@ -192,7 +196,52 @@ async function hydrateTeamScores(t){
     }catch(e){console.debug("Score refresh skipped",t.id,dc,e)}
   }
 }
+
+async function loadCubsFullSeason(){
+  const t=byId.cubs;
+  if(!t)return;
+  try{
+    const url="https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/chc/schedule?season=2026&seasontype=2";
+    const r=await fetch(url,{cache:"no-store"});
+    if(!r.ok)throw new Error("Cubs season feed "+r.status);
+    const json=await r.json();
+    let events=(json.events||[]).filter(e=>{
+      const st=e.seasonType?.type ?? e.season?.type ?? e.season?.slug;
+      return st===undefined || st===2 || st==="2" || st==="regular-season";
+    });
+    if(events.length<100)throw new Error("Incomplete Cubs season feed: "+events.length);
+    const monthNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const games=events.map(e=>{
+      const c=e.competitions?.[0]||{};
+      const comps=c.competitors||[];
+      const cubs=comps.find(x=>norm([x.team?.displayName,x.team?.name,x.team?.abbreviation].join(" ")).includes("cubs"));
+      const opp=comps.find(x=>x!==cubs) || comps.find(x=>!norm([x.team?.displayName,x.team?.name].join(" ")).includes("cubs"));
+      if(!cubs||!opp)return null;
+      const dt=new Date(e.date);
+      const parts=new Intl.DateTimeFormat("en-US",{timeZone:"America/Chicago",month:"short",day:"numeric",hour:"numeric",minute:"2-digit",hour12:true}).formatToParts(dt);
+      const get=x=>parts.find(p=>p.type===x)?.value||"";
+      const date=`${get("month")} ${get("day")}`;
+      const time=`${get("hour")}:${get("minute")} ${get("dayPeriod")} CT`;
+      const ha=cubs.homeAway==="away"?"AWAY":"HOME";
+      const tv=(c.broadcasts||[]).flatMap(b=>b.names||[]).join(" / ") || "";
+      const venue=c.venue?.fullName||"";
+      const g={date,time,opp:opp.team?.displayName||opp.team?.shortDisplayName||opp.team?.name||"Opponent",ha,tv,venue};
+      const s=extractScore(e); if(s)g._score=s;
+      return g;
+    }).filter(Boolean).sort((a,b)=>{
+      const da=dateCode(a.date)||"99999999", db=dateCode(b.date)||"99999999"; return da.localeCompare(db);
+    });
+    // MLB regular season is 162 games. Only replace the fallback if the feed is complete.
+    if(games.length===162){
+      t.schedule=games;
+      t._fullSeasonLoaded=true;
+    }else{
+      console.debug("Cubs full-season feed returned",games.length,"games; keeping fallback schedule.");
+    }
+  }catch(e){console.debug("Cubs full-season schedule refresh skipped",e)}
+}
 async function hydrateAllScores(){
+  await loadCubsFullSeason();
   await Promise.all(D.teams.map(hydrateTeamScores));
   // Mirror hydrated scores into Upcoming cards by team/date/opponent.
   D.upcoming.forEach(u=>{

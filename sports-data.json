@@ -1,5 +1,5 @@
 {
-  "version": "v10",
+  "version": "v10.3",
   "teams": [
     {
       "id": "payton",
@@ -313,230 +313,274 @@
       "target": "volleyball-rankings",
       "schedule": [
         {
+          "date": "Aug 8",
+          "time": "6:00 PM",
+          "opp": "Alumni Match",
+          "ha": "HOME",
+          "tv": "B1G+",
+          "result": "L 1\u20133"
+        },
+        {
+          "date": "Aug 14",
+          "time": "6:00 PM",
+          "opp": "Butler (Exhibition)",
+          "ha": "HOME",
+          "tv": "B1G+",
+          "result": "W 3\u20130"
+        },
+        {
           "date": "Aug 21",
           "time": "8:00 PM CT",
           "opp": "#3 Kentucky",
           "ha": "NEUTRAL",
+          "tv": "ESPN platform \u2014 network TBD",
+          "result": "",
           "venue": "Fiserv Forum \u00b7 Milwaukee",
-          "event": "AVCA First Serve",
-          "tv": "ESPN platform \u2014 network TBD"
+          "event": "AVCA First Serve"
         },
         {
           "date": "Aug 22",
           "time": "3:00 PM CT",
           "opp": "#7 Louisville",
           "ha": "NEUTRAL",
+          "tv": "FOX",
+          "result": "",
           "venue": "Fiserv Forum \u00b7 Milwaukee",
-          "event": "AVCA First Serve",
-          "tv": "FOX"
+          "event": "AVCA First Serve"
         },
         {
           "date": "Aug 28",
           "time": "8:00 PM CT",
           "opp": "#5 Stanford",
           "ha": "NEUTRAL",
-          "venue": "Pittsburgh, PA",
-          "tv": "ESPN2"
+          "tv": "ESPN2",
+          "result": "",
+          "venue": "Pittsburgh, PA"
         },
         {
           "date": "Aug 30",
           "time": "11:00 AM CT",
           "opp": "#4 Pittsburgh",
           "ha": "AWAY",
-          "venue": "Pittsburgh, PA",
-          "tv": "ESPN"
+          "tv": "ESPN",
+          "result": "",
+          "venue": "Pittsburgh, PA"
         },
         {
           "date": "Sep 2",
           "time": "7:00 PM CT",
           "opp": "#17 Florida",
           "ha": "HOME",
-          "venue": "UW Field House",
-          "tv": "FS1"
+          "tv": "FS1",
+          "result": "",
+          "venue": "UW Field House"
         },
         {
           "date": "Sep 3",
           "time": "7:00 PM CT",
           "opp": "Auburn",
           "ha": "HOME",
-          "venue": "UW Field House",
-          "tv": "FS1"
+          "tv": "FS1",
+          "result": "",
+          "venue": "UW Field House"
         },
         {
           "date": "Sep 11",
           "time": "8:00 PM CT",
           "opp": "#8 Texas A&M",
           "ha": "AWAY",
-          "venue": "College Station, TX",
-          "tv": "TBD"
+          "tv": "TBD",
+          "result": "",
+          "venue": "College Station, TX"
         },
         {
           "date": "Sep 13",
           "time": "2:00 PM CT",
           "opp": "#2 Texas",
           "ha": "AWAY",
-          "venue": "Austin, TX",
-          "tv": "TBD"
+          "tv": "TBD",
+          "result": "",
+          "venue": "Austin, TX"
         },
         {
           "date": "Sep 17",
           "time": "7:00 PM CT",
           "opp": "Marquette",
           "ha": "HOME",
-          "venue": "UW Field House",
-          "tv": "Big Ten Network"
+          "tv": "Big Ten Network",
+          "result": "",
+          "venue": "UW Field House"
         },
         {
           "date": "Sep 18",
           "time": "7:00 PM CT",
           "opp": "Milwaukee",
           "ha": "HOME",
-          "venue": "UW Field House",
-          "tv": "TBD"
+          "tv": "TBD",
+          "result": "",
+          "venue": "UW Field House"
         },
         {
           "date": "Sep 24",
           "time": "7:00 PM CT",
           "opp": "#25 Oregon",
           "ha": "HOME",
-          "venue": "UW Field House",
-          "tv": "B1G+"
+          "tv": "B1G+",
+          "result": "",
+          "venue": "UW Field House"
         },
         {
           "date": "Sep 27",
           "time": "3:00 PM CT",
           "opp": "#9 Purdue",
           "ha": "AWAY",
-          "venue": "West Lafayette, IN",
-          "tv": "Big Ten Network"
+          "tv": "Big Ten Network",
+          "result": "",
+          "venue": "West Lafayette, IN"
         },
         {
           "date": "Oct 1",
           "time": "8:00 PM CT",
           "opp": "#16 Indiana",
           "ha": "HOME",
-          "venue": "UW Field House",
-          "tv": "Big Ten Network"
+          "tv": "Big Ten Network",
+          "result": "",
+          "venue": "UW Field House"
         },
         {
           "date": "Oct 4",
           "time": "5:00 PM CT",
           "opp": "#14 Minnesota",
           "ha": "AWAY",
-          "venue": "Minneapolis, MN",
-          "tv": "Big Ten Network"
+          "tv": "Big Ten Network",
+          "result": "",
+          "venue": "Minneapolis, MN"
         },
         {
           "date": "Oct 8",
           "time": "7:30 PM CT",
           "opp": "Illinois",
           "ha": "AWAY",
-          "venue": "Champaign, IL",
-          "tv": "Big Ten Network"
+          "tv": "Big Ten Network",
+          "result": "",
+          "venue": "Champaign, IL"
         },
         {
           "date": "Oct 10",
           "time": "TBA",
           "opp": "#1 Nebraska",
           "ha": "AWAY",
-          "venue": "Lincoln, NE",
-          "tv": "FOX"
+          "tv": "FOX",
+          "result": "",
+          "venue": "Lincoln, NE"
         },
         {
           "date": "Oct 16",
           "time": "7:00 PM CT",
           "opp": "Maryland",
           "ha": "HOME",
-          "venue": "UW Field House",
-          "tv": "B1G+"
+          "tv": "B1G+",
+          "result": "",
+          "venue": "UW Field House"
         },
         {
           "date": "Oct 18",
           "time": "1:00 PM CT",
           "opp": "Iowa",
           "ha": "AWAY",
-          "venue": "Iowa City, IA",
-          "tv": "Big Ten Network"
+          "tv": "Big Ten Network",
+          "result": "",
+          "venue": "Iowa City, IA"
         },
         {
           "date": "Oct 23",
           "time": "8:00 PM CT",
           "opp": "Washington",
           "ha": "HOME",
-          "venue": "UW Field House",
-          "tv": "Big Ten Network"
+          "tv": "Big Ten Network",
+          "result": "",
+          "venue": "UW Field House"
         },
         {
           "date": "Oct 25",
           "time": "12:00 PM CT",
           "opp": "Michigan",
           "ha": "HOME",
-          "venue": "UW Field House",
-          "tv": "FS1"
+          "tv": "FS1",
+          "result": "",
+          "venue": "UW Field House"
         },
         {
           "date": "Oct 30",
           "time": "5:00 PM CT",
           "opp": "#20 USC",
           "ha": "AWAY",
-          "venue": "Los Angeles, CA",
-          "tv": "B1G+"
+          "tv": "B1G+",
+          "result": "",
+          "venue": "Los Angeles, CA"
         },
         {
           "date": "Nov 1",
           "time": "4:00 PM CT",
           "opp": "UCLA",
           "ha": "AWAY",
-          "venue": "Los Angeles, CA",
-          "tv": "B1G+"
+          "tv": "B1G+",
+          "result": "",
+          "venue": "Los Angeles, CA"
         },
         {
           "date": "Nov 5",
           "time": "7:00 PM CT",
           "opp": "Michigan State",
           "ha": "HOME",
-          "venue": "UW Field House",
-          "tv": "B1G+"
+          "tv": "B1G+",
+          "result": "",
+          "venue": "UW Field House"
         },
         {
           "date": "Nov 8",
           "time": "TBA",
           "opp": "#10 Penn State",
           "ha": "HOME",
-          "venue": "UW Field House",
-          "tv": "FS1"
+          "tv": "FS1",
+          "result": "",
+          "venue": "UW Field House"
         },
         {
           "date": "Nov 12",
           "time": "5:00 PM CT",
           "opp": "Rutgers",
           "ha": "AWAY",
-          "venue": "Piscataway, NJ",
-          "tv": "B1G+"
+          "tv": "B1G+",
+          "result": "",
+          "venue": "Piscataway, NJ"
         },
         {
           "date": "Nov 13",
           "time": "6:00 PM CT",
           "opp": "Ohio State",
           "ha": "AWAY",
-          "venue": "Columbus, OH",
-          "tv": "B1G+"
+          "tv": "B1G+",
+          "result": "",
+          "venue": "Columbus, OH"
         },
         {
           "date": "Nov 17",
           "time": "7:00 PM CT",
           "opp": "Northwestern",
           "ha": "HOME",
-          "venue": "UW Field House",
-          "tv": "B1G+"
+          "tv": "B1G+",
+          "result": "",
+          "venue": "UW Field House"
         },
         {
           "date": "Nov 20",
           "time": "TBA",
           "opp": "Big Ten Tournament",
           "ha": "NEUTRAL",
-          "venue": "TBD",
-          "tv": "TBD"
+          "tv": "TBD",
+          "result": "",
+          "venue": "TBD"
         }
       ]
     },
@@ -554,45 +598,276 @@
           "time": "11:30 AM CT",
           "opp": "Newcastle United",
           "ha": "AWAY",
+          "tv": "USA Network",
           "venue": "St. James' Park",
-          "event": "Premier League",
-          "tv": "USA Network"
+          "event": "Premier League"
         },
         {
           "date": "Aug 29",
           "time": "6:30 AM CT",
           "opp": "Nottingham Forest",
           "ha": "HOME",
+          "tv": "USA/Peacock TBD",
           "venue": "Anfield",
-          "event": "Premier League",
-          "tv": "USA/Peacock TBD"
+          "event": "Premier League"
         },
         {
           "date": "Sep 4",
           "time": "2:00 PM CT",
           "opp": "Ipswich Town",
           "ha": "AWAY",
+          "tv": "USA/Peacock TBD",
           "venue": "Portman Road",
-          "event": "Premier League",
-          "tv": "USA/Peacock TBD"
+          "event": "Premier League"
         },
         {
           "date": "Sep 12",
           "time": "9:00 AM CT",
           "opp": "Fulham",
           "ha": "HOME",
+          "tv": "USA/Peacock TBD",
           "venue": "Anfield",
-          "event": "Premier League",
-          "tv": "USA/Peacock TBD"
+          "event": "Premier League"
         },
         {
           "date": "Sep 20",
           "time": "8:00 AM CT",
           "opp": "AFC Bournemouth",
           "ha": "AWAY",
+          "tv": "USA/Peacock TBD",
           "venue": "Vitality Stadium",
-          "event": "Premier League",
-          "tv": "USA/Peacock TBD"
+          "event": "Premier League"
+        },
+        {
+          "date": "Oct 10",
+          "time": "9:00 AM CT",
+          "opp": "Manchester City",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Oct 17",
+          "time": "9:00 AM CT",
+          "opp": "Brentford",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Oct 24",
+          "time": "9:00 AM CT",
+          "opp": "Brighton",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Oct 31",
+          "time": "9:00 AM CT",
+          "opp": "Arsenal",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Nov 7",
+          "time": "9:00 AM CT",
+          "opp": "Crystal Palace",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Nov 21",
+          "time": "9:00 AM CT",
+          "opp": "Manchester United",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Nov 28",
+          "time": "9:00 AM CT",
+          "opp": "Everton",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Dec 2",
+          "time": "2:00 PM CT",
+          "opp": "Sunderland",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Dec 5",
+          "time": "9:00 AM CT",
+          "opp": "Chelsea",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Dec 12",
+          "time": "9:00 AM CT",
+          "opp": "Leeds United",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Dec 19",
+          "time": "9:00 AM CT",
+          "opp": "Tottenham Hotspur",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Dec 26",
+          "time": "9:00 AM CT",
+          "opp": "Hull City",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Dec 30",
+          "time": "2:00 PM CT",
+          "opp": "Aston Villa",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Jan 2",
+          "time": "9:00 AM CT",
+          "opp": "Coventry City",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Jan 6",
+          "time": "2:00 PM CT",
+          "opp": "Sunderland",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Jan 16",
+          "time": "9:00 AM CT",
+          "opp": "Crystal Palace",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Jan 23",
+          "time": "9:00 AM CT",
+          "opp": "Manchester United",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Jan 30",
+          "time": "9:00 AM CT",
+          "opp": "Everton",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Feb 6",
+          "time": "9:00 AM CT",
+          "opp": "Arsenal",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Feb 10",
+          "time": "2:00 PM CT",
+          "opp": "Coventry City",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Feb 20",
+          "time": "9:00 AM CT",
+          "opp": "Hull City",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Feb 27",
+          "time": "9:00 AM CT",
+          "opp": "Tottenham Hotspur",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Mar 3",
+          "time": "2:00 PM CT",
+          "opp": "Aston Villa",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Mar 13",
+          "time": "9:00 AM CT",
+          "opp": "Ipswich Town",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Mar 20",
+          "time": "9:00 AM CT",
+          "opp": "Fulham",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Apr 10",
+          "time": "9:00 AM CT",
+          "opp": "Newcastle United",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Apr 17",
+          "time": "9:00 AM CT",
+          "opp": "Nottingham Forest",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Apr 24",
+          "time": "9:00 AM CT",
+          "opp": "Leeds United",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "May 1",
+          "time": "9:00 AM CT",
+          "opp": "Chelsea",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "May 8",
+          "time": "9:00 AM CT",
+          "opp": "Manchester City",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "May 15",
+          "time": "9:00 AM CT",
+          "opp": "Brentford",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "May 23",
+          "time": "9:00 AM CT",
+          "opp": "Brighton",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "May 30",
+          "time": "10:00 AM CT",
+          "opp": "AFC Bournemouth",
+          "ha": "HOME",
+          "tv": "TBD"
         }
       ]
     },
@@ -606,44 +881,189 @@
       "target": "standings",
       "schedule": [
         {
+          "date": "Aug 13",
+          "time": "FINAL",
+          "opp": "Pittsburgh Steelers",
+          "ha": "AWAY",
+          "tv": "",
+          "result": "L 9\u201328",
+          "type": "PRESEASON"
+        },
+        {
           "date": "Aug 21",
           "time": "8:00 PM CT",
           "opp": "Denver Broncos",
           "ha": "AWAY",
-          "event": "Preseason",
-          "tv": "Packers TV Network"
+          "tv": "Packers TV Network",
+          "result": "",
+          "type": "PRESEASON",
+          "event": "Preseason"
         },
         {
           "date": "Aug 28",
           "time": "7:00 PM CT",
           "opp": "Arizona Cardinals",
           "ha": "HOME",
-          "event": "Preseason",
-          "tv": "Packers TV Network"
+          "tv": "Packers TV Network",
+          "result": "",
+          "type": "PRESEASON",
+          "event": "Preseason"
         },
         {
           "date": "Sep 13",
           "time": "3:25 PM CT",
           "opp": "Minnesota Vikings",
           "ha": "AWAY",
-          "event": "Regular Season",
-          "tv": "CBS"
+          "tv": "CBS",
+          "result": "",
+          "type": "REGULAR",
+          "event": "Regular Season"
         },
         {
           "date": "Sep 20",
           "time": "12:00 PM CT",
           "opp": "New York Jets",
           "ha": "AWAY",
-          "event": "Regular Season",
-          "tv": "FOX"
+          "tv": "FOX",
+          "result": "",
+          "type": "REGULAR",
+          "event": "Regular Season"
         },
         {
           "date": "Sep 24",
           "time": "7:15 PM CT",
           "opp": "Atlanta Falcons",
           "ha": "HOME",
-          "event": "Regular Season",
-          "tv": "Prime Video"
+          "tv": "Prime Video",
+          "result": "",
+          "type": "REGULAR",
+          "event": "Regular Season"
+        },
+        {
+          "date": "Oct 4",
+          "time": "12:00 PM",
+          "opp": "Tampa Bay Buccaneers",
+          "ha": "AWAY",
+          "tv": "FOX",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Oct 11",
+          "time": "3:25 PM",
+          "opp": "Chicago Bears",
+          "ha": "HOME",
+          "tv": "FOX",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Oct 18",
+          "time": "7:20 PM",
+          "opp": "Dallas Cowboys",
+          "ha": "HOME",
+          "tv": "NBC",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Oct 25",
+          "time": "3:25 PM",
+          "opp": "Detroit Lions",
+          "ha": "AWAY",
+          "tv": "FOX",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Oct 29",
+          "time": "7:15 PM",
+          "opp": "Carolina Panthers",
+          "ha": "HOME",
+          "tv": "Prime Video",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Nov 8",
+          "time": "3:25 PM",
+          "opp": "New England Patriots",
+          "ha": "AWAY",
+          "tv": "FOX",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Nov 15",
+          "time": "12:00 PM",
+          "opp": "Minnesota Vikings",
+          "ha": "HOME",
+          "tv": "FOX",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Nov 25",
+          "time": "7:00 PM",
+          "opp": "Los Angeles Rams",
+          "ha": "AWAY",
+          "tv": "Netflix",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Dec 6",
+          "time": "12:00 PM",
+          "opp": "New Orleans Saints",
+          "ha": "AWAY",
+          "tv": "FOX",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Dec 13",
+          "time": "7:20 PM",
+          "opp": "Buffalo Bills",
+          "ha": "HOME",
+          "tv": "NBC",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Dec 20",
+          "time": "12:00 PM",
+          "opp": "Miami Dolphins",
+          "ha": "HOME",
+          "tv": "FOX",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Dec 25",
+          "time": "12:00 PM",
+          "opp": "Chicago Bears",
+          "ha": "AWAY",
+          "tv": "Netflix",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Jan 4",
+          "time": "7:15 PM",
+          "opp": "Houston Texans",
+          "ha": "HOME",
+          "tv": "ESPN",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "TBD",
+          "time": "TBD",
+          "opp": "Detroit Lions",
+          "ha": "HOME",
+          "tv": "TBD",
+          "result": "",
+          "type": "REGULAR"
         }
       ]
     },
@@ -657,36 +1077,188 @@
       "target": "standings",
       "schedule": [
         {
+          "date": "Aug 15",
+          "time": "FINAL",
+          "opp": "Carolina Panthers",
+          "ha": "HOME",
+          "tv": "WIVB",
+          "result": "",
+          "type": "PRESEASON"
+        },
+        {
           "date": "Aug 22",
           "time": "12:00 PM CT",
           "opp": "Cleveland Browns",
           "ha": "AWAY",
-          "event": "Preseason",
-          "tv": "NFL Network / WIVB"
+          "tv": "NFL Network / WIVB",
+          "result": "",
+          "type": "PRESEASON",
+          "event": "Preseason"
         },
         {
           "date": "Aug 27",
           "time": "7:00 PM CT",
           "opp": "Pittsburgh Steelers",
           "ha": "HOME",
-          "event": "Preseason",
-          "tv": "NFL Network / WIVB"
+          "tv": "NFL Network / WIVB",
+          "result": "",
+          "type": "PRESEASON",
+          "event": "Preseason"
         },
         {
           "date": "Sep 13",
           "time": "12:00 PM CT",
           "opp": "Houston Texans",
           "ha": "AWAY",
-          "event": "Regular Season",
-          "tv": "CBS"
+          "tv": "CBS",
+          "result": "",
+          "type": "REGULAR",
+          "event": "Regular Season"
         },
         {
           "date": "Sep 17",
           "time": "7:15 PM CT",
           "opp": "Detroit Lions",
           "ha": "HOME",
-          "event": "Regular Season",
-          "tv": "Prime Video"
+          "tv": "Prime Video",
+          "result": "",
+          "type": "REGULAR",
+          "event": "Regular Season"
+        },
+        {
+          "date": "Sep 27",
+          "time": "12:00 PM CT",
+          "opp": "Los Angeles Chargers",
+          "ha": "HOME",
+          "tv": "FOX",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Oct 4",
+          "time": "12:00 PM CT",
+          "opp": "New England Patriots",
+          "ha": "HOME",
+          "tv": "CBS",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Oct 12",
+          "time": "7:15 PM CT",
+          "opp": "Los Angeles Rams",
+          "ha": "AWAY",
+          "tv": "ESPN / ABC",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Oct 18",
+          "time": "3:25 PM CT",
+          "opp": "Las Vegas Raiders",
+          "ha": "AWAY",
+          "tv": "CBS",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Nov 1",
+          "time": "12:00 PM CT",
+          "opp": "Baltimore Ravens",
+          "ha": "HOME",
+          "tv": "CBS",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Nov 9",
+          "time": "7:15 PM CT",
+          "opp": "Minnesota Vikings",
+          "ha": "AWAY",
+          "tv": "ESPN / ABC",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Nov 15",
+          "time": "12:00 PM CT",
+          "opp": "New York Jets",
+          "ha": "AWAY",
+          "tv": "CBS",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Nov 22",
+          "time": "12:00 PM CT",
+          "opp": "Miami Dolphins",
+          "ha": "HOME",
+          "tv": "FOX",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Nov 26",
+          "time": "7:20 PM CT",
+          "opp": "Kansas City Chiefs",
+          "ha": "HOME",
+          "tv": "NBC",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Dec 6",
+          "time": "3:25 PM CT",
+          "opp": "New England Patriots",
+          "ha": "AWAY",
+          "tv": "CBS",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Dec 13",
+          "time": "7:20 PM CT",
+          "opp": "Green Bay Packers",
+          "ha": "AWAY",
+          "tv": "NBC",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Dec 19",
+          "time": "7:20 PM CT",
+          "opp": "Chicago Bears",
+          "ha": "HOME",
+          "tv": "CBS",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Dec 25",
+          "time": "3:30 PM CT",
+          "opp": "Denver Broncos",
+          "ha": "AWAY",
+          "tv": "Netflix",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Jan 3",
+          "time": "12:00 PM CT",
+          "opp": "Miami Dolphins",
+          "ha": "AWAY",
+          "tv": "CBS",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "TBD",
+          "time": "TBD",
+          "opp": "New York Jets",
+          "ha": "HOME",
+          "tv": "TBD",
+          "result": "",
+          "type": "REGULAR"
         }
       ]
     },
@@ -704,40 +1276,264 @@
           "time": "7:05 PM CT",
           "opp": "Chicago White Sox",
           "ha": "HOME",
-          "venue": "Wrigley Field",
-          "tv": "Marquee Sports Network"
+          "tv": "Marquee Sports Network",
+          "venue": "Wrigley Field"
         },
         {
           "date": "Aug 18",
           "time": "7:05 PM CT",
           "opp": "Chicago White Sox",
           "ha": "HOME",
-          "venue": "Wrigley Field",
-          "tv": "TBS / truTV / Marquee"
+          "tv": "TBS / truTV / Marquee",
+          "venue": "Wrigley Field"
         },
         {
           "date": "Aug 19",
           "time": "1:20 PM CT",
           "opp": "Chicago White Sox",
           "ha": "HOME",
-          "venue": "Wrigley Field",
-          "tv": "Marquee Sports Network"
+          "tv": "Marquee Sports Network",
+          "venue": "Wrigley Field"
         },
         {
           "date": "Aug 21",
           "time": "9:10 PM CT",
           "opp": "Seattle Mariners",
           "ha": "AWAY",
-          "venue": "T-Mobile Park",
-          "tv": "Marquee Sports Network"
+          "tv": "Marquee Sports Network",
+          "venue": "T-Mobile Park"
         },
         {
           "date": "Aug 22",
           "time": "6:15 PM CT",
           "opp": "Seattle Mariners",
           "ha": "AWAY",
-          "venue": "T-Mobile Park",
-          "tv": "FOX / Marquee"
+          "tv": "FOX / Marquee",
+          "venue": "T-Mobile Park"
+        },
+        {
+          "date": "Aug 23",
+          "time": "3:10 PM",
+          "opp": "Seattle Mariners",
+          "ha": "AWAY",
+          "tv": "Marquee Sports Network"
+        },
+        {
+          "date": "Aug 24",
+          "time": "8:40 PM",
+          "opp": "Arizona Diamondbacks",
+          "ha": "AWAY",
+          "tv": "Marquee Sports Network"
+        },
+        {
+          "date": "Aug 25",
+          "time": "8:40 PM",
+          "opp": "Arizona Diamondbacks",
+          "ha": "AWAY",
+          "tv": "Marquee Sports Network"
+        },
+        {
+          "date": "Aug 26",
+          "time": "2:40 PM",
+          "opp": "Arizona Diamondbacks",
+          "ha": "AWAY",
+          "tv": "Marquee Sports Network"
+        },
+        {
+          "date": "Aug 28",
+          "time": "1:20 PM",
+          "opp": "Cincinnati Reds",
+          "ha": "HOME",
+          "tv": "Marquee Sports Network"
+        },
+        {
+          "date": "Aug 29",
+          "time": "1:20 PM",
+          "opp": "Cincinnati Reds",
+          "ha": "HOME",
+          "tv": "Marquee Sports Network"
+        },
+        {
+          "date": "Aug 30",
+          "time": "2:10 PM",
+          "opp": "Cincinnati Reds",
+          "ha": "HOME",
+          "tv": "NBC / Peacock"
+        },
+        {
+          "date": "Aug 31",
+          "time": "6:40 PM",
+          "opp": "Milwaukee Brewers",
+          "ha": "HOME",
+          "tv": "Marquee Sports Network"
+        },
+        {
+          "date": "Sep 1",
+          "time": "TBD",
+          "opp": "Milwaukee Brewers",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 2",
+          "time": "TBD",
+          "opp": "Milwaukee Brewers",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 3",
+          "time": "TBD",
+          "opp": "Milwaukee Brewers",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 4",
+          "time": "TBD",
+          "opp": "Miami Marlins",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 5",
+          "time": "TBD",
+          "opp": "Miami Marlins",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 6",
+          "time": "TBD",
+          "opp": "Miami Marlins",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 7",
+          "time": "TBD",
+          "opp": "Milwaukee Brewers",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 8",
+          "time": "TBD",
+          "opp": "Milwaukee Brewers",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 9",
+          "time": "TBD",
+          "opp": "Milwaukee Brewers",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 11",
+          "time": "TBD",
+          "opp": "Pittsburgh Pirates",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 12",
+          "time": "TBD",
+          "opp": "Pittsburgh Pirates",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 13",
+          "time": "TBD",
+          "opp": "Pittsburgh Pirates",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 14",
+          "time": "TBD",
+          "opp": "Atlanta Braves",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 15",
+          "time": "TBD",
+          "opp": "Atlanta Braves",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 16",
+          "time": "TBD",
+          "opp": "Atlanta Braves",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 18",
+          "time": "TBD",
+          "opp": "Cincinnati Reds",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 19",
+          "time": "TBD",
+          "opp": "Cincinnati Reds",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 20",
+          "time": "TBD",
+          "opp": "Cincinnati Reds",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 22",
+          "time": "TBD",
+          "opp": "Miami Marlins",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 23",
+          "time": "TBD",
+          "opp": "Miami Marlins",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 24",
+          "time": "TBD",
+          "opp": "Miami Marlins",
+          "ha": "HOME",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 25",
+          "time": "TBD",
+          "opp": "Boston Red Sox",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 26",
+          "time": "TBD",
+          "opp": "Boston Red Sox",
+          "ha": "AWAY",
+          "tv": "TBD"
+        },
+        {
+          "date": "Sep 27",
+          "time": "TBD",
+          "opp": "Boston Red Sox",
+          "ha": "AWAY",
+          "tv": "TBD"
         }
       ]
     },
@@ -751,36 +1547,188 @@
       "target": "standings",
       "schedule": [
         {
+          "date": "Aug 13",
+          "time": "FINAL",
+          "opp": "New England Patriots",
+          "ha": "AWAY",
+          "tv": "FOX59",
+          "result": "T 13\u201313",
+          "type": "PRESEASON"
+        },
+        {
           "date": "Aug 22",
           "time": "12:00 PM CT",
           "opp": "Atlanta Falcons",
           "ha": "HOME",
-          "event": "Preseason",
-          "tv": "CBS4"
+          "tv": "CBS4",
+          "result": "",
+          "type": "PRESEASON",
+          "event": "Preseason"
         },
         {
           "date": "Aug 29",
           "time": "12:00 PM CT",
           "opp": "Detroit Lions",
           "ha": "HOME",
-          "event": "Preseason",
-          "tv": "CBS4"
+          "tv": "CBS4",
+          "result": "",
+          "type": "PRESEASON",
+          "event": "Preseason"
         },
         {
           "date": "Sep 13",
           "time": "12:00 PM CT",
           "opp": "Baltimore Ravens",
           "ha": "HOME",
-          "event": "Regular Season",
-          "tv": "CBS"
+          "tv": "CBS",
+          "result": "",
+          "type": "REGULAR",
+          "event": "Regular Season"
         },
         {
           "date": "Sep 20",
           "time": "7:20 PM CT",
           "opp": "Kansas City Chiefs",
           "ha": "AWAY",
-          "event": "Regular Season",
-          "tv": "NBC"
+          "tv": "NBC",
+          "result": "",
+          "type": "REGULAR",
+          "event": "Regular Season"
+        },
+        {
+          "date": "Sep 27",
+          "time": "12:00 PM CT",
+          "opp": "Houston Texans",
+          "ha": "HOME",
+          "tv": "CBS",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Oct 4",
+          "time": "8:30 AM CT",
+          "opp": "Washington Commanders (London)",
+          "ha": "HOME",
+          "tv": "NFL Network",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Oct 11",
+          "time": "12:00 PM CT",
+          "opp": "Pittsburgh Steelers",
+          "ha": "AWAY",
+          "tv": "CBS",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Oct 18",
+          "time": "12:00 PM CT",
+          "opp": "Tennessee Titans",
+          "ha": "HOME",
+          "tv": "FOX",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Oct 25",
+          "time": "12:00 PM CT",
+          "opp": "Minnesota Vikings",
+          "ha": "AWAY",
+          "tv": "CBS",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Nov 1",
+          "time": "12:00 PM CT",
+          "opp": "Jacksonville Jaguars",
+          "ha": "AWAY",
+          "tv": "CBS",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Nov 8",
+          "time": "12:00 PM CT",
+          "opp": "Dallas Cowboys",
+          "ha": "HOME",
+          "tv": "FOX",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Nov 15",
+          "time": "12:00 PM CT",
+          "opp": "Miami Dolphins",
+          "ha": "HOME",
+          "tv": "CBS",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Nov 19",
+          "time": "7:15 PM CT",
+          "opp": "Houston Texans",
+          "ha": "AWAY",
+          "tv": "Prime Video",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Nov 29",
+          "time": "12:00 PM CT",
+          "opp": "New York Giants",
+          "ha": "HOME",
+          "tv": "FOX",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Dec 13",
+          "time": "12:00 PM CT",
+          "opp": "Philadelphia Eagles",
+          "ha": "AWAY",
+          "tv": "FOX",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Dec 20",
+          "time": "12:00 PM CT",
+          "opp": "Tennessee Titans",
+          "ha": "AWAY",
+          "tv": "CBS",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "TBD",
+          "time": "TBD",
+          "opp": "Cincinnati Bengals",
+          "ha": "HOME",
+          "tv": "TBD",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "Jan 3",
+          "time": "12:00 PM CT",
+          "opp": "Cleveland Browns",
+          "ha": "AWAY",
+          "tv": "FOX",
+          "result": "",
+          "type": "REGULAR"
+        },
+        {
+          "date": "TBD",
+          "time": "TBD",
+          "opp": "Jacksonville Jaguars",
+          "ha": "HOME",
+          "tv": "TBD",
+          "result": "",
+          "type": "REGULAR"
         }
       ]
     }
@@ -830,57 +1778,57 @@
   "rankings": {
     "ap": [
       "Ohio State",
-      "Texas",
-      "Penn State",
-      "Notre Dame",
-      "Georgia",
-      "Clemson",
       "Oregon",
-      "Alabama",
-      "LSU",
-      "Miami",
-      "Arizona State",
-      "Illinois",
-      "South Carolina",
-      "Florida",
-      "Ole Miss",
-      "SMU",
-      "Kansas State",
-      "Oklahoma",
-      "Texas A&M",
+      "Georgia",
+      "Notre Dame",
+      "Texas",
       "Indiana",
-      "Tennessee",
-      "Iowa State",
+      "Miami",
+      "Texas A&M",
+      "Ole Miss",
+      "Oklahoma",
+      "LSU",
       "Texas Tech",
+      "Alabama",
+      "USC",
+      "BYU",
+      "Michigan",
+      "Washington",
+      "Penn State",
+      "SMU",
+      "Tennessee",
       "Utah",
-      "Boise State"
+      "Iowa",
+      "Houston",
+      "Louisville",
+      "Missouri"
     ],
     "coaches": [
-      "Texas",
       "Ohio State",
-      "Penn State",
-      "Georgia",
-      "Notre Dame",
-      "Clemson",
       "Oregon",
-      "Alabama",
-      "LSU",
-      "Miami",
-      "Arizona State",
-      "South Carolina",
-      "Florida",
-      "Illinois",
-      "Ole Miss",
-      "SMU",
-      "Kansas State",
-      "Oklahoma",
-      "Texas A&M",
+      "Georgia",
+      "Texas",
+      "Notre Dame",
       "Indiana",
-      "Tennessee",
-      "Iowa State",
+      "Miami",
+      "Texas A&M",
+      "Oklahoma",
+      "Ole Miss",
+      "Alabama",
       "Texas Tech",
+      "LSU",
+      "USC",
+      "BYU",
+      "Michigan",
+      "Penn State",
+      "Tennessee",
+      "Washington",
+      "SMU",
       "Utah",
-      "Boise State"
+      "Iowa",
+      "Clemson",
+      "Houston",
+      "Missouri"
     ],
     "avca": [
       "Nebraska",

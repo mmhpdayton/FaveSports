@@ -1,9 +1,8 @@
-# Dayton Sports V10
+# Dayton Sports V10.3
 
-New in V10:
-- Automatic final scores and live scores where ESPN public scoreboard feeds are available.
-- Completed games remain on the schedule as FINAL result cards.
-- Live games can show LIVE scores and are refreshed every 5 minutes while the page is open.
-- Supported automatic score feeds: Notre Dame football, Wisconsin volleyball, Liverpool, Packers, Bills, Colts, and Cubs.
-- Payton and Amundsen remain schedule/manual-result teams because reliable JV public score feeds are not consistently available.
-- If an external score feed is unavailable, the site gracefully keeps the normal schedule card rather than breaking.
+New in V10.3:
+- Cubs schedule now loads the complete 162-game 2026 MLB regular season from ESPN when the site opens.
+- Completed Cubs games show final scores/results; future games remain visible in the same schedule.
+- The Cubs My Teams card selects the next unfinished game rather than Opening Day.
+- Existing V10 automatic score updates and 2026 poll corrections are preserved.
+- Static Cubs schedule remains as a fallback if the full-season feed is unavailable.
