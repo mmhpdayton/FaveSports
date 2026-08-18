@@ -1,4 +1,6 @@
-# Dayton Sports V9.4
+# Dayton Sports V9.5
 
-This build uses the exact Payton and Amundsen logo images uploaded by the user in the latest turn.
-Other V9.3 features remain the same.
+Changes:
+- Removed the cancelled Amundsen vs Farragut game.
+- Updated Upcoming & Where to Watch so Amundsen now shows its next scheduled game instead.
+- All prior V9.4 branding, logos, and layout are preserved.

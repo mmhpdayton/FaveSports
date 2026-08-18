@@ -1,5 +1,5 @@
 {
-  "version": "v9.4",
+  "version": "v9.5",
   "teams": [
     {
       "id": "payton",
@@ -151,12 +151,6 @@
       "context": "",
       "target": "",
       "schedule": [
-        {
-          "date": "Aug 20",
-          "time": "4:30 PM",
-          "opp": "Farragut",
-          "ha": "HOME"
-        },
         {
           "date": "Aug 26",
           "time": "4:30 PM",
@@ -793,20 +787,20 @@
   ],
   "upcoming": [
     {
-      "id": "amundsen",
-      "date": "THU \u00b7 AUG 20",
-      "time": "4:30 PM",
-      "opp": "vs Farragut",
-      "where": "HOME",
-      "tv": ""
-    },
-    {
       "id": "wisc",
       "date": "FRI \u00b7 AUG 21",
       "time": "8:00 PM CT",
       "opp": "#3 Kentucky",
       "where": "NEUTRAL",
       "tv": "ESPN platform \u2014 network TBD"
+    },
+    {
+      "id": "amundsen",
+      "date": "AUG 26",
+      "time": "4:30 PM",
+      "opp": "vs Westinghouse",
+      "where": "HOME",
+      "tv": ""
     },
     {
       "id": "wisc",
