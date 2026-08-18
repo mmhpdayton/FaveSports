@@ -33,6 +33,16 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 .team-card.colts-muted:before{opacity:.35}
 .team-card.colts-muted .team-name{color:#b8c1cc}
 .team-card.colts-muted .context{color:#8f9eae}
+
+.scoreline{display:flex;gap:12px;align-items:center;margin-top:7px;font-size:14px;font-weight:900}
+.scoreline .winner{color:#f3d287}
+.final-badge,.live-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:900;letter-spacing:.06em;padding:4px 8px;border-radius:999px;margin-top:6px}
+.final-badge{background:#142b20;border:1px solid #38684b;color:#cdf4d7}
+.live-badge{background:#3b1c22;border:1px solid #a34959;color:#ffd9df}
+.score-source{font-size:10px;color:var(--muted);margin-top:5px}
+.game-card.has-result{border-color:#355170}
+.up-card.has-result{border-color:#355170}
+
 </style>
 </head>
 <body>
@@ -57,7 +67,7 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 <section class="section" id="football-rankings"><h2>College Football</h2><div class="card rank-card" style="margin-top:12px"><div class="poll-toggle"><button class="view-schedule pollBtn active" data-poll="ap">AP Top 25</button><button class="view-schedule pollBtn" data-poll="coaches">Coaches Poll</button></div><div id="ap" class="poll active"></div><div id="coaches" class="poll"></div></div></section>
 <section class="section" id="volleyball-rankings"><h2>Women’s Volleyball — AVCA Top 25</h2><div class="card rank-card" id="avca" style="margin-top:12px"></div></section>
 </main>
-<div class="footer">Dayton Sports · V9.5</div>
+<div class="footer">Dayton Sports · V10</div>
 </div>
 
 <script src="sports-data.js"></script>
@@ -77,7 +87,7 @@ const byId=Object.fromEntries(D.teams.map(t=>[t.id,t]));
 function logo(t,small=false){return `<div class="logo-box"><img class="logo" src="${logos[t.id]}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="fallback" style="display:none">${t.abbr}</span></div>`}
 function nextEvent(t){return t.schedule[0]||{}}
 function homeTeamCard(t){const n=nextEvent(t);return `<article class="card team-card ${t.id==="ind"?"colts-muted":""}" style="--team:${t.color}"><div class="row">${logo(t)}<div><div class="team-name">${t.name}</div><div class="record">${t.record}</div>${t.context?`<a class="context jump" href="#" data-target="${t.target}">${t.context} ›</a>`:""}</div></div><div class="next"><span class="eyebrow">NEXT</span><strong>${n.date||""} · ${n.time||""} · ${n.ha==="AWAY"?"@":"vs"} ${n.opp||""}</strong>${n.tv?`<div class="tvline">📺 ${n.tv}</div>`:""}</div><button class="view-schedule gotoSchedule" data-team="${t.id}">View schedule ›</button></article>`}
-function upCard(u){const t=byId[u.id];return `<article class="card up-card" style="--team:${t.color}"><div class="row">${logo(t)}<div><div class="eyebrow">${u.date}</div><div class="team-name">${t.name}</div></div></div><div class="match">${u.opp}</div><div class="time">${u.time}</div><div class="chips"><span class="chip">${u.where}</span><span class="chip tvchip">📺 ${u.tv}</span></div></article>`}
+function upCard(u){const t=byId[u.id];const s=u._score;const score=s?`<div class="scoreline"><span>${s.awayName} ${s.awayScore}</span><span>·</span><span>${s.homeName} ${s.homeScore}</span></div><div class="${s.live?"live-badge":"final-badge"}">${s.live?"LIVE":"FINAL"}</div>`:"";return `<article class="card up-card ${s?"has-result":""}" style="--team:${t.color}"><div class="row">${logo(t)}<div><div class="eyebrow">${u.date}</div><div class="team-name">${t.name}</div></div></div><div class="match">${u.opp}</div><div class="time">${u.time}</div>${score}<div class="chips"><span class="chip">${u.where}</span>${u.tv?`<span class="chip tvchip">📺 ${u.tv}</span>`:""}</div></article>`}
 document.getElementById("upcoming").innerHTML=D.upcoming.map(upCard).join("");
 document.getElementById("myteams").innerHTML=D.teams.map(homeTeamCard).join("");
 
@@ -92,7 +102,7 @@ function renderSchedule(id){
   document.querySelectorAll(".team-chip").forEach(b=>b.classList.toggle("active",b.dataset.team===id));
   const tour=t.schedule.filter(g=>g.tournament);
   const normal=t.schedule.filter(g=>!g.tournament);
-  let cards=normal.map(g=>`<article class="card game-card" style="--team:${t.color}"><div class="game-top"><span class="game-date">${g.date}</span><span class="game-time">${g.time}</span></div><div class="game-main">${logo(t)}<div><div class="game-title">${g.ha==="AWAY"?"@ ":""}${g.opp}</div><div class="game-sub">${g.event||""}</div></div></div><div class="game-bottom"><div><div class="chips"><span class="chip">${g.ha}</span>${g.conference?`<span class="chip">CONFERENCE</span>`:""}</div>${g.venue?`<div class="venue" style="margin-top:7px">📍 ${g.venue}</div>`:""}</div><div class="broadcast">${g.tv?`📺 ${g.tv}`:""}</div></div></article>`).join("");
+  let cards=normal.map(g=>{const s=g._score;const score=s?`<div class="scoreline"><span class="${s.awayWinner?"winner":""}">${s.awayName} ${s.awayScore}</span><span>·</span><span class="${s.homeWinner?"winner":""}">${s.homeName} ${s.homeScore}</span></div><div class="${s.live?"live-badge":"final-badge"}">${s.live?"LIVE":"FINAL"}</div><div class="score-source">Score automatically refreshed when available.</div>`:"";return `<article class="card game-card ${s?"has-result":""}" style="--team:${t.color}"><div class="game-top"><span class="game-date">${g.date}</span><span class="game-time">${g.time}</span></div><div class="game-main">${logo(t)}<div><div class="game-title">${g.ha==="AWAY"?"@ ":""}${g.opp}</div><div class="game-sub">${g.event||""}</div>${score}</div></div><div class="game-bottom"><div><div class="chips"><span class="chip">${g.ha}</span>${g.conference?`<span class="chip">CONFERENCE</span>`:""}</div>${g.venue?`<div class="venue" style="margin-top:7px">📍 ${g.venue}</div>`:""}</div><div class="broadcast">${g.tv?`📺 ${g.tv}`:""}</div></div></article>`}).join("");
   if(tour.length){cards+=`<article class="card tournament-card" style="border-left:5px solid ${t.color}"><div class="game-top"><span class="game-date">SEP 12</span><span class="game-time">TBA</span></div><div class="tour-title">Rickover Naval Academy JV Tournament</div><div class="tour-games">${tour.map((g,i)=>`<div class="tour-row"><strong>Game ${i+1}</strong><span>Opponent TBA</span><span>TBA</span></div>`).join("")}</div></article>`}
   document.getElementById("scheduleArea").innerHTML=`<div class="schedule-hero">${logo(t)}<div><h2 style="margin:0">${t.name}</h2><div class="schedule-meta">${t.record}${t.context?` · ${t.context}`:""}</div></div></div><div class="schedule-list">${cards}</div>`;
 }
@@ -104,4 +114,99 @@ function poll(id,arr){document.getElementById(id).innerHTML=arr.map((n,i)=>`<div
 poll("ap",D.rankings.ap);poll("coaches",D.rankings.coaches);poll("avca",D.rankings.avca);
 document.querySelectorAll(".pollBtn").forEach(b=>b.onclick=()=>{document.querySelectorAll(".pollBtn").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".poll").forEach(x=>x.classList.remove("active"));document.getElementById(b.dataset.poll).classList.add("active")});
 document.getElementById("standingsGrid").innerHTML=[["Liverpool","Premier League"],["Packers","NFC North"],["Bills","AFC East"],["Colts","AFC South"],["Cubs","NL Central"]].map(([a,b])=>`<div class="card standing-card"><strong>${a}</strong><div class="note">${b}</div><div style="margin-top:10px" class="note">Full live table will populate here in the automated-data build.</div></div>`).join("");
+
+// ---- Automatic scores / live results ----
+// ESPN's public scoreboard feeds are used where available. If a feed fails,
+// the site simply leaves the static schedule intact.
+const SCORE_FEEDS={
+  nd:{url:"https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard",team:["Notre Dame","Fighting Irish"]},
+  wisc:{url:"https://site.api.espn.com/apis/site/v2/sports/volleyball/womens-college-volleyball/scoreboard",team:["Wisconsin","Badgers"]},
+  lfc:{url:"https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard",team:["Liverpool"]},
+  gb:{url:"https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",team:["Green Bay","Packers"]},
+  buf:{url:"https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",team:["Buffalo","Bills"]},
+  ind:{url:"https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",team:["Indianapolis","Colts"]},
+  cubs:{url:"https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard",team:["Chicago Cubs","Cubs"]}
+};
+function norm(x){return (x||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim()}
+function dateCode(dateText){
+  const map={Jan:"01",Feb:"02",Mar:"03",Apr:"04",May:"05",Jun:"06",Jul:"07",Aug:"08",Sep:"09",Oct:"10",Nov:"11",Dec:"12"};
+  const m=(dateText||"").match(/([A-Z][a-z]{2})\s+(\d{1,2})/);
+  if(!m)return null;
+  return "2026"+map[m[1]]+String(m[2]).padStart(2,"0");
+}
+function teamMatches(comp, aliases){
+  return comp.some(c=>{
+    const nm=norm([c.team?.displayName,c.team?.shortDisplayName,c.team?.name,c.team?.abbreviation].filter(Boolean).join(" "));
+    return aliases.some(a=>nm.includes(norm(a)));
+  });
+}
+function oppMatches(comp, opp){
+  let want=norm((opp||"").replace(/^#\d+\s*/,"").replace(/^@\s*/,"").replace(/^vs\s*/,""));
+  const tokens=want.split(" ").filter(x=>x.length>2);
+  return comp.some(c=>{
+    const nm=norm([c.team?.displayName,c.team?.shortDisplayName,c.team?.name,c.team?.abbreviation].filter(Boolean).join(" "));
+    return tokens.length?tokens.some(tok=>nm.includes(tok)):false;
+  });
+}
+function extractScore(ev){
+  const c=ev.competitions?.[0];
+  if(!c||!c.competitors||c.competitors.length<2)return null;
+  const home=c.competitors.find(x=>x.homeAway==="home")||c.competitors[0];
+  const away=c.competitors.find(x=>x.homeAway==="away")||c.competitors[1];
+  const state=ev.status?.type?.state;
+  const completed=!!ev.status?.type?.completed || state==="post";
+  const live=state==="in";
+  if(!completed&&!live)return null;
+  const hs=Number(home.score??0), as=Number(away.score??0);
+  return {
+    homeName:home.team?.shortDisplayName||home.team?.displayName||"Home",
+    awayName:away.team?.shortDisplayName||away.team?.displayName||"Away",
+    homeScore:home.score??"",
+    awayScore:away.score??"",
+    homeWinner:completed&&hs>as,
+    awayWinner:completed&&as>hs,
+    live
+  };
+}
+async function fetchDay(feed,date){
+  const r=await fetch(feed.url+"?dates="+date,{cache:"no-store"});
+  if(!r.ok)throw new Error("score feed "+r.status);
+  return r.json();
+}
+async function hydrateTeamScores(t){
+  const feed=SCORE_FEEDS[t.id];
+  if(!feed)return;
+  const grouped={};
+  t.schedule.forEach(g=>{const dc=dateCode(g.date);if(dc)(grouped[dc]??=[]).push(g)});
+  for(const [dc,games] of Object.entries(grouped)){
+    try{
+      const json=await fetchDay(feed,dc);
+      const events=json.events||[];
+      games.forEach(g=>{
+        const ev=events.find(e=>{
+          const comp=e.competitions?.[0]?.competitors||[];
+          return teamMatches(comp,feed.team)&&oppMatches(comp,g.opp);
+        });
+        if(ev){const s=extractScore(ev);if(s)g._score=s}
+      });
+    }catch(e){console.debug("Score refresh skipped",t.id,dc,e)}
+  }
+}
+async function hydrateAllScores(){
+  await Promise.all(D.teams.map(hydrateTeamScores));
+  // Mirror hydrated scores into Upcoming cards by team/date/opponent.
+  D.upcoming.forEach(u=>{
+    const t=byId[u.id];if(!t)return;
+    const dc=dateCode(u.date);
+    const g=t.schedule.find(x=>dateCode(x.date)===dc && (norm(u.opp).includes(norm(x.opp).split(" ")[0]) || norm(x.opp).includes(norm(u.opp).split(" ").pop())));
+    if(g?._score)u._score=g._score;
+  });
+  document.getElementById("upcoming").innerHTML=D.upcoming.map(upCard).join("");
+  document.getElementById("myteams").innerHTML=D.teams.map(homeTeamCard).join("");
+  const active=document.querySelector(".team-chip.active")?.dataset.team||D.teams[0].id;
+  renderSchedule(active);
+}
+hydrateAllScores();
+setInterval(hydrateAllScores,5*60*1000);
+
 </script></body></html>

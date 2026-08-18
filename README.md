@@ -1,6 +1,9 @@
-# Dayton Sports V9.5
+# Dayton Sports V10
 
-Changes:
-- Removed the cancelled Amundsen vs Farragut game.
-- Updated Upcoming & Where to Watch so Amundsen now shows its next scheduled game instead.
-- All prior V9.4 branding, logos, and layout are preserved.
+New in V10:
+- Automatic final scores and live scores where ESPN public scoreboard feeds are available.
+- Completed games remain on the schedule as FINAL result cards.
+- Live games can show LIVE scores and are refreshed every 5 minutes while the page is open.
+- Supported automatic score feeds: Notre Dame football, Wisconsin volleyball, Liverpool, Packers, Bills, Colts, and Cubs.
+- Payton and Amundsen remain schedule/manual-result teams because reliable JV public score feeds are not consistently available.
+- If an external score feed is unavailable, the site gracefully keeps the normal schedule card rather than breaking.
