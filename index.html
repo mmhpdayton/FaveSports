@@ -25,7 +25,7 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 .schedule-hero{display:flex;align-items:center;gap:14px;margin:16px 0 14px}.schedule-hero .logo-box{width:64px;height:64px}.schedule-hero .logo{max-width:52px;max-height:52px}.schedule-meta{color:var(--muted);font-size:13px}.schedule-list{display:grid;gap:13px}
 .game-card{padding:18px;position:relative;overflow:hidden}.game-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--team)}.game-top{display:flex;justify-content:space-between;gap:15px}.game-date{font-size:12px;font-weight:850;letter-spacing:.06em;color:#d4e2f1}.game-time{font-size:12px;color:#d4e2f1}.game-main{display:flex;align-items:center;gap:15px;margin-top:14px}.game-title{font-size:19px;font-weight:900}.game-sub{margin-top:3px;color:var(--muted);font-size:12px}.game-bottom{display:flex;justify-content:space-between;gap:15px;align-items:end;margin-top:14px;padding-top:12px;border-top:1px solid #ffffff0d}.venue{font-size:12px;color:#b9c8d9}.broadcast{font-size:12px;color:#c4ddff;font-weight:800}.result{font-size:13px;font-weight:900;color:#f1cf81}
 .tournament-card{padding:18px}.tour-title{font-weight:900;font-size:18px}.tour-games{margin-top:12px}.tour-row{display:grid;grid-template-columns:80px 1fr auto;gap:10px;padding:8px 0;border-bottom:1px solid #ffffff0a;font-size:12px}
-.rank-card,.standing-card{padding:16px}.poll-toggle{display:flex;gap:7px;margin-bottom:12px}.poll{display:none}.poll.active{display:block}.rank-row{display:grid;grid-template-columns:34px 1fr;gap:8px;padding:7px 8px;border-bottom:1px solid #ffffff09;font-size:13px}.rank-row.focus{background:#e7bd6615;border:1px solid #e7bd6635;border-radius:9px;font-weight:850}.standings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:13px}
+.rank-card,.standing-card{padding:16px}.rankings-pair{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:12px}.poll{display:block}.poll-title{font-size:15px;font-weight:900;margin-bottom:9px}.rank-row{display:grid;grid-template-columns:34px 1fr;gap:8px;padding:7px 8px;border-bottom:1px solid #ffffff09;font-size:13px}.rank-row.focus{background:#e7bd6615;border:1px solid #e7bd6635;border-radius:9px;font-weight:850}.fpv{color:#f3d287;font-weight:850}.standings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:13px}@media(max-width:760px){.rankings-pair{grid-template-columns:1fr}}
 .footer{text-align:center;color:var(--muted);font-size:11px;padding:28px 0}
 @media(max-width:760px){.wrap{padding:14px}header{align-items:flex-start;flex-direction:column}.brand h1{font-size:29px}.grid{grid-template-columns:1fr}.game-main{align-items:flex-start}.game-bottom{align-items:flex-start;flex-direction:column}.brand-icon{width:50px;height:50px}}
 
@@ -43,6 +43,23 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 .game-card.has-result{border-color:#355170}
 .up-card.has-result{border-color:#355170}
 
+
+.standings-grid{grid-template-columns:1fr}
+.standing-card{overflow:hidden}
+.standing-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.standing-head h3{margin:0;font-size:17px}
+.live-note{font-size:10px;color:var(--muted)}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.stand-table{width:100%;border-collapse:collapse;min-width:560px;font-size:12px}
+.stand-table th{padding:8px 7px;text-align:right;color:var(--muted);font-size:10px;letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid var(--line)}
+.stand-table th:first-child,.stand-table td:first-child{text-align:left}
+.stand-table td{padding:9px 7px;text-align:right;border-bottom:1px solid #ffffff0a}
+.stand-table tr.focus{background:#e7bd6614;font-weight:850}
+.stand-team{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.stand-team img{width:24px;height:24px;object-fit:contain}
+.timeline-note{font-size:11px;color:var(--muted);margin:-5px 0 13px}
+.manual-result{display:inline-flex;font-size:10px;font-weight:900;padding:4px 8px;border-radius:999px;background:#142b20;border:1px solid #38684b;color:#cdf4d7;margin-top:6px}
+
 </style>
 </head>
 <body>
@@ -56,7 +73,7 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 </main>
 
 <main id="schedules" class="view" style="display:none">
-<section class="section"><div class="section-title"><h2>Schedules</h2><span class="note">Full detail · one team at a time</span></div><div id="teamSelector" class="team-selector"></div><div id="scheduleArea"></div></section>
+<section class="section"><div class="section-title"><h2>Schedules</h2><span class="note">Full detail · one team at a time</span></div><div id="teamSelector" class="team-selector"></div><div class="timeline-note">Full season timeline · completed results and future games stay together.</div><div id="scheduleArea"></div></section>
 </main>
 
 <main id="standings" class="view" style="display:none">
@@ -64,10 +81,10 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 </main>
 
 <main id="rankings" class="view" style="display:none">
-<section class="section" id="football-rankings"><h2>College Football</h2><div class="card rank-card" style="margin-top:12px"><div class="poll-toggle"><button class="view-schedule pollBtn active" data-poll="ap">AP Top 25</button><button class="view-schedule pollBtn" data-poll="coaches">Coaches Poll</button></div><div id="ap" class="poll active"></div><div id="coaches" class="poll"></div></div></section>
+<section class="section" id="football-rankings"><h2>College Football</h2><div class="rankings-pair"><div class="card rank-card"><div class="poll-title">AP Top 25</div><div id="ap" class="poll"></div></div><div class="card rank-card"><div class="poll-title">Coaches Poll</div><div id="coaches" class="poll"></div></div></div></section>
 <section class="section" id="volleyball-rankings"><h2>Women’s Volleyball — AVCA Top 25</h2><div class="card rank-card" id="avca" style="margin-top:12px"></div></section>
 </main>
-<div class="footer">Dayton Sports · V10.3.3.2</div>
+<div class="footer">Dayton Sports · V11.1.3.2</div>
 </div>
 
 <script src="sports-data.js"></script>
@@ -102,7 +119,7 @@ function renderSchedule(id){
   document.querySelectorAll(".team-chip").forEach(b=>b.classList.toggle("active",b.dataset.team===id));
   const tour=t.schedule.filter(g=>g.tournament);
   const normal=t.schedule.filter(g=>!g.tournament);
-  let cards=normal.map(g=>{const s=g._score;const score=s?`<div class="scoreline"><span class="${s.awayWinner?"winner":""}">${s.awayName} ${s.awayScore}</span><span>·</span><span class="${s.homeWinner?"winner":""}">${s.homeName} ${s.homeScore}</span></div><div class="${s.live?"live-badge":"final-badge"}">${s.live?"LIVE":"FINAL"}</div><div class="score-source">Score automatically refreshed when available.</div>`:"";return `<article class="card game-card ${s?"has-result":""}" style="--team:${t.color}"><div class="game-top"><span class="game-date">${g.date}</span><span class="game-time">${g.time}</span></div><div class="game-main">${logo(t)}<div><div class="game-title">${g.ha==="AWAY"?"@ ":""}${g.opp}</div><div class="game-sub">${g.event||""}</div>${score}</div></div><div class="game-bottom"><div><div class="chips"><span class="chip">${g.ha}</span>${g.conference?`<span class="chip">CONFERENCE</span>`:""}</div>${g.venue?`<div class="venue" style="margin-top:7px">📍 ${g.venue}</div>`:""}</div><div class="broadcast">${g.tv?`📺 ${g.tv}`:""}</div></div></article>`}).join("");
+  let cards=normal.map(g=>{const s=g._score;const score=s?`<div class="scoreline"><span class="${s.awayWinner?"winner":""}">${s.awayName} ${s.awayScore}</span><span>·</span><span class="${s.homeWinner?"winner":""}">${s.homeName} ${s.homeScore}</span></div><div class="${s.live?"live-badge":"final-badge"}">${s.live?"LIVE":"FINAL"}</div><div class="score-source">Score automatically refreshed when available.</div>`:(g.result?`<div class="result">${g.result}</div><div class="manual-result">FINAL</div>`:"");return `<article class="card game-card ${s?"has-result":""}" style="--team:${t.color}"><div class="game-top"><span class="game-date">${g.date}</span><span class="game-time">${g.time}</span></div><div class="game-main">${logo(t)}<div><div class="game-title">${g.ha==="AWAY"?"@ ":""}${g.opp}</div><div class="game-sub">${g.event||""}</div>${score}</div></div><div class="game-bottom"><div><div class="chips"><span class="chip">${g.ha}</span>${g.conference?`<span class="chip">CONFERENCE</span>`:""}</div>${g.venue?`<div class="venue" style="margin-top:7px">📍 ${g.venue}</div>`:""}</div><div class="broadcast">${g.tv?`📺 ${g.tv}`:""}</div></div></article>`}).join("");
   if(tour.length){cards+=`<article class="card tournament-card" style="border-left:5px solid ${t.color}"><div class="game-top"><span class="game-date">SEP 12</span><span class="game-time">TBA</span></div><div class="tour-title">Rickover Naval Academy JV Tournament</div><div class="tour-games">${tour.map((g,i)=>`<div class="tour-row"><strong>Game ${i+1}</strong><span>Opponent TBA</span><span>TBA</span></div>`).join("")}</div></article>`}
   document.getElementById("scheduleArea").innerHTML=`<div class="schedule-hero">${logo(t)}<div><h2 style="margin:0">${t.name}</h2><div class="schedule-meta">${t.record}${t.context?` · ${t.context}`:""} · ${t.schedule.length} games${t._fullSeasonLoaded?" · Full 2026 regular season":""}</div></div></div><div class="schedule-list">${cards}</div>`;
 }
@@ -110,10 +127,25 @@ renderSchedule(D.teams[0].id);
 document.querySelectorAll(".team-chip").forEach(b=>b.onclick=()=>renderSchedule(b.dataset.team));
 document.querySelectorAll(".gotoSchedule").forEach(b=>b.onclick=()=>{showView("schedules");renderSchedule(b.dataset.team)});
 
-function poll(id,arr){document.getElementById(id).innerHTML=arr.map((n,i)=>`<div class="rank-row ${(n==="Notre Dame"||n==="Wisconsin")?"focus":""}"><span>${i+1}</span><span>${n}</span></div>`).join("")}
+const FPV={
+  ap:{"Ohio State":40,"Oregon":14,"Notre Dame":6,"Indiana":1,"Miami":1},
+  coaches:{"Ohio State":38,"Oregon":6,"Georgia":7,"Texas":2,"Notre Dame":5,"Indiana":14}
+};
+function poll(id,arr){
+  const fpv=FPV[id]||{};
+  document.getElementById(id).innerHTML=arr.map((n,i)=>{
+    const votes=fpv[n]?` <span class="fpv">(${fpv[n]})</span>`:"";
+    return `<div class="rank-row ${(n==="Notre Dame"||n==="Wisconsin")?"focus":""}"><span>${i+1}</span><span>${n}${votes}</span></div>`;
+  }).join("");
+}
 poll("ap",D.rankings.ap);poll("coaches",D.rankings.coaches);poll("avca",D.rankings.avca);
-document.querySelectorAll(".pollBtn").forEach(b=>b.onclick=()=>{document.querySelectorAll(".pollBtn").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".poll").forEach(x=>x.classList.remove("active"));document.getElementById(b.dataset.poll).classList.add("active")});
-document.getElementById("standingsGrid").innerHTML=[["Liverpool","Premier League"],["Packers","NFC North"],["Bills","AFC East"],["Colts","AFC South"],["Cubs","NL Central"]].map(([a,b])=>`<div class="card standing-card"><strong>${a}</strong><div class="note">${b}</div><div style="margin-top:10px" class="note">Full live table will populate here in the automated-data build.</div></div>`).join("");
+document.getElementById("standingsGrid").innerHTML=[
+  ["eplTable","Premier League · Liverpool"],
+  ["nfcNorth","NFC North · Packers"],
+  ["afcEast","AFC East · Bills"],
+  ["afcSouth","AFC South · Colts"],
+  ["nlCentral","NL Central · Cubs"]
+].map(([id,title])=>`<div class="card standing-card" id="${id}"><div class="standing-head"><h3>${title}</h3><span class="live-note">Loading live standings…</span></div></div>`).join("");
 
 // ---- Automatic scores / live results ----
 // ESPN's public scoreboard feeds are used where available. If a feed fails,
@@ -197,51 +229,190 @@ async function hydrateTeamScores(t){
   }
 }
 
-async function loadCubsFullSeason(){
-  const t=byId.cubs;
-  if(!t)return;
+
+const FULL_SCHEDULES={
+  nd:{url:"https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/87/schedule?season=2026",min:10,max:18},
+  wisc:{url:"https://site.api.espn.com/apis/site/v2/sports/volleyball/womens-college-volleyball/teams/275/schedule?season=2026",min:20,max:45},
+  lfc:{url:"https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/teams/364/schedule?season=2026",min:30,max:45,leagueOnly:true},
+  gb:{url:"https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/gb/schedule?season=2026",min:17,max:25},
+  buf:{url:"https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/buf/schedule?season=2026",min:17,max:25},
+  ind:{url:"https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/ind/schedule?season=2026",min:17,max:25},
+  cubs:{url:"https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/chc/schedule?season=2026&seasontype=2",min:162,max:162}
+};
+
+function chicagoParts(iso){
+  const d=new Date(iso);
+  const parts=new Intl.DateTimeFormat("en-US",{
+    timeZone:"America/Chicago",month:"short",day:"numeric",
+    hour:"numeric",minute:"2-digit",hour12:true
+  }).formatToParts(d);
+  const get=x=>parts.find(p=>p.type===x)?.value||"";
+  return {date:`${get("month")} ${get("day")}`,time:`${get("hour")}:${get("minute")} ${get("dayPeriod")} CT`};
+}
+function eventToGame(e,t){
+  const c=e.competitions?.[0]||{};
+  const comps=c.competitors||[];
+  const aliases=SCORE_FEEDS[t.id]?.team||[t.name,t.abbr];
+  const ours=comps.find(x=>teamMatches([x],aliases));
+  const opp=comps.find(x=>x!==ours);
+  if(!ours||!opp)return null;
+  const dt=chicagoParts(e.date);
+  const tv=(c.broadcasts||[]).flatMap(b=>b.names||[]).filter(Boolean).join(" / ");
+  const seasonType=(e.seasonType?.name||e.seasonType?.slug||e.season?.slug||"").toString();
+  const notes=(c.notes||[]).map(n=>n.headline||n.type||"").filter(Boolean).join(" · ");
+  const g={
+    date:dt.date,time:dt.time,
+    opp:opp.team?.displayName||opp.team?.shortDisplayName||opp.team?.name||"Opponent",
+    ha:ours.homeAway==="away"?"AWAY":(ours.homeAway==="home"?"HOME":"NEUTRAL"),
+    tv:tv||"",venue:c.venue?.fullName||"",event:notes||seasonType||""
+  };
+  if(t.id==="gb"||t.id==="buf"||t.id==="ind"){
+    const text=norm(seasonType+" "+notes);
+    g.type=text.includes("preseason")?"PRESEASON":"REGULAR";
+  }
+  const s=extractScore(e); if(s)g._score=s;
+  return g;
+}
+async function loadFullSeason(t){
+  const cfg=FULL_SCHEDULES[t.id];
+  if(!cfg)return;
   try{
-    const url="https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/chc/schedule?season=2026&seasontype=2";
-    const r=await fetch(url,{cache:"no-store"});
-    if(!r.ok)throw new Error("Cubs season feed "+r.status);
+    const r=await fetch(cfg.url,{cache:"no-store"});
+    if(!r.ok)throw new Error("schedule feed "+r.status);
     const json=await r.json();
-    let events=(json.events||[]).filter(e=>{
-      const st=e.seasonType?.type ?? e.season?.type ?? e.season?.slug;
-      return st===undefined || st===2 || st==="2" || st==="regular-season";
-    });
-    if(events.length<100)throw new Error("Incomplete Cubs season feed: "+events.length);
-    const monthNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const games=events.map(e=>{
-      const c=e.competitions?.[0]||{};
-      const comps=c.competitors||[];
-      const cubs=comps.find(x=>norm([x.team?.displayName,x.team?.name,x.team?.abbreviation].join(" ")).includes("cubs"));
-      const opp=comps.find(x=>x!==cubs) || comps.find(x=>!norm([x.team?.displayName,x.team?.name].join(" ")).includes("cubs"));
-      if(!cubs||!opp)return null;
-      const dt=new Date(e.date);
-      const parts=new Intl.DateTimeFormat("en-US",{timeZone:"America/Chicago",month:"short",day:"numeric",hour:"numeric",minute:"2-digit",hour12:true}).formatToParts(dt);
-      const get=x=>parts.find(p=>p.type===x)?.value||"";
-      const date=`${get("month")} ${get("day")}`;
-      const time=`${get("hour")}:${get("minute")} ${get("dayPeriod")} CT`;
-      const ha=cubs.homeAway==="away"?"AWAY":"HOME";
-      const tv=(c.broadcasts||[]).flatMap(b=>b.names||[]).join(" / ") || "";
-      const venue=c.venue?.fullName||"";
-      const g={date,time,opp:opp.team?.displayName||opp.team?.shortDisplayName||opp.team?.name||"Opponent",ha,tv,venue};
-      const s=extractScore(e); if(s)g._score=s;
-      return g;
-    }).filter(Boolean).sort((a,b)=>{
-      const da=dateCode(a.date)||"99999999", db=dateCode(b.date)||"99999999"; return da.localeCompare(db);
-    });
-    // MLB regular season is 162 games. Only replace the fallback if the feed is complete.
-    if(games.length===162){
+    let events=(json.events||[]);
+    let games=events.map(e=>eventToGame(e,t)).filter(Boolean);
+    // Liverpool page is intentionally the Premier League timeline only.
+    if(cfg.leagueOnly) games=games.filter(g=>!g.event || !/cup|champions|friendly/i.test(g.event));
+    games.sort((a,b)=>(dateCode(a.date)||"99999999").localeCompare(dateCode(b.date)||"99999999"));
+    // Only replace known-good static data when the feed looks complete.
+    if(games.length>=cfg.min && games.length<=cfg.max){
       t.schedule=games;
       t._fullSeasonLoaded=true;
-    }else{
-      console.debug("Cubs full-season feed returned",games.length,"games; keeping fallback schedule.");
+    } else {
+      console.debug("Full schedule feed incomplete",t.id,games.length);
     }
-  }catch(e){console.debug("Cubs full-season schedule refresh skipped",e)}
+  }catch(e){console.debug("Full schedule refresh skipped",t.id,e)}
+}
+async function loadAllFullSeasons(){
+  await Promise.all(D.teams.filter(t=>FULL_SCHEDULES[t.id]).map(loadFullSeason));
+}
+
+// ---------- LIVE STANDINGS ----------
+const STANDING_FEEDS={
+  epl:{url:"https://site.api.espn.com/apis/v2/sports/soccer/eng.1/standings?season=2026",target:"eplTable",focus:["Liverpool"],title:"Premier League · Liverpool",kind:"soccer"},
+  nfl:{url:"https://site.api.espn.com/apis/v2/sports/football/nfl/standings?season=2026&type=0",kind:"nfl"},
+  mlb:{url:"https://site.api.espn.com/apis/v2/sports/baseball/mlb/standings?season=2026&type=0",kind:"mlb"}
+};
+const NFL_DIVS=[
+  {target:"nfcNorth",name:"NFC North",focus:["Green Bay","Packers"]},
+  {target:"afcEast",name:"AFC East",focus:["Buffalo","Bills"]},
+  {target:"afcSouth",name:"AFC South",focus:["Indianapolis","Colts"]}
+];
+const MLB_DIVS=[{target:"nlCentral",name:"NL Central",focus:["Chicago Cubs","Cubs"]}];
+
+function allGroups(node,out=[]){
+  if(!node||typeof node!=="object")return out;
+  if(node.standings?.entries)out.push({name:node.name||node.abbreviation||node.shortName||"",entries:node.standings.entries});
+  if(Array.isArray(node.children))node.children.forEach(c=>allGroups(c,out));
+  if(Array.isArray(node.groups))node.groups.forEach(c=>allGroups(c,out));
+  return out;
+}
+function stat(entry,names){
+  const arr=entry.stats||[];
+  for(const n of names){
+    const s=arr.find(x=>x.name===n||x.abbreviation===n||x.shortDisplayName===n);
+    if(s)return s.displayValue??s.value??"";
+  }
+  return "";
+}
+function entryName(e){return e.team?.displayName||e.team?.shortDisplayName||e.team?.name||""}
+function entryLogo(e){return e.team?.logos?.[0]?.href||e.team?.logo||""}
+function isFocus(name,aliases){const n=norm(name);return aliases.some(a=>n.includes(norm(a)))}
+function renderStandings(target,title,entries,kind,focus){
+  const el=document.getElementById(target);if(!el)return;
+  let headers=[],rows="";
+  if(kind==="soccer"){
+    headers=["Club","GP","W","D","L","GF","GA","GD","Pts","Trail"];
+    const leaderPts=Number(stat(entries[0]||{},["points","PTS"])||0);
+    rows=entries.map((e,i)=>{
+      const pts=Number(stat(e,["points","PTS"])||0);
+      const trail=i===0?"—":String(Math.max(0,leaderPts-pts));
+      const name=entryName(e);
+      return `<tr class="${isFocus(name,focus)?"focus":""}"><td><div class="stand-team">${entryLogo(e)?`<img src="${entryLogo(e)}" alt="">`:""}<span>${name}</span></div></td><td>${stat(e,["gamesPlayed","GP"])}</td><td>${stat(e,["wins","W"])}</td><td>${stat(e,["ties","draws","D"])}</td><td>${stat(e,["losses","L"])}</td><td>${stat(e,["pointsFor","goalsFor","GF"])}</td><td>${stat(e,["pointsAgainst","goalsAgainst","GA"])}</td><td>${stat(e,["pointDifferential","goalDifference","GD"])}</td><td><strong>${pts}</strong></td><td>${trail}</td></tr>`;
+    }).join("");
+  }else if(kind==="nfl"){
+    headers=["Team","W","L","T","PCT","PF","PA","DIFF"];
+    rows=entries.map(e=>{const name=entryName(e);return `<tr class="${isFocus(name,focus)?"focus":""}"><td><div class="stand-team">${entryLogo(e)?`<img src="${entryLogo(e)}" alt="">`:""}<span>${name}</span></div></td><td>${stat(e,["wins","W"])}</td><td>${stat(e,["losses","L"])}</td><td>${stat(e,["ties","T"])}</td><td>${stat(e,["winPercent","PCT"])}</td><td>${stat(e,["pointsFor","PF"])}</td><td>${stat(e,["pointsAgainst","PA"])}</td><td>${stat(e,["differential","pointDifferential","DIFF"])}</td></tr>`}).join("");
+  }else{
+    headers=["Team","W","L","PCT","GB","RS","RA","DIFF"];
+    rows=entries.map(e=>{const name=entryName(e);return `<tr class="${isFocus(name,focus)?"focus":""}"><td><div class="stand-team">${entryLogo(e)?`<img src="${entryLogo(e)}" alt="">`:""}<span>${name}</span></div></td><td>${stat(e,["wins","W"])}</td><td>${stat(e,["losses","L"])}</td><td>${stat(e,["winPercent","PCT"])}</td><td>${stat(e,["gamesBehind","GB"])}</td><td>${stat(e,["runsFor","pointsFor","RS"])}</td><td>${stat(e,["runsAgainst","pointsAgainst","RA"])}</td><td>${stat(e,["differential","pointDifferential","DIFF"])}</td></tr>`}).join("");
+  }
+  el.innerHTML=`<div class="standing-head"><h3>${title}</h3><span class="live-note">Live table</span></div><div class="table-wrap"><table class="stand-table"><thead><tr>${headers.map((h,i)=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function fallbackNFL(){
+  const groups={
+    nfcNorth:["Chicago Bears","Detroit Lions","Green Bay Packers","Minnesota Vikings"],
+    afcEast:["Buffalo Bills","Miami Dolphins","New England Patriots","New York Jets"],
+    afcSouth:["Houston Texans","Indianapolis Colts","Jacksonville Jaguars","Tennessee Titans"]
+  };
+  Object.entries(groups).forEach(([target,names])=>{
+    const div=NFL_DIVS.find(x=>x.target===target);
+    const entries=names.map(n=>({team:{displayName:n},stats:[
+      {name:"wins",displayValue:"0"},{name:"losses",displayValue:"0"},{name:"ties",displayValue:"0"},
+      {name:"winPercent",displayValue:".000"},{name:"pointsFor",displayValue:"—"},{name:"pointsAgainst",displayValue:"—"},{name:"differential",displayValue:"—"}
+    ]}));
+    renderStandings(target,div.name,entries,"nfl",div.focus);
+  });
+}
+function fallbackMLB(){
+  // Snapshot before the Aug. 17 Cubs game; live feed replaces it whenever available.
+  const data=[
+    ["Milwaukee Brewers","77","48",".616","—"],
+    ["Chicago Cubs","72","53",".576","5.0"],
+    ["St. Louis Cardinals","63","61",".508","13.5"],
+    ["Pittsburgh Pirates","61","65",".484","16.5"],
+    ["Cincinnati Reds","59","64",".480","17.0"]
+  ];
+  const entries=data.map(r=>({team:{displayName:r[0]},stats:[
+    {name:"wins",displayValue:r[1]},{name:"losses",displayValue:r[2]},
+    {name:"winPercent",displayValue:r[3]},{name:"gamesBehind",displayValue:r[4]},
+    {name:"runsFor",displayValue:"—"},{name:"runsAgainst",displayValue:"—"},{name:"differential",displayValue:"—"}
+  ]}));
+  renderStandings("nlCentral","NL Central",entries,"mlb",["Chicago Cubs","Cubs"]);
+}
+function fallbackEPL(){
+  const el=document.getElementById("eplTable");
+  if(el)el.innerHTML=`<div class="standing-head"><h3>Premier League · Liverpool</h3><span class="live-note">Live table loading…</span></div><div class="note">Liverpool’s live Premier League table will populate automatically from the standings feed.</div>`;
+}
+async function loadStandings(){
+  fallbackEPL(); fallbackNFL(); fallbackMLB();
+  try{
+    const r=await fetch(STANDING_FEEDS.epl.url,{cache:"no-store"}); if(!r.ok)throw 0;
+    const j=await r.json(); const groups=allGroups(j);
+    const g=groups.sort((a,b)=>b.entries.length-a.entries.length)[0];
+    if(g?.entries?.length)renderStandings("eplTable","Premier League",g.entries,"soccer",["Liverpool"]);
+  }catch(e){console.debug("EPL standings skipped",e)}
+  try{
+    const r=await fetch(STANDING_FEEDS.nfl.url,{cache:"no-store"}); if(!r.ok)throw 0;
+    const j=await r.json(); const groups=allGroups(j);
+    NFL_DIVS.forEach(d=>{
+      const g=groups.find(x=>norm(x.name).includes(norm(d.name)));
+      if(g?.entries?.length)renderStandings(d.target,d.name,g.entries,"nfl",d.focus);
+    });
+  }catch(e){console.debug("NFL standings skipped",e)}
+  try{
+    const r=await fetch(STANDING_FEEDS.mlb.url,{cache:"no-store"}); if(!r.ok)throw 0;
+    const j=await r.json(); const groups=allGroups(j);
+    MLB_DIVS.forEach(d=>{
+      const g=groups.find(x=>norm(x.name).includes(norm(d.name)));
+      if(g?.entries?.length)renderStandings(d.target,d.name,g.entries,"mlb",d.focus);
+    });
+  }catch(e){console.debug("MLB standings skipped",e)}
 }
 async function hydrateAllScores(){
-  await loadCubsFullSeason();
+  await loadAllFullSeasons();
+  await loadStandings();
   await Promise.all(D.teams.map(hydrateTeamScores));
   // Mirror hydrated scores into Upcoming cards by team/date/opponent.
   D.upcoming.forEach(u=>{
@@ -256,6 +427,13 @@ async function hydrateAllScores(){
   renderSchedule(active);
 }
 hydrateAllScores();
-setInterval(hydrateAllScores,5*60*1000);
+setInterval(async()=>{
+  await Promise.all(D.teams.map(hydrateTeamScores));
+  await loadStandings();
+  document.getElementById("upcoming").innerHTML=D.upcoming.map(upCard).join("");
+  document.getElementById("myteams").innerHTML=D.teams.map(homeTeamCard).join("");
+  const active=document.querySelector(".team-chip.active")?.dataset.team||D.teams[0].id;
+  renderSchedule(active);
+},5*60*1000);
 
 </script></body></html>
