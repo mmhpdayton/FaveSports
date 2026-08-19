@@ -179,6 +179,10 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
   .game-info-grid{grid-template-columns:1fr}
 }
 
+
+.cubs-live-strip{margin-top:9px;padding-top:8px;border-top:1px solid #ffffff12;font-size:12px;color:#dce9f4}
+.cubs-live-strip strong{color:#ef6b6b;margin-right:6px}
+
 </style>
 </head>
 <body>
@@ -302,7 +306,7 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
   </div>
 </div>
 
-<div class="footer">Dayton Sports · V12.9.3.2</div>
+<div class="footer">Dayton Sports · V13.0.3.2</div>
 </div>
 
 <script src="sports-data.js"></script>
@@ -813,6 +817,7 @@ function gameDetailUrl(kind,id){
   if(kind==="cfb") return `https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event=${id}`;
   if(kind==="nfl") return `https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${id}`;
   if(kind==="soccer") return `https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/summary?event=${id}`;
+  if(kind==="mlb") return `https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/summary?event=${id}`;
   return "";
 }
 function closeGameDetail(){
@@ -872,6 +877,26 @@ function renderKeyStats(j,home,away){
     <tbody>${rows.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("")}</tbody>
   </table></div>`;
 }
+function renderBaseballLinescore(j,home,away){
+  const comp=j.header?.competitions?.[0]||{};
+  const competitors=comp.competitors||[];
+  const h=competitors.find(x=>x.homeAway==="home")||home||{};
+  const a=competitors.find(x=>x.homeAway==="away")||away||{};
+  const hp=h.linescores||[], ap=a.linescores||[];
+  if(!hp.length&&!ap.length)return "";
+  const max=Math.max(hp.length,ap.length);
+  const heads=Array.from({length:max},(_,i)=>`<th>${i+1}</th>`).join("");
+  const cells=(ls)=>Array.from({length:max},(_,i)=>`<td>${esc(ls[i]?.displayValue??ls[i]?.value??"")}</td>`).join("");
+  return `<div class="game-section"><h3>Linescore</h3>
+    <div style="overflow-x:auto">
+    <table class="game-stat-table">
+      <thead><tr><th>Team</th>${heads}<th>R</th><th>H</th><th>E</th></tr></thead>
+      <tbody>
+        <tr><td>${esc(leagueTeamName(a))}</td>${cells(ap)}<td>${esc(a.score??"")}</td><td>${esc(a.hits??"")}</td><td>${esc(a.errors??"")}</td></tr>
+        <tr><td>${esc(leagueTeamName(h))}</td>${cells(hp)}<td>${esc(h.score??"")}</td><td>${esc(h.hits??"")}</td><td>${esc(h.errors??"")}</td></tr>
+      </tbody>
+    </table></div></div>`;
+}
 function renderScoring(j){
   let plays=[];
   if(Array.isArray(j.scoringPlays))plays=j.scoringPlays;
@@ -921,6 +946,7 @@ function renderGameDetail(j,kind){
       <div class="game-info-card"><div class="game-info-label">Venue</div><div class="game-info-value">${esc(venue||"TBD")}</div></div>
       <div class="game-info-card"><div class="game-info-label">Attendance</div><div class="game-info-value">${esc(attendance||"—")}</div></div>
     </div>
+    ${kind==="mlb"?renderBaseballLinescore(j,home,away):""}
     ${renderKeyStats(j,home,away)}
     ${renderScoring(j)}
   `;
@@ -953,6 +979,84 @@ document.addEventListener("click",e=>{
   const id=row.dataset.eventId, kind=row.dataset.sportKind;
   if(id)openGameDetail(id,kind);
 });
+
+
+// ---- Cubs live scoring + click-through ----
+const CUBS_LIVE={eventId:null,timer:null};
+
+function todayYmdCT(){
+  const parts=new Intl.DateTimeFormat("en-CA",{
+    timeZone:"America/Chicago",year:"numeric",month:"2-digit",day:"2-digit"
+  }).formatToParts(new Date());
+  const obj=Object.fromEntries(parts.map(p=>[p.type,p.value]));
+  return `${obj.year}${obj.month}${obj.day}`;
+}
+
+async function fetchCubsToday(){
+  const date=todayYmdCT();
+  const url=`https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${date}&limit=100`;
+  const r=await fetch(url,{cache:"no-store"});
+  if(!r.ok)throw new Error(r.status);
+  const j=await r.json();
+  return (j.events||[]).find(e=>{
+    const {home,away}=eventTeams(e);
+    return [home,away].some(c=>(c?.team?.abbreviation||"").toLowerCase()==="chc");
+  })||null;
+}
+
+function cubsEventDisplay(e){
+  if(!e)return null;
+  const {comp,home,away}=eventTeams(e);
+  const st=e.status?.type||comp.status?.type||{};
+  const state=st.state||"";
+  const score=(away.score!==undefined||home.score!==undefined)?`${away.score??0}–${home.score??0}`:"";
+  const detail=st.shortDetail||st.detail||"";
+  const inning=state==="in" ? detail : (st.completed||state==="post" ? "FINAL" : "");
+  return {home,away,comp,state,score,detail,inning};
+}
+
+function patchCubsUpcomingCard(e){
+  if(!e)return;
+  CUBS_LIVE.eventId=e.id;
+  const info=cubsEventDisplay(e);
+  const cards=[...document.querySelectorAll('[data-team="cubs"],[data-id="cubs"],.upcoming-card,.game-card,.event-card')];
+  cards.forEach(card=>{
+    const txt=(card.textContent||"").toLowerCase();
+    if(!txt.includes("cubs") && !txt.includes("chicago cubs"))return;
+
+    card.classList.add("game-clickable");
+    card.dataset.eventId=e.id;
+    card.dataset.sportKind="mlb";
+
+    // Prefer dedicated status/score elements if the existing card has them.
+    const statusEl=card.querySelector(".live-status,.status,.event-status,.game-status");
+    const scoreEl=card.querySelector(".live-score,.score,.event-score,.game-score");
+    if(statusEl && info.inning) statusEl.textContent=info.inning;
+    if(scoreEl && info.score) scoreEl.textContent=info.score;
+
+    // If the card has no score/status slots, add a compact live strip once.
+    if((info.state==="in"||info.state==="post") && !card.querySelector(".cubs-live-strip")){
+      const strip=document.createElement("div");
+      strip.className="cubs-live-strip";
+      card.appendChild(strip);
+    }
+    const strip=card.querySelector(".cubs-live-strip");
+    if(strip){
+      strip.innerHTML=`<strong>${info.state==="in"?"LIVE":info.state==="post"?"FINAL":""}</strong> ${esc(info.score)} ${esc(info.detail)}`;
+    }
+  });
+}
+
+async function refreshCubsLive(){
+  try{
+    const e=await fetchCubsToday();
+    if(!e)return;
+    patchCubsUpcomingCard(e);
+  }catch(err){}
+}
+
+refreshCubsLive();
+CUBS_LIVE.timer=setInterval(refreshCubsLive,30000);
 
 // ---- Automatic scores / live results ----
 // ESPN's public scoreboard feeds are used where available. If a feed fails,

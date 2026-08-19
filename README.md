@@ -1,32 +1,28 @@
-# Dayton Sports V12.9
+# Dayton Sports V13.0
 
-Fixes the College Football submenu data source.
+Cubs live-game fix.
 
-## Correct behavior
-- Top 25: ranked-game view + Notre Dame
-- All FBS: ESPN FBS group feed
-- ACC: conference group feed
-- B1G: conference group feed
-- Big 12: conference group feed
-- SEC: conference group feed
-- AAC: conference group feed
-- C-USA: conference group feed
-- MAC: conference group feed
-- Mountain West: conference group feed
-- Sun Belt: conference group feed
-- Pac-12: conference group feed
+## Cubs live behavior
+- Dayton Sports now fetches the current day's MLB scoreboard directly in the browser.
+- If the Cubs are playing, the Cubs card is patched with the live/final score and game status.
+- Cubs live data refreshes every 30 seconds while the site is open.
+- The Cubs game card becomes clickable and opens the same in-app game detail experience used for NFL, college football, and Premier League.
 
-The previous version changed the display filter but still fetched ESPN's default ranked slate, which is why All FBS and conference views only showed ranked-team games.
+## MLB game detail
+The in-app Cubs game page supports:
+- live score/status
+- TV / stream
+- venue
+- attendance when available
+- baseball linescore by inning
+- key stats when supplied
+- scoring plays when supplied
+- 30-second refresh while the detail page is open
 
-## Preserved
-- Top 25 always defaults when College Football is opened
-- Week 0 handling
-- TBD/flexible-date handling
-- 60-second live scoring
-- game-detail pages
-- NFL and Premier League tabs
+## Why this was needed
+The league tabs had the newer live-score engine, but the Home/Upcoming Cubs card was still relying on the older generated team data. A live Cubs game therefore exposed stale data and had no game-detail event ID.
 
-## Upgrade from V12.8
+## Upgrade from V12.9
 Replace:
 - index.html
 - sports-data.json
