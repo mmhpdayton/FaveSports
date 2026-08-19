@@ -1,16 +1,14 @@
-# Dayton Sports V12.2
+# Dayton Sports V12.3
 
-Changes over V12.1:
-- Cubs are guaranteed a spot in Upcoming & Where to Watch whenever they have a next game.
-- Upcoming first selects one next event per featured favorite, then adds extra games in the next 7 days.
-- New Premier League tab with weekly league fixtures, scores, TV info, week navigation, and the current full EPL table.
-- Liverpool is highlighted in the Premier League table.
-- Existing V12 automation and ESPN Where to Watch priority are preserved.
+Fix over V12.2:
+- Cubs are now present in the BASELINE Upcoming & Where to Watch data immediately.
+- Next stored Cubs game inserted: WED · AUG 19 vs Chicago White Sox 1:20 PM CT Marquee Sports Network.
+- V12.2 updater logic remains in place, so future runs continue to guarantee the Cubs a slot.
+- Premier League tab remains unchanged.
 
-If V12.1 is already live, replace:
-- index.html
+If V12.2 is already live, replace:
 - sports-data.json
 - sports-data.js
-- scripts/update_data.py
+- index.html
 
-The GitHub Actions workflow does not need to change.
+You do not need to replace scripts/update_data.py for this patch.
