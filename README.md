@@ -1,35 +1,22 @@
-# Dayton Sports V13.2
+# Dayton Sports V13.3
 
-Priority-team one-tap SiriusXM audio.
+Fixes the Cubs live score on Home / Upcoming & Where to Watch.
 
-## Priority teams
-- Chicago Cubs
-- Notre Dame
-- Green Bay Packers
+## What was wrong
+The live Cubs updater was fetching the current MLB game correctly, but it was searching for generic `.game-card` / `.event-card` DOM elements. The actual Home card uses `.up-card`, and Home is frequently re-rendered by the site's normal score hydration.
 
 ## What changed
-The GitHub Actions updater now checks each priority team's official SiriusXM page and attempts to capture the current published team-feed channel.
+- The Cubs live event now writes directly into the underlying `D.upcoming` data.
+- The actual Upcoming card renderer displays that live score.
+- The Cubs Upcoming card receives the ESPN event ID and is clickable into the MLB game-detail view.
+- The live SiriusXM Cubs button is rendered as part of the card itself.
+- The Cubs live data is re-applied after normal Home score refreshes so it cannot be wiped out.
+- Live Cubs polling remains every 30 seconds.
 
-When an exact channel is available, Dayton Sports shows:
-- 🎧 Cubs Radio · CH ###
-- 🎧 Notre Dame Radio · CH ###
-- 🎧 Packers Radio · CH ###
-
-The link targets the corresponding SiriusXM channel page when Dayton Sports can map that channel to a stable SiriusXM live-channel URL.
-
-If the exact channel has not yet been published, the button remains available and falls back to the official SiriusXM team page rather than disappearing.
-
-## Mobile behavior
-The link uses SiriusXM's normal HTTPS channel/team URLs. On a phone, SiriusXM/iOS/Android controls whether that URL hands off to the installed SiriusXM app or opens the mobile player. Dayton Sports does not use an undocumented custom-app URI scheme.
-
-## Refresh cadence
-The exact SiriusXM channel assignment is refreshed by the existing GitHub Action every 3 hours and on manual workflow runs.
-
-## Upgrade from V13.1
+## Upgrade from V13.2
 Replace:
 - index.html
 - sports-data.json
 - sports-data.js
-- scripts/update_data.py
 
-Existing `.github/workflows/update-data.yml` can remain unchanged.
+`scripts/update_data.py` from V13.2 is unchanged and can remain in place.

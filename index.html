@@ -193,6 +193,11 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 
 .sxm-fallback-note{margin-top:5px;font-size:9px;color:#829caf;line-height:1.25}
 
+
+.up-card .sxm-link{margin-top:10px}
+.up-card.game-clickable{cursor:pointer}
+.up-card.game-clickable:hover{background:#ffffff07}
+
 </style>
 </head>
 <body>
@@ -316,7 +321,7 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
   </div>
 </div>
 
-<div class="footer">Dayton Sports · V13.2.3.2</div>
+<div class="footer">Dayton Sports · V13.3.3.2</div>
 </div>
 
 <script src="sports-data.js"></script>
@@ -346,7 +351,26 @@ const byId=Object.fromEntries(D.teams.map(t=>[t.id,t]));
 function logo(t,small=false){return `<div class="logo-box"><img class="logo" src="${logos[t.id]}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="fallback" style="display:none">${t.abbr}</span></div>`}
 function scheduleDateValue(g){const months={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};const m=(g.date||"").match(/([A-Z][a-z]{2})\s+(\d{1,2})/);if(!m)return Number.POSITIVE_INFINITY;const now=new Date();let y=2026;const mon=months[m[1]];if(mon<=5&&now.getMonth()>=6)y=2027;return new Date(y,mon,Number(m[2])).getTime()}function nextEvent(t){const today=new Date();today.setHours(0,0,0,0);return t.schedule.find(g=>scheduleDateValue(g)>=today.getTime()&&!g.result)||t.schedule.find(g=>scheduleDateValue(g)>=today.getTime())||t.schedule[t.schedule.length-1]||{}}
 function homeTeamCard(t){const n=nextEvent(t);return `<article class="card team-card ${t.id==="ind"?"colts-muted":""}" style="--team:${t.color}"><div class="row">${logo(t)}<div><div class="team-name">${t.name}</div><div class="record">${t.record}</div>${t.context?`<a class="context jump" href="#" data-target="${t.target}">${t.context} ›</a>`:""}</div></div><div class="next"><span class="eyebrow">NEXT</span><strong>${n.date||""} · ${n.time||""} · ${n.ha==="AWAY"?"@":"vs"} ${n.opp||""}</strong>${n.tv?`<div class="tvline">📺 ${n.tv}</div>`:""}</div><button class="view-schedule gotoSchedule" data-team="${t.id}">View schedule ›</button></article>`}
-function upCard(u){const t=byId[u.id];const s=u._score;const score=s?`<div class="scoreline"><span>${s.awayName} ${s.awayScore}</span><span>·</span><span>${s.homeName} ${s.homeScore}</span></div><div class="${s.live?"live-badge":"final-badge"}">${s.live?"LIVE":"FINAL"}</div>`:"";return `<article class="card up-card ${s?"has-result":""}" style="--team:${t.color}"><div class="row">${logo(t)}<div><div class="eyebrow">${u.date}</div><div class="team-name">${t.name}</div></div></div><div class="match">${u.opp}</div><div class="time">${u.time}</div>${score}<div class="chips"><span class="chip">${u.where}</span>${u.tv?`<span class="chip tvchip">📺 ${u.tv}</span>`:""}</div></article>`}
+function upCard(u){
+  const t=byId[u.id];
+  const s=u._score;
+  const isLive=Boolean(s?.live);
+  const isFinal=Boolean(s && !s.live);
+  const score=s?`<div class="scoreline"><span>${s.awayName} ${s.awayScore}</span><span>·</span><span>${s.homeName} ${s.homeScore}</span></div><div class="${isLive?"live-badge":"final-badge"}">${isLive?"LIVE":"FINAL"}</div>`:"";
+  const clickable=u._eventId?` game-clickable`:"";
+  const eventAttrs=u._eventId?` data-event-id="${u._eventId}" data-sport-kind="${u._sportKind||""}"`:"";
+  const sxm=(u.id==="cubs" && isLive && u._liveEvent)
+    ? siriusXmButton("mlb",u._liveEvent.home,u._liveEvent.away,"in","sxm-row-link")
+    : "";
+  return `<article class="card up-card ${s?"has-result":""}${clickable}"${eventAttrs} style="--team:${t.color}">
+    <div class="row">${logo(t)}<div><div class="eyebrow">${u.date}</div><div class="team-name">${t.name}</div></div></div>
+    <div class="match">${u.opp}</div>
+    <div class="time">${u.time}</div>
+    ${score}
+    <div class="chips"><span class="chip">${u.where}</span>${u.tv?`<span class="chip tvchip">📺 ${u.tv}</span>`:""}</div>
+    ${sxm}
+  </article>`;
+}
 document.getElementById("upcoming").innerHTML=D.upcoming.map(upCard).join("");
 document.getElementById("myteams").innerHTML=D.teams.map(homeTeamCard).join("");
 
@@ -1084,32 +1108,25 @@ function patchCubsUpcomingCard(e){
   if(!e)return;
   CUBS_LIVE.eventId=e.id;
   const info=cubsEventDisplay(e);
-  const cards=[...document.querySelectorAll('[data-team="cubs"],[data-id="cubs"],.upcoming-card,.game-card,.event-card')];
-  cards.forEach(card=>{
-    const txt=(card.textContent||"").toLowerCase();
-    if(!txt.includes("cubs") && !txt.includes("chicago cubs"))return;
+  const u=D.upcoming.find(x=>x.id==="cubs");
+  if(!u)return;
 
-    card.classList.add("game-clickable");
-    card.dataset.eventId=e.id;
-    card.dataset.sportKind="mlb";
+  u._eventId=e.id;
+  u._sportKind="mlb";
+  u._liveEvent={home:info.home,away:info.away};
+  u._score={
+    awayName:leagueTeamName(info.away),
+    awayScore:info.away.score??0,
+    homeName:leagueTeamName(info.home),
+    homeScore:info.home.score??0,
+    awayWinner:Boolean(info.away.winner),
+    homeWinner:Boolean(info.home.winner),
+    live:info.state==="in"
+  };
 
-    // Prefer dedicated status/score elements if the existing card has them.
-    const statusEl=card.querySelector(".live-status,.status,.event-status,.game-status");
-    const scoreEl=card.querySelector(".live-score,.score,.event-score,.game-score");
-    if(statusEl && info.inning) statusEl.textContent=info.inning;
-    if(scoreEl && info.score) scoreEl.textContent=info.score;
-
-    // If the card has no score/status slots, add a compact live strip once.
-    if((info.state==="in"||info.state==="post") && !card.querySelector(".cubs-live-strip")){
-      const strip=document.createElement("div");
-      strip.className="cubs-live-strip";
-      card.appendChild(strip);
-    }
-    const strip=card.querySelector(".cubs-live-strip");
-    if(strip){
-      strip.innerHTML=`<strong>${info.state==="in"?"LIVE":info.state==="post"?"FINAL":""}</strong> ${esc(info.score)} ${esc(info.detail)} ${siriusXmButton("mlb",info.home,info.away,info.state,"sxm-row-link")}`;
-    }
-  });
+  // Keep the static card's opponent/time/TV metadata, but render the live
+  // score and event ID from today's MLB scoreboard.
+  document.getElementById("upcoming").innerHTML=D.upcoming.map(upCard).join("");
 }
 
 async function refreshCubsLive(){
@@ -1417,6 +1434,7 @@ async function hydrateAllScores(){
   document.getElementById("myteams").innerHTML=D.teams.map(homeTeamCard).join("");
   const active=document.querySelector(".team-chip.active")?.dataset.team||D.teams[0].id;
   renderSchedule(active);
+  await refreshCubsLive();
 }
 hydrateAllScores();
 setInterval(async()=>{
@@ -1426,6 +1444,7 @@ setInterval(async()=>{
   document.getElementById("myteams").innerHTML=D.teams.map(homeTeamCard).join("");
   const active=document.querySelector(".team-chip.active")?.dataset.team||D.teams[0].id;
   renderSchedule(active);
+  await refreshCubsLive();
 },5*60*1000);
 
 </script></body></html>
