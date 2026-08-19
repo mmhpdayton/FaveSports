@@ -18,6 +18,7 @@ import json
 import re
 import sys
 import urllib.request
+import html as html_lib
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -68,6 +69,136 @@ def fetch_json(url: str, timeout: int = 25):
     req = urllib.request.Request(url, headers=HEADERS)
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return json.load(r)
+
+
+def fetch_text(url: str, timeout: int = 25) -> str:
+    req = urllib.request.Request(url, headers=HEADERS)
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return r.read().decode("utf-8", errors="replace")
+
+
+WTW_NETWORKS = [
+    "ESPN", "ESPN2", "ESPNU", "ESPN+", "ESPN Deportes", "ESPN Unlimited",
+    "ABC", "FOX", "FS1", "FS2", "CBS", "CBS Sports Network", "NBC",
+    "Peacock", "USA Network", "NFL Network", "Big Ten Network", "B1G+",
+    "SEC Network", "ACC Network", "Marquee Sports Network",
+    "Marquee Sports Net", "Apple TV", "Prime Video", "Paramount+",
+    "MLB.TV", "Packers TV Network"
+]
+
+
+def wtw_date_code(game: dict) -> str | None:
+    try:
+        d = datetime.strptime(f"{game['date']} 2026", "%b %d %Y")
+        return d.strftime("%Y%m%d")
+    except Exception:
+        return None
+
+
+def clean_wtw_html(raw: str) -> str:
+    # ESPN's Where-to-Watch page is server-rendered today, but this also
+    # handles HTML entities and hidden markup if the page structure shifts.
+    text = re.sub(r"<script\b[^>]*>.*?</script>", " ", raw, flags=re.I | re.S)
+    text = re.sub(r"<style\b[^>]*>.*?</style>", " ", text, flags=re.I | re.S)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = html_lib.unescape(text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def find_wtw_network(page_text: str, our_aliases: list[str], opponent: str) -> str | None:
+    """
+    Match an event by both teams, then read the broadcast names immediately
+    after that matchup. We deliberately prefer a single national/main network
+    when present; otherwise we return the first clean recognized option.
+    """
+    page = norm(page_text)
+    opp_tokens = [x for x in norm(opponent).split() if len(x) >= 4]
+
+    # Locate a compact window containing one of our names and the opponent.
+    positions = []
+    for alias in our_aliases:
+        p = page.find(norm(alias))
+        while p >= 0:
+            positions.append(p)
+            p = page.find(norm(alias), p + 1)
+
+    raw_lower = page_text.lower()
+    for pos in positions:
+        # norm() changes offsets, so use alias text to recover a raw-text window.
+        alias = next((a for a in our_aliases if norm(a) in page[max(0,pos-30):pos+80]), our_aliases[0])
+        raw_pos = raw_lower.find(alias.lower())
+        if raw_pos < 0:
+            continue
+        window = page_text[max(0, raw_pos - 180): raw_pos + 700]
+        nw = norm(window)
+        if opp_tokens and not any(tok in nw for tok in opp_tokens):
+            continue
+
+        found = []
+        for network in WTW_NETWORKS:
+            if re.search(rf"(?<![A-Za-z0-9+]){re.escape(network)}(?![A-Za-z0-9+])", window, re.I):
+                found.append(network)
+
+        if not found:
+            continue
+
+        # Prefer the main ESPN network when ESPN is explicitly present,
+        # but don't mistake ESPN2/ESPNU/ESPN+ for ESPN.
+        if re.search(r"(?<![A-Za-z0-9+])ESPN(?![A-Za-z0-9+])", window, re.I):
+            return "ESPN"
+
+        # Remove duplicate aliases while preserving order.
+        deduped = []
+        for n in found:
+            if n not in deduped:
+                deduped.append(n)
+        return " / ".join(deduped[:3])
+
+    return None
+
+
+def refresh_where_to_watch(data: dict):
+    """
+    ESPN Where to Watch is the preferred broadcast source for games in the
+    next 21 days. Schedule-feed TV data remains the fallback.
+    """
+    today = datetime.now(CT).date()
+    cutoff = today + timedelta(days=21)
+    page_cache = {}
+
+    for team in data.get("teams", []):
+        tid = team.get("id")
+        aliases = TEAM_ALIASES.get(tid)
+        if not aliases:
+            continue
+
+        for game in team.get("schedule", []):
+            d = game_date(game)
+            if not d or d < today or d > cutoff or is_finished(game):
+                continue
+
+            code = wtw_date_code(game)
+            if not code:
+                continue
+
+            if code not in page_cache:
+                try:
+                    raw = fetch_text(f"https://www.espn.com/where-to-watch/_/dates/{code}")
+                    page_cache[code] = clean_wtw_html(raw)
+                except Exception as exc:
+                    print(f"where-to-watch {code}: unavailable ({exc})")
+                    page_cache[code] = ""
+
+            page_text = page_cache[code]
+            if not page_text:
+                continue
+
+            network = find_wtw_network(page_text, aliases, game.get("opp", ""))
+            if network:
+                old = game.get("tv", "")
+                game["tv"] = network
+                if old != network:
+                    print(f"where-to-watch {tid} {game.get('date')}: {old or 'TBD'} -> {network}")
 
 
 def norm(s: str) -> str:
@@ -438,12 +569,13 @@ def regenerate_upcoming(data: dict):
 def main():
     data = json.loads(JSON_PATH.read_text(encoding="utf-8"))
     refresh_schedules(data)
+    refresh_where_to_watch(data)
     refresh_standings(data)
     refresh_rankings(data)
     update_team_contexts(data)
     regenerate_upcoming(data)
 
-    data["version"] = "v12"
+    data["version"] = "v12.1"
     data["lastUpdated"] = datetime.now(timezone.utc).isoformat()
     data.setdefault("automation", {})["enabled"] = True
     data["automation"]["lastRun"] = data["lastUpdated"]

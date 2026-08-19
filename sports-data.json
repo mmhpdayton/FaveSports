@@ -1,5 +1,5 @@
 {
-  "version": "v12",
+  "version": "v12.1",
   "teams": [
     {
       "id": "payton",
@@ -333,7 +333,7 @@
           "time": "8:00 PM CT",
           "opp": "#3 Kentucky",
           "ha": "NEUTRAL",
-          "tv": "ESPN platform — network TBD",
+          "tv": "ESPN",
           "result": "",
           "venue": "Fiserv Forum · Milwaukee",
           "event": "AVCA First Serve"
@@ -1740,7 +1740,7 @@
       "time": "8:00 PM CT",
       "opp": "#3 Kentucky",
       "where": "NEUTRAL",
-      "tv": "ESPN platform — network TBD"
+      "tv": "ESPN"
     },
     {
       "id": "amundsen",
