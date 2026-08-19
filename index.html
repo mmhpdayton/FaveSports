@@ -183,6 +183,16 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 .cubs-live-strip{margin-top:9px;padding-top:8px;border-top:1px solid #ffffff12;font-size:12px;color:#dce9f4}
 .cubs-live-strip strong{color:#ef6b6b;margin-right:6px}
 
+
+.sxm-link{display:inline-flex;align-items:center;gap:6px;border:1px solid #37536b;background:#0d2032;color:#dcecff;border-radius:999px;padding:7px 10px;font-size:10px;font-weight:900;text-decoration:none;white-space:nowrap}
+.sxm-link:hover{background:#15304a}
+.sxm-row-link{margin-left:8px}
+.game-info-card .sxm-link{margin-top:6px}
+@media(max-width:760px){.sxm-row-link{margin-left:0;margin-top:6px}}
+
+
+.sxm-fallback-note{margin-top:5px;font-size:9px;color:#829caf;line-height:1.25}
+
 </style>
 </head>
 <body>
@@ -306,7 +316,7 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
   </div>
 </div>
 
-<div class="footer">Dayton Sports · V13.0.3.2</div>
+<div class="footer">Dayton Sports · V13.2.3.2</div>
 </div>
 
 <script src="sports-data.js"></script>
@@ -541,7 +551,7 @@ function renderLeagueGame(e,kind){
       <div class="league-score">${scoreText(e,home,away)}</div>
       <div class="league-away">${awayLabel}</div>
     </div>
-    <div class="league-broadcast">${tv?`📺 ${tv}`:""}</div>
+    <div class="league-broadcast">${tv?`📺 ${tv}`:""}${siriusXmButton(kind,home,away,state,"sxm-row-link")}</div>
   </div>`;
 }
 const CFB_CONFERENCES={
@@ -813,6 +823,60 @@ function esc(s){
 function teamLogoFromComp(c){
   return c?.team?.logo || c?.team?.logos?.[0]?.href || "";
 }
+function slugifyTeamName(name){
+  return String(name||"").toLowerCase()
+    .replace(/&/g,"and")
+    .replace(/[^a-z0-9]+/g,"-")
+    .replace(/^-+|-+$/g,"");
+}
+function sxmPriorityKey(kind,home,away){
+  const comps=[home,away];
+  const abbrs=comps.map(c=>(c?.team?.abbreviation||"").toLowerCase());
+  if(kind==="mlb" && abbrs.includes("chc"))return "cubs";
+  if(kind==="nfl" && abbrs.includes("gb"))return "gb";
+  if(kind==="cfb" && comps.some(isNotreDameCompetitor))return "nd";
+  return null;
+}
+function sxmPriorityEntry(kind,home,away){
+  const key=sxmPriorityKey(kind,home,away);
+  return key ? (D.siriusxm?.[key]||null) : null;
+}
+function siriusXmUrl(kind,home,away){
+  const priority=sxmPriorityEntry(kind,home,away);
+  if(priority?.listenUrl)return priority.listenUrl;
+
+  const homeName=leagueTeamName(home), awayName=leagueTeamName(away);
+  const homeAbbr=(home?.team?.abbreviation||"").toLowerCase();
+  const awayAbbr=(away?.team?.abbreviation||"").toLowerCase();
+
+  if(kind==="mlb"){
+    if(homeAbbr==="chc"||awayAbbr==="chc") return "https://www.siriusxm.com/sports/mlb/chicago-cubs";
+    return "https://www.siriusxm.com/sports/mlb";
+  }
+  if(kind==="nfl"){
+    const preferred=[home,away].find(c=>["gb","buf","ind"].includes((c?.team?.abbreviation||"").toLowerCase())) || home || away;
+    return `https://www.siriusxm.com/sports/nfl/${slugifyTeamName(leagueTeamName(preferred))}`;
+  }
+  if(kind==="cfb"){
+    const nd=[home,away].find(isNotreDameCompetitor);
+    if(nd) return "https://www.siriusxm.com/sports/ncaaf/notre-dame";
+    return "https://www.siriusxm.com/sports/college-football";
+  }
+  return "";
+}
+function siriusXmButton(kind,home,away,state,extraClass=""){
+  if(state!=="in")return "";
+  if(!["mlb","nfl","cfb"].includes(kind))return "";
+  const url=siriusXmUrl(kind,home,away);
+  if(!url)return "";
+
+  const priority=sxmPriorityEntry(kind,home,away);
+  const key=sxmPriorityKey(kind,home,away);
+  const teamLabel=key==="cubs"?"Cubs Radio":key==="gb"?"Packers Radio":key==="nd"?"Notre Dame Radio":"Listen on SiriusXM";
+  const ch=priority?.channel ? ` · CH ${priority.channel}` : "";
+  return `<a class="sxm-link ${extraClass}" href="${url}" target="_blank" rel="noopener noreferrer" data-stop-game-click="1">🎧 ${teamLabel}${ch}</a>`;
+}
+
 function gameDetailUrl(kind,id){
   if(kind==="cfb") return `https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event=${id}`;
   if(kind==="nfl") return `https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${id}`;
@@ -942,7 +1006,7 @@ function renderGameDetail(j,kind){
       </div>
     </div>
     <div class="game-info-grid">
-      <div class="game-info-card"><div class="game-info-label">TV / Stream</div><div class="game-info-value">${esc(broadcasts||"TBD")}</div></div>
+      <div class="game-info-card"><div class="game-info-label">TV / Stream</div><div class="game-info-value">${esc(broadcasts||"TBD")}</div>${siriusXmButton(kind,home,away,state)}${state==="in"&&sxmPriorityKey(kind,home,away)&&!sxmPriorityEntry(kind,home,away)?.channel?`<div class="sxm-fallback-note">Exact SiriusXM channel not posted yet — opens team page.</div>`:""}</div>
       <div class="game-info-card"><div class="game-info-label">Venue</div><div class="game-info-value">${esc(venue||"TBD")}</div></div>
       <div class="game-info-card"><div class="game-info-label">Attendance</div><div class="game-info-value">${esc(attendance||"—")}</div></div>
     </div>
@@ -974,6 +1038,7 @@ async function openGameDetail(eventId,kind){
   GAME_DETAIL.timer=setInterval(fetchAndRenderGame,30000);
 }
 document.addEventListener("click",e=>{
+  if(e.target.closest("[data-stop-game-click]"))return;
   const row=e.target.closest(".game-clickable[data-event-id]");
   if(!row)return;
   const id=row.dataset.eventId, kind=row.dataset.sportKind;
@@ -1042,7 +1107,7 @@ function patchCubsUpcomingCard(e){
     }
     const strip=card.querySelector(".cubs-live-strip");
     if(strip){
-      strip.innerHTML=`<strong>${info.state==="in"?"LIVE":info.state==="post"?"FINAL":""}</strong> ${esc(info.score)} ${esc(info.detail)}`;
+      strip.innerHTML=`<strong>${info.state==="in"?"LIVE":info.state==="post"?"FINAL":""}</strong> ${esc(info.score)} ${esc(info.detail)} ${siriusXmButton("mlb",info.home,info.away,info.state,"sxm-row-link")}`;
     }
   });
 }

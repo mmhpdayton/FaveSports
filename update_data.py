@@ -15,6 +15,7 @@ No secrets or third-party Python packages are required.
 from __future__ import annotations
 
 import json
+from html import unescape
 import re
 import sys
 import urllib.request
@@ -579,6 +580,103 @@ def regenerate_upcoming(data: dict):
         "tv": g.get("tv", ""),
         "where": g.get("ha", ""),
     } for d, tid, g in chosen[:14]]
+
+
+SXM_PRIORITY = {
+    "cubs": {
+        "team_names": ["Chicago Cubs", "Cubs"],
+        "page": "https://www.siriusxm.com/sports/mlb/chicago-cubs",
+        "sport": "mlb",
+    },
+    "nd": {
+        "team_names": ["Notre Dame", "Fighting Irish"],
+        "page": "https://www.siriusxm.com/sports/ncaaf/notre-dame",
+        "sport": "ncaaf",
+    },
+    "gb": {
+        "team_names": ["Green Bay Packers", "Packers"],
+        "page": "https://www.siriusxm.com/sports/nfl/green-bay-packers",
+        "sport": "nfl",
+    },
+}
+
+def sxm_channel_url(channel):
+    """Map SiriusXM sports play-by-play channel numbers to stable channel pages."""
+    try:
+        ch = int(channel)
+    except Exception:
+        return None
+
+    # MLB play-by-play channel pages are named mlb-play-by-play-NNN.
+    if 175 <= ch <= 184:
+        return f"https://www.siriusxm.com/channels/mlb-play-by-play-{ch}"
+
+    # NFL play-by-play channel pages are named nfl-play-by-play-NNN.
+    if 225 <= ch <= 234 or 380 <= ch <= 383:
+        return f"https://www.siriusxm.com/channels/nfl-play-by-play-{ch}"
+
+    # Some app-only / team feeds use 800+ channels and not every one has a
+    # predictable public slug. Fall back to the team page instead of guessing.
+    return None
+
+def strip_html_text(raw):
+    raw = re.sub(r"<script\b[^>]*>.*?</script>", " ", raw, flags=re.I|re.S)
+    raw = re.sub(r"<style\b[^>]*>.*?</style>", " ", raw, flags=re.I|re.S)
+    raw = re.sub(r"<[^>]+>", " ", raw)
+    raw = unescape(raw)
+    return re.sub(r"\s+", " ", raw).strip()
+
+def find_priority_sxm_channel(team_key, raw_html):
+    cfg = SXM_PRIORITY[team_key]
+    text = strip_html_text(raw_html)
+
+    # SiriusXM team pages commonly present:
+    # Team ... Home/Away • CH 184 ... and a second app channel.
+    # We look near the team-name occurrence and prefer the first normal
+    # satellite/play-by-play channel (sub-400) rather than app-only 800+.
+    matches = []
+    low = text.lower()
+    for team_name in cfg["team_names"]:
+        start = 0
+        needle = team_name.lower()
+        while True:
+            i = low.find(needle, start)
+            if i < 0:
+                break
+            window = text[max(0, i-250): i+650]
+            for m in re.finditer(r"\bCH(?:ANNEL)?\.?\s*(\d{2,3})\b", window, flags=re.I):
+                ch = int(m.group(1))
+                distance = abs((max(0, i-250) + m.start()) - i)
+                matches.append((distance, ch))
+            start = i + len(needle)
+
+    if not matches:
+        return None
+
+    # Prefer ordinary car/play-by-play channels over app-only 800+ feeds.
+    normal = [(d,ch) for d,ch in matches if ch < 400]
+    chosen = min(normal or matches, key=lambda x: x[0])[1]
+    return chosen
+
+def refresh_siriusxm(data):
+    sxm = data.setdefault("siriusxm", {})
+    for key, cfg in SXM_PRIORITY.items():
+        try:
+            raw = fetch_text(cfg["page"])
+            ch = find_priority_sxm_channel(key, raw)
+            entry = {
+                "team": key,
+                "page": cfg["page"],
+                "channel": ch,
+                "channelUrl": sxm_channel_url(ch) if ch else None,
+            }
+            # Keep the team page as a safe fallback when exact channel mapping
+            # is unavailable or the game/channel has not yet been posted.
+            entry["listenUrl"] = entry["channelUrl"] or cfg["page"]
+            sxm[key] = entry
+        except Exception as exc:
+            print(f"SiriusXM refresh failed for {key}: {exc}")
+
 
 def main():
     data = json.loads(JSON_PATH.read_text(encoding="utf-8"))

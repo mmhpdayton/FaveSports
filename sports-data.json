@@ -1,5 +1,5 @@
 {
-  "version": "v13.0",
+  "version": "v13.2",
   "teams": [
     {
       "id": "payton",
@@ -1900,5 +1900,6 @@
       "payton",
       "amundsen"
     ]
-  }
+  },
+  "siriusxm": {}
 }

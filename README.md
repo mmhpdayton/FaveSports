@@ -1,29 +1,35 @@
-# Dayton Sports V13.0
+# Dayton Sports V13.2
 
-Cubs live-game fix.
+Priority-team one-tap SiriusXM audio.
 
-## Cubs live behavior
-- Dayton Sports now fetches the current day's MLB scoreboard directly in the browser.
-- If the Cubs are playing, the Cubs card is patched with the live/final score and game status.
-- Cubs live data refreshes every 30 seconds while the site is open.
-- The Cubs game card becomes clickable and opens the same in-app game detail experience used for NFL, college football, and Premier League.
+## Priority teams
+- Chicago Cubs
+- Notre Dame
+- Green Bay Packers
 
-## MLB game detail
-The in-app Cubs game page supports:
-- live score/status
-- TV / stream
-- venue
-- attendance when available
-- baseball linescore by inning
-- key stats when supplied
-- scoring plays when supplied
-- 30-second refresh while the detail page is open
+## What changed
+The GitHub Actions updater now checks each priority team's official SiriusXM page and attempts to capture the current published team-feed channel.
 
-## Why this was needed
-The league tabs had the newer live-score engine, but the Home/Upcoming Cubs card was still relying on the older generated team data. A live Cubs game therefore exposed stale data and had no game-detail event ID.
+When an exact channel is available, Dayton Sports shows:
+- 🎧 Cubs Radio · CH ###
+- 🎧 Notre Dame Radio · CH ###
+- 🎧 Packers Radio · CH ###
 
-## Upgrade from V12.9
+The link targets the corresponding SiriusXM channel page when Dayton Sports can map that channel to a stable SiriusXM live-channel URL.
+
+If the exact channel has not yet been published, the button remains available and falls back to the official SiriusXM team page rather than disappearing.
+
+## Mobile behavior
+The link uses SiriusXM's normal HTTPS channel/team URLs. On a phone, SiriusXM/iOS/Android controls whether that URL hands off to the installed SiriusXM app or opens the mobile player. Dayton Sports does not use an undocumented custom-app URI scheme.
+
+## Refresh cadence
+The exact SiriusXM channel assignment is refreshed by the existing GitHub Action every 3 hours and on manual workflow runs.
+
+## Upgrade from V13.1
 Replace:
 - index.html
 - sports-data.json
 - sports-data.js
+- scripts/update_data.py
+
+Existing `.github/workflows/update-data.yml` can remain unchanged.
