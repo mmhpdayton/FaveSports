@@ -1,32 +1,40 @@
-# Dayton Sports V12.4
+# Dayton Sports V12.7
 
-Changes over V12.3:
+College Football browsing upgrade.
 
-## College Football tab
-- Current week expanded automatically
-- Previous weeks collapsed with final scores/results
-- Future weeks collapsed
-- Schedule view is focused on AP Top 25 teams plus Notre Dame
-- Notre Dame games are visually emphasized
-- Current AP Top 25 and Coaches Poll are mirrored beneath the schedule
+## New College Football submenu
+The College Football schedule can now be filtered by:
+- Top 25 — always the default, with Notre Dame included/highlighted
+- All FBS
+- ACC
+- B1G
+- Big 12
+- SEC
+- AAC
+- C-USA
+- MAC
+- Mountain West
+- Sun Belt
+- Pac-12
 
-## NFL tab
-- Full NFL regular-season schedule by week
-- Current week expanded automatically
-- Previous weeks collapsed with results
-- Future weeks collapsed
-- Packers, Bills and Colts games are visually emphasized
-- NFC North, AFC East and AFC South standings below the weekly schedule
+The selected filter applies to every weekly accordion:
+- current week expanded
+- previous weeks collapsed with results
+- future weeks collapsed
 
-## Existing behavior preserved
-- Premier League tab
-- Cubs baseline fix in Upcoming & Where to Watch
-- ESPN Where to Watch broadcast priority
-- GitHub Actions automated sports-data refresh
+Whenever the user leaves and comes back to College Football, the view resets to Top 25.
 
-If V12.3 is already live, replace:
+## Data behavior
+- College football scoreboard requests now use a large limit so All FBS can retrieve the full weekly slate.
+- Week 0 still uses the Aug. 27–30 date window.
+- Conference filtering uses ESPN conference metadata on the participating teams.
+- Existing 60-second live scoring remains intact for every filter.
+- V12.6 flexible/TBD date handling remains intact.
+
+## Upgrade from V12.6
+Replace:
 - index.html
 - sports-data.json
 - sports-data.js
 
-No updater-script or workflow change is required for V12.4.
+No Python updater or GitHub Actions change is required.

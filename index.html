@@ -118,6 +118,27 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
   .week-toggle{padding:13px 12px}
 }
 
+
+.live-refresh-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;color:#9fb6c9;font-weight:800}
+.live-refresh-dot{width:7px;height:7px;border-radius:50%;background:#6fda8a;display:inline-block}
+.live-refresh-badge.refreshing .live-refresh-dot{animation:pulseDot .8s ease-in-out infinite alternate}
+@keyframes pulseDot{from{opacity:.35}to{opacity:1}}
+
+
+.league-date-note{margin-top:4px;font-size:9px;line-height:1.25;color:#d6b267;font-weight:750;max-width:180px}
+@media(max-width:760px){.league-date-note{margin:4px auto 0;max-width:260px}}
+
+
+.cfb-filter-wrap{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 8px}
+.cfb-filter{border:1px solid #29465f;background:#0a1929;color:#b9ccdb;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:850;cursor:pointer}
+.cfb-filter:hover{background:#10243a}
+.cfb-filter.active{border-color:#d1a954;background:#d1a514;color:#07111d}
+.cfb-filter-label{font-size:10px;color:#87a1b5;font-weight:800;margin-bottom:10px}
+@media(max-width:760px){
+  .cfb-filter-wrap{gap:6px}
+  .cfb-filter{padding:7px 9px;font-size:10px}
+}
+
 </style>
 </head>
 <body>
@@ -156,7 +177,7 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
   <div class="card epl-week-card">
     <div class="epl-week-heading">
       <strong id="eplWeekLabel">Current Week</strong>
-      <span class="live-note" id="eplScheduleStatus">Loading fixtures…</span>
+      <span class="live-refresh-badge" id="eplScheduleStatus"><span class="live-refresh-dot"></span>Loading fixtures…</span>
     </div>
     <div id="eplFixtures" class="epl-fixtures"></div>
   </div>
@@ -173,10 +194,25 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
     <div class="section-title">
       <div>
         <h2>College Football</h2>
-        <div class="note">Top 25 + Notre Dame · schedule by week</div>
+        <div class="note">Choose a national or conference view · Top 25 is always the default</div>
       </div>
-      <span class="live-note" id="cfbStatus">Live schedule</span>
+      <span class="live-refresh-badge" id="cfbStatus"><span class="live-refresh-dot"></span>Live · updates every 60 sec</span>
     </div>
+    <div class="cfb-filter-wrap" aria-label="College football schedule filter">
+      <button class="cfb-filter active" type="button" data-cfb-filter="top25">Top 25</button>
+      <button class="cfb-filter" type="button" data-cfb-filter="fbs">All FBS</button>
+      <button class="cfb-filter" type="button" data-cfb-filter="acc">ACC</button>
+      <button class="cfb-filter" type="button" data-cfb-filter="bigten">B1G</button>
+      <button class="cfb-filter" type="button" data-cfb-filter="big12">Big 12</button>
+      <button class="cfb-filter" type="button" data-cfb-filter="sec">SEC</button>
+      <button class="cfb-filter" type="button" data-cfb-filter="aac">AAC</button>
+      <button class="cfb-filter" type="button" data-cfb-filter="cusa">C-USA</button>
+      <button class="cfb-filter" type="button" data-cfb-filter="mac">MAC</button>
+      <button class="cfb-filter" type="button" data-cfb-filter="mwc">Mountain West</button>
+      <button class="cfb-filter" type="button" data-cfb-filter="sunbelt">Sun Belt</button>
+      <button class="cfb-filter" type="button" data-cfb-filter="pac12">Pac-12</button>
+    </div>
+    <div id="cfbFilterLabel" class="cfb-filter-label">Showing: Top 25 + Notre Dame</div>
     <div id="cfbWeeks" class="league-weeks"></div>
   </section>
   <section class="section">
@@ -194,7 +230,7 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
         <h2>NFL</h2>
         <div class="note">Full league schedule by week</div>
       </div>
-      <span class="live-note" id="nflStatus">Live schedule</span>
+      <span class="live-refresh-badge" id="nflStatus"><span class="live-refresh-dot"></span>Live · updates every 60 sec</span>
     </div>
     <div id="nflWeeks" class="league-weeks"></div>
   </section>
@@ -212,7 +248,7 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
   </section>
 </main>
 
-<div class="footer">Dayton Sports · V12.4.3.2</div>
+<div class="footer">Dayton Sports · V12.7.3.2</div>
 </div>
 
 <script src="sports-data.js"></script>
@@ -310,23 +346,23 @@ function renderEplEvent(e){
   const st=e.status?.type||{};
   const score=(st.state==="in"||st.completed||st.state==="post")?`${home.score??""}–${away.score??""}`:"vs";
   const tv=(c.broadcasts||[]).flatMap(b=>b.names||[]).filter(Boolean).join(" / ");
-  const live=st.state==="in"?` · ${st.shortDetail||"LIVE"}`:"";
+  const live=st.state==="in"?` · ${st.shortDetail||"LIVE"}`:(st.completed||st.state==="post"?" · FINAL":"");
   return `<div class="epl-fixture"><div class="epl-fixture-date">${fmtEplTime(e.date)}${live}</div><div class="epl-matchup"><div class="epl-home">${compTeamName(home)}</div><div class="epl-score">${score}</div><div class="epl-away">${compTeamName(away)}</div></div><div class="epl-tv">${tv?`📺 ${tv}`:""}</div></div>`;
 }
-async function loadEplWeek(offset=0){
+async function loadEplWeek(offset=0,silent=false){
   eplWeekOffset=offset;
   const start=startOfWeekCT(offset), end=new Date(start); end.setDate(end.getDate()+6);
   document.getElementById("eplWeekLabel").textContent=weekLabel(start);
-  document.getElementById("eplScheduleStatus").textContent="Loading fixtures…";
+  if(!silent)document.getElementById("eplScheduleStatus").innerHTML=`<span class="live-refresh-dot"></span>Loading fixtures…`;
   try{
     const url=`https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=${ymdLocal(start)}-${ymdLocal(end)}`;
     const r=await fetch(url,{cache:"no-store"}); if(!r.ok) throw new Error(r.status);
     const j=await r.json(), events=(j.events||[]).sort((a,b)=>new Date(a.date)-new Date(b.date));
     document.getElementById("eplFixtures").innerHTML=events.length?events.map(renderEplEvent).join(""):`<div class="epl-empty">No Premier League matches this week.</div>`;
-    document.getElementById("eplScheduleStatus").textContent=`${events.length} match${events.length===1?"":"es"}`;
+    document.getElementById("eplScheduleStatus").innerHTML=`<span class="live-refresh-dot"></span>${events.length} match${events.length===1?"":"es"} · auto 60s`;
   }catch(e){
     document.getElementById("eplFixtures").innerHTML=`<div class="epl-empty">Premier League fixtures are temporarily unavailable.</div>`;
-    document.getElementById("eplScheduleStatus").textContent="Feed unavailable";
+    document.getElementById("eplScheduleStatus").innerHTML=`<span class="live-refresh-dot"></span>Feed unavailable`;
   }
 }
 async function loadPremierFullTable(){
@@ -357,6 +393,46 @@ function fmtLeagueTime(iso){
     timeZone:"America/Chicago",weekday:"short",month:"short",day:"numeric",
     hour:"numeric",minute:"2-digit"
   }).format(d)+" CT";
+}
+function espnGameNotes(e){
+  const c=e.competitions?.[0]||{};
+  return (c.notes||[]).map(n=>n.headline||n.type||"").filter(Boolean).join(" · ");
+}
+function formatLeagueDate(e,kind){
+  const c=e.competitions?.[0]||{};
+  const notes=espnGameNotes(e);
+  const dateTBD=Boolean(e.dateTBD||c.dateTBD);
+  const timeTBD=Boolean(e.timeTBD||c.timeTBD);
+
+  // ESPN sometimes assigns a placeholder ISO date to games that are explicitly
+  // still movable between two days. Never present that placeholder as confirmed.
+  if(kind==="cfb"){
+    const flexible=notes.match(/will be played\s+([A-Za-z]{3,9}\.?\s+\d{1,2})\s+or\s+([A-Za-z]{3,9}\.?\s+\d{1,2})/i);
+    if(flexible){
+      return `${flexible[1]} or ${flexible[2]} · TBD`;
+    }
+    const flexibleNumeric=notes.match(/will be played\s+.*?(\d{1,2})\s+or\s+.*?(\d{1,2})/i);
+    if(flexibleNumeric){
+      const raw=new Date(e.date);
+      const month=new Intl.DateTimeFormat("en-US",{timeZone:"UTC",month:"short"}).format(raw);
+      return `${month} ${flexibleNumeric[1]} or ${flexibleNumeric[2]} · TBD`;
+    }
+    if(dateTBD){
+      return "Date TBD";
+    }
+  }
+
+  // For a date that is known but kickoff time is not, preserve the ESPN
+  // calendar date in UTC so midnight placeholder values don't slip back one day
+  // when converted to Central time.
+  if(timeTBD){
+    const d=new Date(e.date);
+    const dateOnly=new Intl.DateTimeFormat("en-US",{
+      timeZone:"UTC",weekday:"short",month:"short",day:"numeric"
+    }).format(d);
+    return `${dateOnly} · TBD`;
+  }
+  return fmtLeagueTime(e.date);
 }
 function eventTeams(e){
   const c=e.competitions?.[0]||{}, arr=c.competitors||[];
@@ -396,9 +472,12 @@ function renderLeagueGame(e,kind){
   const homeLabel=kind==="cfb"?cfbTeamLabel(home):leagueTeamName(home);
   const awayLabel=kind==="cfb"?cfbTeamLabel(away):leagueTeamName(away);
   const tv=broadcastText(comp);
-  const detail=e.status?.type?.state==="in"?(e.status?.type?.shortDetail||"LIVE"):"";
+  const state=e.status?.type?.state;
+  const detail=state==="in"?(e.status?.type?.shortDetail||"LIVE"):
+    (e.status?.type?.completed||state==="post"?"FINAL":"");
+  const note=kind==="cfb"?espnGameNotes(e):"";
   return `<div class="league-game ${featured?"featured":""}">
-    <div class="league-game-time">${fmtLeagueTime(e.date)}${detail?` · ${detail}`:""}</div>
+    <div class="league-game-time">${formatLeagueDate(e,kind)}${detail?` · ${detail}`:""}${note?`<div class="league-date-note">${note}</div>`:""}</div>
     <div class="league-matchup">
       <div class="league-home">${homeLabel}</div>
       <div class="league-score">${scoreText(e,home,away)}</div>
@@ -407,17 +486,81 @@ function renderLeagueGame(e,kind){
     <div class="league-broadcast">${tv?`📺 ${tv}`:""}</div>
   </div>`;
 }
+const CFB_CONFERENCES={
+  acc:{label:"ACC",ids:["1"],names:["acc","atlantic coast"]},
+  big12:{label:"Big 12",ids:["4"],names:["big 12","big twelve"]},
+  bigten:{label:"B1G",ids:["5"],names:["big ten","b1g"]},
+  sec:{label:"SEC",ids:["8"],names:["sec","southeastern"]},
+  pac12:{label:"Pac-12",ids:["9"],names:["pac-12","pac 12","pacific-12"]},
+  cusa:{label:"C-USA",ids:["12"],names:["conference usa","c-usa"]},
+  mac:{label:"MAC",ids:["15"],names:["mid-american","mac"]},
+  mwc:{label:"Mountain West",ids:["17"],names:["mountain west"]},
+  sunbelt:{label:"Sun Belt",ids:["37"],names:["sun belt"]},
+  aac:{label:"AAC",ids:["151"],names:["american athletic","aac","the american"]}
+};
+let cfbFilter="top25";
+
+function competitorConferenceValues(c){
+  const t=c?.team||{};
+  const vals=[
+    c?.conferenceId,t?.conferenceId,
+    c?.conference?.id,t?.conference?.id,
+    c?.conference?.name,t?.conference?.name,
+    c?.conference?.shortName,t?.conference?.shortName,
+    c?.conference?.abbreviation,t?.conference?.abbreviation
+  ].filter(v=>v!==undefined&&v!==null).map(v=>String(v).toLowerCase());
+  return vals;
+}
+function competitorInConference(c,key){
+  const cfg=CFB_CONFERENCES[key];
+  if(!cfg)return false;
+  const vals=competitorConferenceValues(c);
+  if(vals.some(v=>cfg.ids.includes(v)))return true;
+  const text=vals.join(" ");
+  return cfg.names.some(n=>text.includes(n));
+}
 function filterCfbEvents(events){
-  return (events||[]).filter(e=>{
-    const {home,away}=eventTeams(e);
-    return cfbRank(home)||cfbRank(away)||isNotreDameCompetitor(home)||isNotreDameCompetitor(away);
+  const list=events||[];
+  if(cfbFilter==="fbs")return list;
+
+  if(cfbFilter==="top25"){
+    return list.filter(e=>{
+      const {home,away}=eventTeams(e);
+      return cfbRank(home)||cfbRank(away)||isNotreDameCompetitor(home)||isNotreDameCompetitor(away);
+    });
+  }
+
+  if(CFB_CONFERENCES[cfbFilter]){
+    return list.filter(e=>{
+      const {home,away}=eventTeams(e);
+      return competitorInConference(home,cfbFilter)||competitorInConference(away,cfbFilter);
+    });
+  }
+  return list;
+}
+function cfbFilterDisplay(){
+  if(cfbFilter==="top25")return "Top 25 + Notre Dame";
+  if(cfbFilter==="fbs")return "All FBS";
+  return CFB_CONFERENCES[cfbFilter]?.label||"Top 25 + Notre Dame";
+}
+function updateCfbFilterUi(){
+  document.querySelectorAll(".cfb-filter").forEach(b=>{
+    b.classList.toggle("active",b.dataset.cfbFilter===cfbFilter);
   });
+  const label=document.getElementById("cfbFilterLabel");
+  if(label)label.textContent=`Showing: ${cfbFilterDisplay()}`;
+}
+async function setCfbFilter(next,{resetWeekPanels=true}={}){
+  cfbFilter=next||"top25";
+  updateCfbFilterUi();
+  LEAGUE_CACHE.cfb={};
+  if(resetWeekPanels)await renderCfbWeeks();
 }
 function currentCfbWeek(){
   // ESPN CFB "week" numbering maps preseason/Week 0/Week 1 imperfectly.
   // Determine the closest week by finding the weekly scoreboard whose dates surround today.
   const now=ctNow();
-  const seasonStart=new Date(2026,7,22); // Aug 22 approximate Week 0 anchor.
+  const seasonStart=new Date(2026,7,27); // Week Zero begins Aug 27, 2026.
   const days=Math.floor((now-seasonStart)/86400000);
   return Math.max(0,Math.min(16,Math.floor(days/7)));
 }
@@ -433,7 +576,13 @@ async function fetchWeek(kind,week){
   if(cache[week])return cache[week];
   let url;
   if(kind==="cfb"){
-    url=`https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?seasontype=2&week=${week}`;
+    // ESPN's week=0 query is inconsistent. Use the actual 2026 Week Zero
+    // date window so every scheduled opening-week game can be retrieved.
+    if(week===0){
+      url="https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=20260827-20260830&limit=300";
+    }else{
+      url=`https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?seasontype=2&week=${week}&limit=300`;
+    }
   }else{
     url=`https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&week=${week}`;
   }
@@ -496,7 +645,7 @@ async function renderCfbWeeks(){
   const weeks=[];
   for(let w=0;w<=16;w++){
     const state=w<current?"past":w===current?"current":"future";
-    const label=w===0?"Week 0":`Week ${w}`;
+    const label=w===0?"Week 0 · Aug 27–30":`Week ${w}`;
     weeks.push(panelHtml("cfb",w,label,state,null));
   }
   container.innerHTML=weeks.join("");
@@ -544,9 +693,67 @@ async function loadNflDivisionTables(){
   }catch(e){}
 }
 renderCfbWeeks();
+
+document.querySelectorAll(".cfb-filter").forEach(btn=>{
+  btn.addEventListener("click",()=>setCfbFilter(btn.dataset.cfbFilter));
+});
+updateCfbFilterUi();
+
 renderNflWeeks();
 mirrorCfbRankings();
 loadNflDivisionTables();
+
+
+// ---- 60-second automatic live-score refresh for league tabs ----
+function visibleViewId(){
+  const v=[...document.querySelectorAll(".view")].find(x=>x.style.display!=="none");
+  return v?.id||"";
+}
+async function refreshOpenLeaguePanels(kind){
+  LEAGUE_CACHE[kind]={}; // force fresh ESPN scoreboard data
+  const root=document.getElementById(kind==="cfb"?"cfbWeeks":"nflWeeks");
+  if(!root)return;
+  const panels=[...root.querySelectorAll(".week-panel.open")];
+  for(const p of panels) await loadPanel(p);
+}
+async function autoRefreshLeagueScores(){
+  const view=visibleViewId();
+  try{
+    if(view==="premier"){
+      const badge=document.getElementById("eplScheduleStatus");
+      badge?.classList.add("refreshing");
+      await loadEplWeek(eplWeekOffset,true);
+      await loadPremierFullTable();
+      badge?.classList.remove("refreshing");
+    }else if(view==="collegefootball"){
+      const badge=document.getElementById("cfbStatus");
+      badge?.classList.add("refreshing");
+      await refreshOpenLeaguePanels("cfb");
+      badge?.classList.remove("refreshing");
+    }else if(view==="nfl"){
+      const badge=document.getElementById("nflStatus");
+      badge?.classList.add("refreshing");
+      await refreshOpenLeaguePanels("nfl");
+      await loadNflDivisionTables();
+      badge?.classList.remove("refreshing");
+    }
+  }catch(e){}
+}
+setInterval(autoRefreshLeagueScores,60000);
+
+// Refresh immediately when entering one of the live league tabs if its last
+// automatic refresh could be stale.
+document.querySelectorAll('nav button[data-view]').forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const target=btn.dataset.view;
+    if(target==="collegefootball"){
+      // Product rule: always enter College Football on Top 25.
+      setCfbFilter("top25").then(()=>setTimeout(autoRefreshLeagueScores,100));
+    }else if(["premier","nfl"].includes(target)){
+      setTimeout(autoRefreshLeagueScores,100);
+    }
+  });
+});
 
 // ---- Automatic scores / live results ----
 // ESPN's public scoreboard feeds are used where available. If a feed fails,
