@@ -1,0 +1,42 @@
+name: Update Dayton Sports Data
+
+on:
+  schedule:
+    - cron: "15 */3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dayton-sports-data-refresh
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out site
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Refresh sports data
+        run: python scripts/update_data.py
+
+      - name: Commit refreshed data if changed
+        run: |
+          if git diff --quiet -- sports-data.json sports-data.js; then
+            echo "No data changes."
+            exit 0
+          fi
+          git config user.name "dayton-sports-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sports-data.json sports-data.js
+          git commit -m "Auto-update sports data"
+          git push

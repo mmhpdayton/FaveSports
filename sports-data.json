@@ -1,12 +1,12 @@
 {
-  "version": "v11.1",
+  "version": "v12",
   "teams": [
     {
       "id": "payton",
       "name": "Payton JV Volleyball",
       "abbr": "P",
       "color": "#f47b20",
-      "record": "0\u20130",
+      "record": "0–0",
       "context": "",
       "target": "",
       "schedule": [
@@ -48,7 +48,7 @@
         {
           "date": "Sep 12",
           "time": "TBA",
-          "opp": "Rickover JV Tournament \u2014 Game 1",
+          "opp": "Rickover JV Tournament — Game 1",
           "ha": "NEUTRAL",
           "conference": false,
           "tournament": true
@@ -56,7 +56,7 @@
         {
           "date": "Sep 12",
           "time": "TBA",
-          "opp": "Rickover JV Tournament \u2014 Game 2",
+          "opp": "Rickover JV Tournament — Game 2",
           "ha": "NEUTRAL",
           "conference": false,
           "tournament": true
@@ -64,7 +64,7 @@
         {
           "date": "Sep 12",
           "time": "TBA",
-          "opp": "Rickover JV Tournament \u2014 Game 3",
+          "opp": "Rickover JV Tournament — Game 3",
           "ha": "NEUTRAL",
           "conference": false,
           "tournament": true
@@ -72,7 +72,7 @@
         {
           "date": "Sep 12",
           "time": "TBA",
-          "opp": "Rickover JV Tournament \u2014 Game 4",
+          "opp": "Rickover JV Tournament — Game 4",
           "ha": "NEUTRAL",
           "conference": false,
           "tournament": true
@@ -147,7 +147,7 @@
       "name": "Amundsen JV Football",
       "abbr": "A",
       "color": "#b61f2e",
-      "record": "0\u20130",
+      "record": "0–0",
       "context": "",
       "target": "",
       "schedule": [
@@ -200,8 +200,8 @@
       "name": "Notre Dame",
       "abbr": "ND",
       "color": "#c99700",
-      "record": "0\u20130",
-      "context": "#4 AP \u00b7 #5 Coaches",
+      "record": "0–0",
+      "context": "#4 AP · #5 Coaches",
       "target": "football-rankings",
       "schedule": [
         {
@@ -209,9 +209,9 @@
           "time": "6:30 PM CT",
           "opp": "Wisconsin",
           "ha": "NEUTRAL",
-          "venue": "Lambeau Field \u00b7 Green Bay",
+          "venue": "Lambeau Field · Green Bay",
           "event": "Shamrock Series",
-          "tv": "NBC \u00b7 Peacock"
+          "tv": "NBC · Peacock"
         },
         {
           "date": "Sep 12",
@@ -219,7 +219,7 @@
           "opp": "Rice",
           "ha": "HOME",
           "venue": "Notre Dame Stadium",
-          "tv": "NBC \u00b7 Peacock"
+          "tv": "NBC · Peacock"
         },
         {
           "date": "Sep 19",
@@ -227,7 +227,7 @@
           "opp": "Michigan State",
           "ha": "HOME",
           "venue": "Notre Dame Stadium",
-          "tv": "NBC \u00b7 Peacock"
+          "tv": "NBC · Peacock"
         },
         {
           "date": "Sep 26",
@@ -251,7 +251,7 @@
           "opp": "Stanford",
           "ha": "HOME",
           "venue": "Notre Dame Stadium",
-          "tv": "NBC \u00b7 Peacock"
+          "tv": "NBC · Peacock"
         },
         {
           "date": "Oct 17",
@@ -275,7 +275,7 @@
           "opp": "Miami",
           "ha": "HOME",
           "venue": "Notre Dame Stadium",
-          "tv": "NBC \u00b7 Peacock"
+          "tv": "NBC · Peacock"
         },
         {
           "date": "Nov 14",
@@ -283,7 +283,7 @@
           "opp": "Boston College",
           "ha": "HOME",
           "venue": "Notre Dame Stadium",
-          "tv": "NBC \u00b7 Peacock"
+          "tv": "NBC · Peacock"
         },
         {
           "date": "Nov 21",
@@ -291,7 +291,7 @@
           "opp": "SMU",
           "ha": "HOME",
           "venue": "Notre Dame Stadium",
-          "tv": "NBC \u00b7 Peacock"
+          "tv": "NBC · Peacock"
         },
         {
           "date": "Nov 28",
@@ -308,7 +308,7 @@
       "name": "Wisconsin Volleyball",
       "abbr": "W",
       "color": "#c5050c",
-      "record": "0\u20130",
+      "record": "0–0",
       "context": "#6 AVCA",
       "target": "volleyball-rankings",
       "schedule": [
@@ -318,7 +318,7 @@
           "opp": "Alumni Match",
           "ha": "HOME",
           "tv": "B1G+",
-          "result": "L 1\u20133"
+          "result": "L 1–3"
         },
         {
           "date": "Aug 14",
@@ -326,16 +326,16 @@
           "opp": "Butler (Exhibition)",
           "ha": "HOME",
           "tv": "B1G+",
-          "result": "W 3\u20130"
+          "result": "W 3–0"
         },
         {
           "date": "Aug 21",
           "time": "8:00 PM CT",
           "opp": "#3 Kentucky",
           "ha": "NEUTRAL",
-          "tv": "ESPN platform \u2014 network TBD",
+          "tv": "ESPN platform — network TBD",
           "result": "",
-          "venue": "Fiserv Forum \u00b7 Milwaukee",
+          "venue": "Fiserv Forum · Milwaukee",
           "event": "AVCA First Serve"
         },
         {
@@ -345,7 +345,7 @@
           "ha": "NEUTRAL",
           "tv": "FOX",
           "result": "",
-          "venue": "Fiserv Forum \u00b7 Milwaukee",
+          "venue": "Fiserv Forum · Milwaukee",
           "event": "AVCA First Serve"
         },
         {
@@ -589,8 +589,8 @@
       "name": "Liverpool",
       "abbr": "LFC",
       "color": "#c8102e",
-      "record": "0\u20130\u20130",
-      "context": "Premier League \u00b7 \u2014",
+      "record": "0–0–0",
+      "context": "Premier League · —",
       "target": "standings",
       "schedule": [
         {
@@ -876,8 +876,8 @@
       "name": "Packers",
       "abbr": "G",
       "color": "#203731",
-      "record": "0\u20130",
-      "context": "NFC North \u00b7 \u2014",
+      "record": "0–0",
+      "context": "NFC North · —",
       "target": "standings",
       "schedule": [
         {
@@ -886,7 +886,7 @@
           "opp": "Pittsburgh Steelers",
           "ha": "AWAY",
           "tv": "",
-          "result": "L 9\u201328",
+          "result": "L 9–28",
           "type": "PRESEASON"
         },
         {
@@ -1072,8 +1072,8 @@
       "name": "Bills",
       "abbr": "BUF",
       "color": "#00338d",
-      "record": "0\u20130",
-      "context": "AFC East \u00b7 \u2014",
+      "record": "0–0",
+      "context": "AFC East · —",
       "target": "standings",
       "schedule": [
         {
@@ -1267,8 +1267,8 @@
       "name": "Cubs",
       "abbr": "C",
       "color": "#0e3386",
-      "record": "72\u201353",
-      "context": "NL Central \u00b7 2nd",
+      "record": "72–53",
+      "context": "NL Central · 2nd",
       "target": "standings",
       "schedule": [
         {
@@ -1542,8 +1542,8 @@
       "name": "Colts",
       "abbr": "IND",
       "color": "#002c5f",
-      "record": "0\u20130",
-      "context": "AFC South \u00b7 \u2014",
+      "record": "0–0",
+      "context": "AFC South · —",
       "target": "standings",
       "schedule": [
         {
@@ -1552,7 +1552,7 @@
           "opp": "New England Patriots",
           "ha": "AWAY",
           "tv": "FOX59",
-          "result": "T 13\u201313",
+          "result": "T 13–13",
           "type": "PRESEASON"
         },
         {
@@ -1736,11 +1736,11 @@
   "upcoming": [
     {
       "id": "wisc",
-      "date": "FRI \u00b7 AUG 21",
+      "date": "FRI · AUG 21",
       "time": "8:00 PM CT",
       "opp": "#3 Kentucky",
       "where": "NEUTRAL",
-      "tv": "ESPN platform \u2014 network TBD"
+      "tv": "ESPN platform — network TBD"
     },
     {
       "id": "amundsen",
@@ -1752,7 +1752,7 @@
     },
     {
       "id": "wisc",
-      "date": "SAT \u00b7 AUG 22",
+      "date": "SAT · AUG 22",
       "time": "3:00 PM CT",
       "opp": "#7 Louisville",
       "where": "NEUTRAL",
@@ -1760,7 +1760,7 @@
     },
     {
       "id": "lfc",
-      "date": "SUN \u00b7 AUG 23",
+      "date": "SUN · AUG 23",
       "time": "11:30 AM CT",
       "opp": "@ Newcastle United",
       "where": "AWAY",
@@ -1768,7 +1768,7 @@
     },
     {
       "id": "payton",
-      "date": "MON \u00b7 AUG 24",
+      "date": "MON · AUG 24",
       "time": "5:00 PM",
       "opp": "vs Willowbrook",
       "where": "HOME",
@@ -1856,6 +1856,41 @@
       "TCU",
       "Utah",
       "Marquette"
+    ],
+    "firstPlaceVotes": {
+      "ap": {
+        "Ohio State": 40,
+        "Oregon": 14,
+        "Notre Dame": 6,
+        "Indiana": 8,
+        "Miami": 1
+      },
+      "coaches": {
+        "Ohio State": 38,
+        "Oregon": 6,
+        "Georgia": 7,
+        "Texas": 2,
+        "Notre Dame": 5,
+        "Indiana": 14
+      }
+    }
+  },
+  "lastUpdated": null,
+  "automation": {
+    "enabled": true,
+    "refreshCadence": "Every 3 hours",
+    "publicTeams": [
+      "nd",
+      "wisc",
+      "lfc",
+      "gb",
+      "buf",
+      "cubs",
+      "ind"
+    ],
+    "manualTeams": [
+      "payton",
+      "amundsen"
     ]
   }
 }

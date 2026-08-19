@@ -60,11 +60,17 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 .timeline-note{font-size:11px;color:var(--muted);margin:-5px 0 13px}
 .manual-result{display:inline-flex;font-size:10px;font-weight:900;padding:4px 8px;border-radius:999px;background:#142b20;border:1px solid #38684b;color:#cdf4d7;margin-top:6px}
 
+
+.data-status{margin-top:5px;font-size:10px;color:#88a2bd}
+.data-status strong{color:#b9d5f2}
+.auto-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#6fda8a;margin-right:5px;box-shadow:0 0 8px #6fda8a66}
+.refresh-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid #31506d;background:#0b1a2c;padding:4px 8px;border-radius:999px;font-size:10px;color:#b9d5f2}
+
 </style>
 </head>
 <body>
 <div class="wrap">
-<header><div class="brand"><img src="apple-touch-icon.png" class="brand-icon" alt=""><div><h1>Dayton Sports</h1><p>Our teams. Our games. One place.</p></div></div>
+<header><div class="brand"><img src="apple-touch-icon.png" class="brand-icon" alt=""><div><h1>Dayton Sports</h1><p>Our teams. Our games. One place.</p><div id="dataStatus" class="data-status"></div></div></div>
 <nav><button class="active" data-view="home">Home</button><button data-view="schedules">Schedules</button><button data-view="standings">Standings</button><button data-view="rankings">Rankings</button></nav></header>
 
 <main id="home" class="view">
@@ -84,12 +90,22 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 <section class="section" id="football-rankings"><h2>College Football</h2><div class="rankings-pair"><div class="card rank-card"><div class="poll-title">AP Top 25</div><div id="ap" class="poll"></div></div><div class="card rank-card"><div class="poll-title">Coaches Poll</div><div id="coaches" class="poll"></div></div></div></section>
 <section class="section" id="volleyball-rankings"><h2>Women’s Volleyball — AVCA Top 25</h2><div class="card rank-card" id="avca" style="margin-top:12px"></div></section>
 </main>
-<div class="footer">Dayton Sports · V11.1.3.2</div>
+<div class="footer">Dayton Sports · V12.3.2</div>
 </div>
 
 <script src="sports-data.js"></script>
 <script>
 const D=window.FAVE_DATA;
+function dataStatusText(){
+  if(D.lastUpdated){
+    const d=new Date(D.lastUpdated);
+    if(!Number.isNaN(d.getTime())){
+      return `<span class="auto-dot"></span>Auto-update on · data refreshed <strong>${d.toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}</strong>`;
+    }
+  }
+  return `<span class="auto-dot"></span>Auto-update enabled · live feeds refresh on load`;
+}
+document.getElementById("dataStatus").innerHTML=dataStatusText();
 const logos={
 payton:"payton-logo.png",
 amundsen:"amundsen-logo.png",
@@ -127,10 +143,7 @@ renderSchedule(D.teams[0].id);
 document.querySelectorAll(".team-chip").forEach(b=>b.onclick=()=>renderSchedule(b.dataset.team));
 document.querySelectorAll(".gotoSchedule").forEach(b=>b.onclick=()=>{showView("schedules");renderSchedule(b.dataset.team)});
 
-const FPV={
-  ap:{"Ohio State":40,"Oregon":14,"Notre Dame":6,"Indiana":1,"Miami":1},
-  coaches:{"Ohio State":38,"Oregon":6,"Georgia":7,"Texas":2,"Notre Dame":5,"Indiana":14}
-};
+const FPV=(D.rankings&&D.rankings.firstPlaceVotes)||{ap:{},coaches:{}};
 function poll(id,arr){
   const fpv=FPV[id]||{};
   document.getElementById(id).innerHTML=arr.map((n,i)=>{
@@ -385,7 +398,23 @@ function fallbackEPL(){
   const el=document.getElementById("eplTable");
   if(el)el.innerHTML=`<div class="standing-head"><h3>Premier League · Liverpool</h3><span class="live-note">Live table loading…</span></div><div class="note">Liverpool’s live Premier League table will populate automatically from the standings feed.</div>`;
 }
+
+function renderStoredStandings(){
+  const S=D.standings||{};
+  const configs=[
+    ["eplTable","Premier League",S.epl,"soccer",["Liverpool"]],
+    ["nfcNorth","NFC North",S.nfcNorth,"nfl",["Green Bay","Packers"]],
+    ["afcEast","AFC East",S.afcEast,"nfl",["Buffalo","Bills"]],
+    ["afcSouth","AFC South",S.afcSouth,"nfl",["Indianapolis","Colts"]],
+    ["nlCentral","NL Central",S.nlCentral,"mlb",["Chicago Cubs","Cubs"]]
+  ];
+  configs.forEach(([target,title,entries,kind,focus])=>{
+    if(Array.isArray(entries)&&entries.length) renderStandings(target,title,entries,kind,focus);
+  });
+}
+
 async function loadStandings(){
+  renderStoredStandings();
   fallbackEPL(); fallbackNFL(); fallbackMLB();
   try{
     const r=await fetch(STANDING_FEEDS.epl.url,{cache:"no-store"}); if(!r.ok)throw 0;
