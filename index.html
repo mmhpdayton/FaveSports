@@ -66,12 +66,32 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 .auto-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#6fda8a;margin-right:5px;box-shadow:0 0 8px #6fda8a66}
 .refresh-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid #31506d;background:#0b1a2c;padding:4px 8px;border-radius:999px;font-size:10px;color:#b9d5f2}
 
+
+.epl-week-controls{display:flex;gap:7px;flex-wrap:wrap}
+.epl-week-card{padding:16px}
+.epl-week-heading{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}
+.epl-fixtures{display:grid;gap:9px}
+.epl-fixture{display:grid;grid-template-columns:120px 1fr auto;align-items:center;gap:14px;padding:12px 10px;border-bottom:1px solid #ffffff0a}
+.epl-fixture:last-child{border-bottom:0}
+.epl-fixture-date{font-size:11px;color:var(--muted);font-weight:800}
+.epl-matchup{display:grid;grid-template-columns:1fr 36px 1fr;gap:10px;align-items:center}
+.epl-home{text-align:right;font-weight:850}
+.epl-away{text-align:left;font-weight:850}
+.epl-score{text-align:center;font-weight:950;color:#f3d287}
+.epl-tv{font-size:11px;color:#c4ddff;font-weight:800;text-align:right}
+.epl-empty{padding:22px;text-align:center;color:var(--muted)}
+@media(max-width:760px){
+  .epl-fixture{grid-template-columns:1fr;gap:8px}
+  .epl-fixture-date,.epl-tv{text-align:center}
+  .epl-matchup{grid-template-columns:1fr 44px 1fr}
+}
+
 </style>
 </head>
 <body>
 <div class="wrap">
 <header><div class="brand"><img src="apple-touch-icon.png" class="brand-icon" alt=""><div><h1>Dayton Sports</h1><p>Our teams. Our games. One place.</p><div id="dataStatus" class="data-status"></div></div></div>
-<nav><button class="active" data-view="home">Home</button><button data-view="schedules">Schedules</button><button data-view="standings">Standings</button><button data-view="rankings">Rankings</button></nav></header>
+<nav><button class="active" data-view="home">Home</button><button data-view="schedules">Schedules</button><button data-view="standings">Standings</button><button data-view="rankings">Rankings</button><button data-view="premier">Premier League</button></nav></header>
 
 <main id="home" class="view">
 <section class="section"><div class="section-title"><h2>Upcoming & Where to Watch</h2><span class="note">Quick glance</span></div><div id="upcoming" class="grid"></div></section>
@@ -90,7 +110,32 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 <section class="section" id="football-rankings"><h2>College Football</h2><div class="rankings-pair"><div class="card rank-card"><div class="poll-title">AP Top 25</div><div id="ap" class="poll"></div></div><div class="card rank-card"><div class="poll-title">Coaches Poll</div><div id="coaches" class="poll"></div></div></div></section>
 <section class="section" id="volleyball-rankings"><h2>Women’s Volleyball — AVCA Top 25</h2><div class="card rank-card" id="avca" style="margin-top:12px"></div></section>
 </main>
-<div class="footer">Dayton Sports · V12.1.3.2</div>
+
+<main id="premier" class="view" style="display:none">
+<section class="section">
+  <div class="section-title">
+    <div><h2>Premier League</h2><div class="note">League fixtures by week · current table</div></div>
+    <div class="epl-week-controls">
+      <button class="view-schedule" id="eplPrev">‹ Previous</button>
+      <button class="view-schedule" id="eplToday">Current Week</button>
+      <button class="view-schedule" id="eplNext">Next ›</button>
+    </div>
+  </div>
+  <div class="card epl-week-card">
+    <div class="epl-week-heading">
+      <strong id="eplWeekLabel">Current Week</strong>
+      <span class="live-note" id="eplScheduleStatus">Loading fixtures…</span>
+    </div>
+    <div id="eplFixtures" class="epl-fixtures"></div>
+  </div>
+</section>
+<section class="section">
+  <div class="section-title"><h2>Premier League Table</h2><span class="live-note" id="eplTableStatus">Live table</span></div>
+  <div class="card standing-card" id="premierFullTable"></div>
+</section>
+</main>
+
+<div class="footer">Dayton Sports · V12.2.3.2</div>
 </div>
 
 <script src="sports-data.js"></script>
@@ -159,6 +204,68 @@ document.getElementById("standingsGrid").innerHTML=[
   ["afcSouth","AFC South · Colts"],
   ["nlCentral","NL Central · Cubs"]
 ].map(([id,title])=>`<div class="card standing-card" id="${id}"><div class="standing-head"><h3>${title}</h3><span class="live-note">Loading live standings…</span></div></div>`).join("");
+
+
+// ---- Premier League weekly fixtures + table ----
+let eplWeekOffset=0;
+function startOfWeekCT(offset=0){
+  const now=new Date();
+  const ct=new Date(now.toLocaleString("en-US",{timeZone:"America/Chicago"}));
+  const day=ct.getDay(), delta=(day===0?-6:1-day);
+  ct.setHours(0,0,0,0); ct.setDate(ct.getDate()+delta+(offset*7));
+  return ct;
+}
+function ymdLocal(d){return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`}
+function weekLabel(start){
+  const end=new Date(start); end.setDate(end.getDate()+6);
+  const fmt=new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"});
+  return `${fmt.format(start)} – ${fmt.format(end)}`;
+}
+function fmtEplTime(iso){
+  const d=new Date(iso);
+  return new Intl.DateTimeFormat("en-US",{timeZone:"America/Chicago",weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(d)+" CT";
+}
+function compTeamName(c){return c?.team?.shortDisplayName||c?.team?.displayName||c?.team?.name||""}
+function renderEplEvent(e){
+  const c=e.competitions?.[0]||{}, comps=c.competitors||[];
+  const home=comps.find(x=>x.homeAway==="home")||comps[0]||{};
+  const away=comps.find(x=>x.homeAway==="away")||comps[1]||{};
+  const st=e.status?.type||{};
+  const score=(st.state==="in"||st.completed||st.state==="post")?`${home.score??""}–${away.score??""}`:"vs";
+  const tv=(c.broadcasts||[]).flatMap(b=>b.names||[]).filter(Boolean).join(" / ");
+  const live=st.state==="in"?` · ${st.shortDetail||"LIVE"}`:"";
+  return `<div class="epl-fixture"><div class="epl-fixture-date">${fmtEplTime(e.date)}${live}</div><div class="epl-matchup"><div class="epl-home">${compTeamName(home)}</div><div class="epl-score">${score}</div><div class="epl-away">${compTeamName(away)}</div></div><div class="epl-tv">${tv?`📺 ${tv}`:""}</div></div>`;
+}
+async function loadEplWeek(offset=0){
+  eplWeekOffset=offset;
+  const start=startOfWeekCT(offset), end=new Date(start); end.setDate(end.getDate()+6);
+  document.getElementById("eplWeekLabel").textContent=weekLabel(start);
+  document.getElementById("eplScheduleStatus").textContent="Loading fixtures…";
+  try{
+    const url=`https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=${ymdLocal(start)}-${ymdLocal(end)}`;
+    const r=await fetch(url,{cache:"no-store"}); if(!r.ok) throw new Error(r.status);
+    const j=await r.json(), events=(j.events||[]).sort((a,b)=>new Date(a.date)-new Date(b.date));
+    document.getElementById("eplFixtures").innerHTML=events.length?events.map(renderEplEvent).join(""):`<div class="epl-empty">No Premier League matches this week.</div>`;
+    document.getElementById("eplScheduleStatus").textContent=`${events.length} match${events.length===1?"":"es"}`;
+  }catch(e){
+    document.getElementById("eplFixtures").innerHTML=`<div class="epl-empty">Premier League fixtures are temporarily unavailable.</div>`;
+    document.getElementById("eplScheduleStatus").textContent="Feed unavailable";
+  }
+}
+async function loadPremierFullTable(){
+  const target=document.getElementById("premierFullTable"); if(!target)return;
+  const stored=D.standings?.epl;
+  if(Array.isArray(stored)&&stored.length) renderStandings("premierFullTable","Premier League",stored,"soccer",["Liverpool"]);
+  try{
+    const r=await fetch("https://site.api.espn.com/apis/v2/sports/soccer/eng.1/standings?season=2026",{cache:"no-store"}); if(!r.ok) throw new Error(r.status);
+    const j=await r.json(), groups=allGroups(j), g=groups.sort((a,b)=>b.entries.length-a.entries.length)[0];
+    if(g?.entries?.length){renderStandings("premierFullTable","Premier League",g.entries,"soccer",["Liverpool"]);document.getElementById("eplTableStatus").textContent="Live table";}
+  }catch(e){document.getElementById("eplTableStatus").textContent="Using last saved table";}
+}
+document.getElementById("eplPrev").onclick=()=>loadEplWeek(eplWeekOffset-1);
+document.getElementById("eplNext").onclick=()=>loadEplWeek(eplWeekOffset+1);
+document.getElementById("eplToday").onclick=()=>loadEplWeek(0);
+loadEplWeek(0); loadPremierFullTable();
 
 // ---- Automatic scores / live results ----
 // ESPN's public scoreboard feeds are used where available. If a feed fails,

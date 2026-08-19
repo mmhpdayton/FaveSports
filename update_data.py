@@ -527,44 +527,58 @@ def regenerate_upcoming(data: dict):
     today = datetime.now(CT).date()
     horizon = today + timedelta(days=7)
     teams = {t["id"]: t for t in data.get("teams", [])}
-    events = []
+    featured_order = ["payton", "amundsen", "nd", "wisc", "lfc", "gb", "buf", "cubs"]
 
-    # General 7-day window. Colts intentionally excluded from Home Upcoming.
-    for tid, t in teams.items():
-        if tid == "ind":
-            continue
-        for g in t.get("schedule", []):
-            d = game_date(g)
-            if not d or d < today or d > horizon or is_finished(g):
-                continue
-            if tid in {"gb", "buf"} and g.get("type") == "PRESEASON":
-                continue
-            events.append((d, tid, g))
+    chosen = []
+    chosen_keys = set()
 
-    # Kids' next event is always shown, even outside the 7-day window.
-    for tid in ("payton", "amundsen"):
+    def eligible(tid, g):
+        d = game_date(g)
+        if not d or d < today or is_finished(g):
+            return False
+        if tid in {"gb", "buf"} and g.get("type") == "PRESEASON":
+            return False
+        return True
+
+    def key(tid, g):
+        return (tid, g.get("date"), g.get("opp"))
+
+    # Guarantee one next game per featured favorite.
+    for tid in featured_order:
         t = teams.get(tid)
         if not t:
             continue
-        nxt = next((g for g in t.get("schedule", []) if (game_date(g) or today) >= today and not is_finished(g)), None)
+        nxt = next((g for g in t.get("schedule", []) if eligible(tid, g)), None)
         if nxt:
-            d = game_date(nxt) or today
-            if not any(tid == x[1] and x[2] is nxt for x in events):
-                events.append((d, tid, nxt))
+            chosen.append((game_date(nxt), tid, nxt))
+            chosen_keys.add(key(tid, nxt))
 
-    events.sort(key=lambda x: x[0])
-    upcoming = []
-    for d, tid, g in events[:10]:
-        upcoming.append({
-            "id": tid,
-            "date": d.strftime("%a · %b %d").upper(),
-            "opp": ("@ " if g.get("ha") == "AWAY" else "vs ") + g.get("opp", ""),
-            "time": g.get("time", ""),
-            "tv": g.get("tv", ""),
-            "where": g.get("ha", ""),
-        })
-    data["upcoming"] = upcoming
+    # Then add other games in the next seven days.
+    extras = []
+    for tid in featured_order:
+        t = teams.get(tid)
+        if not t:
+            continue
+        for g in t.get("schedule", []):
+            d = game_date(g)
+            if not d or d < today or d > horizon or not eligible(tid, g):
+                continue
+            k = key(tid, g)
+            if k not in chosen_keys:
+                extras.append((d, tid, g))
+                chosen_keys.add(k)
 
+    chosen.extend(extras)
+    chosen.sort(key=lambda x: x[0])
+
+    data["upcoming"] = [{
+        "id": tid,
+        "date": d.strftime("%a · %b %d").upper(),
+        "opp": ("@ " if g.get("ha") == "AWAY" else "vs ") + g.get("opp", ""),
+        "time": g.get("time", ""),
+        "tv": g.get("tv", ""),
+        "where": g.get("ha", ""),
+    } for d, tid, g in chosen[:14]]
 
 def main():
     data = json.loads(JSON_PATH.read_text(encoding="utf-8"))
@@ -575,7 +589,7 @@ def main():
     update_team_contexts(data)
     regenerate_upcoming(data)
 
-    data["version"] = "v12.1"
+    data["version"] = "v12.2"
     data["lastUpdated"] = datetime.now(timezone.utc).isoformat()
     data.setdefault("automation", {})["enabled"] = True
     data["automation"]["lastRun"] = data["lastUpdated"]
