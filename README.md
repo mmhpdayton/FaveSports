@@ -1,40 +1,33 @@
-# Dayton Sports V12.7
+# Dayton Sports V12.9
 
-College Football browsing upgrade.
+Fixes the College Football submenu data source.
 
-## New College Football submenu
-The College Football schedule can now be filtered by:
-- Top 25 — always the default, with Notre Dame included/highlighted
-- All FBS
-- ACC
-- B1G
-- Big 12
-- SEC
-- AAC
-- C-USA
-- MAC
-- Mountain West
-- Sun Belt
-- Pac-12
+## Correct behavior
+- Top 25: ranked-game view + Notre Dame
+- All FBS: ESPN FBS group feed
+- ACC: conference group feed
+- B1G: conference group feed
+- Big 12: conference group feed
+- SEC: conference group feed
+- AAC: conference group feed
+- C-USA: conference group feed
+- MAC: conference group feed
+- Mountain West: conference group feed
+- Sun Belt: conference group feed
+- Pac-12: conference group feed
 
-The selected filter applies to every weekly accordion:
-- current week expanded
-- previous weeks collapsed with results
-- future weeks collapsed
+The previous version changed the display filter but still fetched ESPN's default ranked slate, which is why All FBS and conference views only showed ranked-team games.
 
-Whenever the user leaves and comes back to College Football, the view resets to Top 25.
+## Preserved
+- Top 25 always defaults when College Football is opened
+- Week 0 handling
+- TBD/flexible-date handling
+- 60-second live scoring
+- game-detail pages
+- NFL and Premier League tabs
 
-## Data behavior
-- College football scoreboard requests now use a large limit so All FBS can retrieve the full weekly slate.
-- Week 0 still uses the Aug. 27–30 date window.
-- Conference filtering uses ESPN conference metadata on the participating teams.
-- Existing 60-second live scoring remains intact for every filter.
-- V12.6 flexible/TBD date handling remains intact.
-
-## Upgrade from V12.6
+## Upgrade from V12.8
 Replace:
 - index.html
 - sports-data.json
 - sports-data.js
-
-No Python updater or GitHub Actions change is required.

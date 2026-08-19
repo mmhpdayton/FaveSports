@@ -139,6 +139,46 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
   .cfb-filter{padding:7px 9px;font-size:10px}
 }
 
+
+.game-detail-overlay{position:fixed;inset:0;background:#02070dcc;backdrop-filter:blur(7px);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:0}
+.game-detail-overlay[hidden]{display:none}
+.game-detail-shell{width:min(860px,100%);max-height:92vh;overflow:auto;background:#071321;border:1px solid #29445e;border-radius:20px 20px 0 0;box-shadow:0 -18px 60px #0008}
+.game-detail-topbar{position:sticky;top:0;z-index:2;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding:12px 14px;background:#071321f2;border-bottom:1px solid #1b3349}
+.game-detail-back,.game-detail-close{border:1px solid #29445e;background:#0a1a2a;color:#d9e8f4;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:850;cursor:pointer}
+.game-detail-close{padding:8px 11px}
+.game-detail-live{text-align:center;font-size:11px;color:#d5b36b;font-weight:900}
+.game-detail-content{padding:16px}
+.game-hero{display:grid;grid-template-columns:1fr 80px 1fr;align-items:center;gap:14px;padding:14px 0 18px}
+.game-team{text-align:center}
+.game-team img{width:64px;height:64px;object-fit:contain;margin-bottom:8px}
+.game-team-name{font-size:16px;font-weight:900}
+.game-score{text-align:center}
+.game-score-main{font-size:34px;font-weight:950;color:#f1d18a}
+.game-score-status{font-size:11px;color:#9eb4c7;font-weight:850;margin-top:4px}
+.game-info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 16px}
+.game-info-card{border:1px solid #1e3b53;background:#0a1a2a;border-radius:12px;padding:10px}
+.game-info-label{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#7f9ab0;font-weight:900}
+.game-info-value{font-size:12px;font-weight:850;margin-top:3px}
+.game-section{margin-top:18px}
+.game-section h3{font-size:13px;margin:0 0 9px}
+.game-stat-table{width:100%;border-collapse:collapse}
+.game-stat-table th,.game-stat-table td{padding:8px;border-bottom:1px solid #ffffff0b;font-size:11px}
+.game-stat-table th{text-align:left;color:#91a9bc}
+.game-stat-table td:nth-child(2),.game-stat-table td:nth-child(3){text-align:center;font-weight:850}
+.game-play{padding:9px 0;border-bottom:1px solid #ffffff0a}
+.game-play:last-child{border-bottom:0}
+.game-play-time{font-size:10px;color:#d1ad63;font-weight:900}
+.game-play-text{font-size:12px;margin-top:3px}
+.game-clickable{cursor:pointer}
+.game-clickable:hover{background:#ffffff07}
+@media(max-width:640px){
+  .game-detail-shell{max-height:95vh}
+  .game-hero{grid-template-columns:1fr 64px 1fr}
+  .game-team img{width:52px;height:52px}
+  .game-score-main{font-size:28px}
+  .game-info-grid{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -248,7 +288,21 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
   </section>
 </main>
 
-<div class="footer">Dayton Sports · V12.7.3.2</div>
+
+<div id="gameDetailOverlay" class="game-detail-overlay" hidden>
+  <div class="game-detail-shell" role="dialog" aria-modal="true" aria-labelledby="gameDetailTitle">
+    <div class="game-detail-topbar">
+      <button id="gameDetailBack" class="game-detail-back" type="button">← Back</button>
+      <div id="gameDetailLiveBadge" class="game-detail-live"></div>
+      <button id="gameDetailClose" class="game-detail-close" type="button" aria-label="Close game details">✕</button>
+    </div>
+    <div id="gameDetailContent" class="game-detail-content">
+      <div class="league-empty">Loading game…</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">Dayton Sports · V12.9.3.2</div>
 </div>
 
 <script src="sports-data.js"></script>
@@ -347,7 +401,7 @@ function renderEplEvent(e){
   const score=(st.state==="in"||st.completed||st.state==="post")?`${home.score??""}–${away.score??""}`:"vs";
   const tv=(c.broadcasts||[]).flatMap(b=>b.names||[]).filter(Boolean).join(" / ");
   const live=st.state==="in"?` · ${st.shortDetail||"LIVE"}`:(st.completed||st.state==="post"?" · FINAL":"");
-  return `<div class="epl-fixture"><div class="epl-fixture-date">${fmtEplTime(e.date)}${live}</div><div class="epl-matchup"><div class="epl-home">${compTeamName(home)}</div><div class="epl-score">${score}</div><div class="epl-away">${compTeamName(away)}</div></div><div class="epl-tv">${tv?`📺 ${tv}`:""}</div></div>`;
+  return `<div class="epl-fixture game-clickable" data-event-id="${e.id||""}" data-sport-kind="soccer"><div class="epl-fixture-date">${fmtEplTime(e.date)}${live}</div><div class="epl-matchup"><div class="epl-home">${compTeamName(home)}</div><div class="epl-score">${score}</div><div class="epl-away">${compTeamName(away)}</div></div><div class="epl-tv">${tv?`📺 ${tv}`:""}</div></div>`;
 }
 async function loadEplWeek(offset=0,silent=false){
   eplWeekOffset=offset;
@@ -476,7 +530,7 @@ function renderLeagueGame(e,kind){
   const detail=state==="in"?(e.status?.type?.shortDetail||"LIVE"):
     (e.status?.type?.completed||state==="post"?"FINAL":"");
   const note=kind==="cfb"?espnGameNotes(e):"";
-  return `<div class="league-game ${featured?"featured":""}">
+  return `<div class="league-game game-clickable ${featured?"featured":""}" data-event-id="${e.id||""}" data-sport-kind="${kind}">
     <div class="league-game-time">${formatLeagueDate(e,kind)}${detail?` · ${detail}`:""}${note?`<div class="league-date-note">${note}</div>`:""}</div>
     <div class="league-matchup">
       <div class="league-home">${homeLabel}</div>
@@ -487,55 +541,28 @@ function renderLeagueGame(e,kind){
   </div>`;
 }
 const CFB_CONFERENCES={
-  acc:{label:"ACC",ids:["1"],names:["acc","atlantic coast"]},
-  big12:{label:"Big 12",ids:["4"],names:["big 12","big twelve"]},
-  bigten:{label:"B1G",ids:["5"],names:["big ten","b1g"]},
-  sec:{label:"SEC",ids:["8"],names:["sec","southeastern"]},
-  pac12:{label:"Pac-12",ids:["9"],names:["pac-12","pac 12","pacific-12"]},
-  cusa:{label:"C-USA",ids:["12"],names:["conference usa","c-usa"]},
-  mac:{label:"MAC",ids:["15"],names:["mid-american","mac"]},
-  mwc:{label:"Mountain West",ids:["17"],names:["mountain west"]},
-  sunbelt:{label:"Sun Belt",ids:["37"],names:["sun belt"]},
-  aac:{label:"AAC",ids:["151"],names:["american athletic","aac","the american"]}
+  acc:{label:"ACC",group:"1"},
+  big12:{label:"Big 12",group:"4"},
+  bigten:{label:"B1G",group:"5"},
+  sec:{label:"SEC",group:"8"},
+  pac12:{label:"Pac-12",group:"9"},
+  cusa:{label:"C-USA",group:"12"},
+  mac:{label:"MAC",group:"15"},
+  mwc:{label:"Mountain West",group:"17"},
+  sunbelt:{label:"Sun Belt",group:"37"},
+  aac:{label:"AAC",group:"151"}
 };
 let cfbFilter="top25";
 
-function competitorConferenceValues(c){
-  const t=c?.team||{};
-  const vals=[
-    c?.conferenceId,t?.conferenceId,
-    c?.conference?.id,t?.conference?.id,
-    c?.conference?.name,t?.conference?.name,
-    c?.conference?.shortName,t?.conference?.shortName,
-    c?.conference?.abbreviation,t?.conference?.abbreviation
-  ].filter(v=>v!==undefined&&v!==null).map(v=>String(v).toLowerCase());
-  return vals;
-}
-function competitorInConference(c,key){
-  const cfg=CFB_CONFERENCES[key];
-  if(!cfg)return false;
-  const vals=competitorConferenceValues(c);
-  if(vals.some(v=>cfg.ids.includes(v)))return true;
-  const text=vals.join(" ");
-  return cfg.names.some(n=>text.includes(n));
-}
 function filterCfbEvents(events){
   const list=events||[];
-  if(cfbFilter==="fbs")return list;
-
   if(cfbFilter==="top25"){
     return list.filter(e=>{
       const {home,away}=eventTeams(e);
       return cfbRank(home)||cfbRank(away)||isNotreDameCompetitor(home)||isNotreDameCompetitor(away);
     });
   }
-
-  if(CFB_CONFERENCES[cfbFilter]){
-    return list.filter(e=>{
-      const {home,away}=eventTeams(e);
-      return competitorInConference(home,cfbFilter)||competitorInConference(away,cfbFilter);
-    });
-  }
+  // All FBS and conference views are already narrowed by ESPN's groups parameter.
   return list;
 }
 function cfbFilterDisplay(){
@@ -573,24 +600,34 @@ function currentNflWeek(){
 }
 async function fetchWeek(kind,week){
   const cache=LEAGUE_CACHE[kind];
-  if(cache[week])return cache[week];
+  const cacheKey=kind==="cfb"?`${cfbFilter}:${week}`:String(week);
+  if(cache[cacheKey])return cache[cacheKey];
+
   let url;
   if(kind==="cfb"){
-    // ESPN's week=0 query is inconsistent. Use the actual 2026 Week Zero
-    // date window so every scheduled opening-week game can be retrieved.
+    // ESPN otherwise defaults toward the ranked scoreboard.
+    let groupParam="";
+    if(cfbFilter==="fbs"){
+      groupParam="&groups=80";
+    }else if(CFB_CONFERENCES[cfbFilter]){
+      groupParam=`&groups=${CFB_CONFERENCES[cfbFilter].group}`;
+    }
+
+    // Week 0 remains date-based because week=0 is inconsistent.
     if(week===0){
-      url="https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=20260827-20260830&limit=300";
+      url=`https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=20260827-20260830&limit=300${groupParam}`;
     }else{
-      url=`https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?seasontype=2&week=${week}&limit=300`;
+      url=`https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?seasontype=2&week=${week}&limit=300${groupParam}`;
     }
   }else{
     url=`https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&week=${week}`;
   }
+
   const r=await fetch(url,{cache:"no-store"});
   if(!r.ok)throw new Error(r.status);
   const j=await r.json();
-  cache[week]=j.events||[];
-  return cache[week];
+  cache[cacheKey]=j.events||[];
+  return cache[cacheKey];
 }
 function panelHtml(kind,week,label,state,eventCount){
   const isCurrent=state==="current";
@@ -753,6 +790,168 @@ document.querySelectorAll('nav button[data-view]').forEach(btn=>{
       setTimeout(autoRefreshLeagueScores,100);
     }
   });
+});
+
+
+// ---- In-app game detail view ----
+const GAME_DETAIL={
+  overlay:document.getElementById("gameDetailOverlay"),
+  content:document.getElementById("gameDetailContent"),
+  live:document.getElementById("gameDetailLiveBadge"),
+  eventId:null,
+  kind:null,
+  timer:null
+};
+
+function esc(s){
+  return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+function teamLogoFromComp(c){
+  return c?.team?.logo || c?.team?.logos?.[0]?.href || "";
+}
+function gameDetailUrl(kind,id){
+  if(kind==="cfb") return `https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event=${id}`;
+  if(kind==="nfl") return `https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${id}`;
+  if(kind==="soccer") return `https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/summary?event=${id}`;
+  return "";
+}
+function closeGameDetail(){
+  GAME_DETAIL.overlay.hidden=true;
+  GAME_DETAIL.eventId=null;
+  GAME_DETAIL.kind=null;
+  if(GAME_DETAIL.timer){clearInterval(GAME_DETAIL.timer);GAME_DETAIL.timer=null;}
+}
+document.getElementById("gameDetailClose").addEventListener("click",closeGameDetail);
+document.getElementById("gameDetailBack").addEventListener("click",closeGameDetail);
+GAME_DETAIL.overlay.addEventListener("click",e=>{if(e.target===GAME_DETAIL.overlay)closeGameDetail();});
+
+function statusText(header){
+  const c=header?.competitions?.[0]||{};
+  const st=c.status?.type||header?.status?.type||{};
+  return st.shortDetail||st.detail||st.description||"";
+}
+function summaryTeams(j){
+  const header=j.header||{};
+  const comp=header.competitions?.[0]||{};
+  const arr=comp.competitors||[];
+  return {
+    comp,
+    home:arr.find(x=>x.homeAway==="home")||arr[0]||{},
+    away:arr.find(x=>x.homeAway==="away")||arr[1]||{}
+  };
+}
+function statName(s){return s.displayName||s.label||s.name||s.abbreviation||""}
+function statValue(s){return s.displayValue??s.value??""}
+
+function renderKeyStats(j,home,away){
+  const box=j.boxscore||{};
+  const teams=box.teams||[];
+  if(teams.length<2)return "";
+  const homeStats=(teams.find(t=>t.team?.id===home.team?.id)||teams[0]||{}).statistics||[];
+  const awayStats=(teams.find(t=>t.team?.id===away.team?.id)||teams[1]||{}).statistics||[];
+  if(!homeStats.length||!awayStats.length)return "";
+
+  const priorities=["totalYards","possessionTime","firstDowns","turnovers","shots","shotsOnTarget","possessionPct","foulsCommitted","yellowCards","redCards"];
+  let rows=[];
+  for(const p of priorities){
+    const hs=homeStats.find(s=>s.name===p||s.abbreviation===p);
+    const as=awayStats.find(s=>s.name===p||s.abbreviation===p);
+    if(hs&&as)rows.push([statName(hs),statValue(awayStats.find(s=>s.name===hs.name||s.abbreviation===hs.abbreviation)||as),statValue(hs)]);
+  }
+  if(!rows.length){
+    const common=homeStats.filter(h=>awayStats.some(a=>a.name===h.name)).slice(0,6);
+    rows=common.map(h=>{
+      const a=awayStats.find(x=>x.name===h.name);
+      return [statName(h),statValue(a),statValue(h)];
+    });
+  }
+  if(!rows.length)return "";
+
+  return `<div class="game-section"><h3>Key Stats</h3><table class="game-stat-table">
+    <thead><tr><th>Stat</th><th>${esc(leagueTeamName(away))}</th><th>${esc(leagueTeamName(home))}</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("")}</tbody>
+  </table></div>`;
+}
+function renderScoring(j){
+  let plays=[];
+  if(Array.isArray(j.scoringPlays))plays=j.scoringPlays;
+  else if(Array.isArray(j.plays))plays=j.plays.filter(p=>p.scoringPlay);
+  else if(Array.isArray(j.commentary))plays=j.commentary.filter(p=>p.scoringPlay||/goal|touchdown|field goal|safety/i.test(p.text||""));
+
+  if(!plays.length)return "";
+  return `<div class="game-section"><h3>Scoring Summary</h3>
+    ${plays.slice(-12).map(p=>{
+      const t=p.clock?.displayValue||p.time?.displayValue||p.period?.displayValue||"";
+      const txt=p.text||p.shortText||p.type?.text||"Scoring play";
+      return `<div class="game-play"><div class="game-play-time">${esc(t)}</div><div class="game-play-text">${esc(txt)}</div></div>`;
+    }).join("")}
+  </div>`;
+}
+function renderGameDetail(j,kind){
+  const header=j.header||{};
+  const {comp,home,away}=summaryTeams(j);
+  const hs=home.score??"", as=away.score??"";
+  const status=statusText(header);
+  const broadcasts=(comp.broadcasts||[]).flatMap(b=>b.names||[]).filter(Boolean).join(" / ");
+  const venue=comp.venue?.fullName||j.gameInfo?.venue?.fullName||"";
+  const attendance=j.gameInfo?.attendance||"";
+  const homeLogo=teamLogoFromComp(home), awayLogo=teamLogoFromComp(away);
+  const homeName=leagueTeamName(home), awayName=leagueTeamName(away);
+  const state=comp.status?.type?.state||header.status?.type?.state||"";
+  GAME_DETAIL.live.textContent=state==="in"?"● LIVE":(state==="post"?"FINAL":"GAME DETAILS");
+
+  const score=(hs!==""||as!=="")?`${as} – ${hs}`:"vs";
+  GAME_DETAIL.content.innerHTML=`
+    <div class="game-hero">
+      <div class="game-team">
+        ${awayLogo?`<img src="${esc(awayLogo)}" alt="">`:""}
+        <div class="game-team-name">${esc(awayName)}</div>
+      </div>
+      <div class="game-score">
+        <div class="game-score-main">${esc(score)}</div>
+        <div class="game-score-status">${esc(status)}</div>
+      </div>
+      <div class="game-team">
+        ${homeLogo?`<img src="${esc(homeLogo)}" alt="">`:""}
+        <div class="game-team-name">${esc(homeName)}</div>
+      </div>
+    </div>
+    <div class="game-info-grid">
+      <div class="game-info-card"><div class="game-info-label">TV / Stream</div><div class="game-info-value">${esc(broadcasts||"TBD")}</div></div>
+      <div class="game-info-card"><div class="game-info-label">Venue</div><div class="game-info-value">${esc(venue||"TBD")}</div></div>
+      <div class="game-info-card"><div class="game-info-label">Attendance</div><div class="game-info-value">${esc(attendance||"—")}</div></div>
+    </div>
+    ${renderKeyStats(j,home,away)}
+    ${renderScoring(j)}
+  `;
+}
+async function fetchAndRenderGame(){
+  const url=gameDetailUrl(GAME_DETAIL.kind,GAME_DETAIL.eventId);
+  if(!url)return;
+  try{
+    const r=await fetch(url,{cache:"no-store"});
+    if(!r.ok)throw new Error(r.status);
+    const j=await r.json();
+    renderGameDetail(j,GAME_DETAIL.kind);
+  }catch(e){
+    GAME_DETAIL.content.innerHTML=`<div class="league-empty">Game details are temporarily unavailable.</div>`;
+  }
+}
+async function openGameDetail(eventId,kind){
+  if(!eventId||!kind)return;
+  GAME_DETAIL.eventId=eventId;
+  GAME_DETAIL.kind=kind;
+  GAME_DETAIL.content.innerHTML=`<div class="league-empty">Loading game…</div>`;
+  GAME_DETAIL.overlay.hidden=false;
+  await fetchAndRenderGame();
+  if(GAME_DETAIL.timer)clearInterval(GAME_DETAIL.timer);
+  GAME_DETAIL.timer=setInterval(fetchAndRenderGame,30000);
+}
+document.addEventListener("click",e=>{
+  const row=e.target.closest(".game-clickable[data-event-id]");
+  if(!row)return;
+  const id=row.dataset.eventId, kind=row.dataset.sportKind;
+  if(id)openGameDetail(id,kind);
 });
 
 // ---- Automatic scores / live results ----
