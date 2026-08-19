@@ -86,12 +86,44 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
   .epl-matchup{grid-template-columns:1fr 44px 1fr}
 }
 
+
+.league-weeks{display:grid;gap:10px}
+.week-panel{border:1px solid #1e3a54;border-radius:14px;background:#091727;overflow:hidden}
+.week-panel.current{border-color:#c79b46;box-shadow:0 0 0 1px #c79b4622 inset}
+.week-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:transparent;border:0;color:inherit;text-align:left;cursor:pointer}
+.week-toggle:hover{background:#ffffff05}
+.week-title-wrap{display:flex;align-items:center;gap:10px;min-width:0}
+.week-kicker{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#8fa9bf;font-weight:900}
+.week-name{font-size:14px;font-weight:900}
+.week-meta{font-size:11px;color:#8fa9bf;font-weight:800}
+.week-chevron{font-size:16px;color:#d6b267;transition:transform .15s ease}
+.week-panel.open .week-chevron{transform:rotate(90deg)}
+.week-games{display:none;border-top:1px solid #17324a}
+.week-panel.open .week-games{display:block}
+.league-game{display:grid;grid-template-columns:138px minmax(0,1fr) auto;align-items:center;gap:14px;padding:12px 14px;border-bottom:1px solid #ffffff09}
+.league-game:last-child{border-bottom:0}
+.league-game-time{font-size:11px;color:#9fb6c9;font-weight:800}
+.league-matchup{display:grid;grid-template-columns:minmax(0,1fr) 50px minmax(0,1fr);align-items:center;gap:10px}
+.league-home{text-align:right;font-weight:850}
+.league-away{text-align:left;font-weight:850}
+.league-score{text-align:center;font-weight:950;color:#f0ce83}
+.league-broadcast{font-size:11px;color:#c5ddf5;font-weight:800;text-align:right;white-space:nowrap}
+.league-game.featured{background:#d6b2670c}
+.league-team-rank{color:#d6b267;font-weight:950}
+.league-empty{padding:20px;text-align:center;color:#89a1b5}
+@media(max-width:760px){
+  .league-game{grid-template-columns:1fr;gap:7px}
+  .league-game-time,.league-broadcast{text-align:center}
+  .league-matchup{grid-template-columns:minmax(0,1fr) 42px minmax(0,1fr)}
+  .week-toggle{padding:13px 12px}
+}
+
 </style>
 </head>
 <body>
 <div class="wrap">
 <header><div class="brand"><img src="apple-touch-icon.png" class="brand-icon" alt=""><div><h1>Dayton Sports</h1><p>Our teams. Our games. One place.</p><div id="dataStatus" class="data-status"></div></div></div>
-<nav><button class="active" data-view="home">Home</button><button data-view="schedules">Schedules</button><button data-view="standings">Standings</button><button data-view="rankings">Rankings</button><button data-view="premier">Premier League</button></nav></header>
+<nav><button class="active" data-view="home">Home</button><button data-view="schedules">Schedules</button><button data-view="standings">Standings</button><button data-view="rankings">Rankings</button><button data-view="premier">Premier League</button><button data-view="collegefootball">College Football</button><button data-view="nfl">NFL</button></nav></header>
 
 <main id="home" class="view">
 <section class="section"><div class="section-title"><h2>Upcoming & Where to Watch</h2><span class="note">Quick glance</span></div><div id="upcoming" class="grid"></div></section>
@@ -135,7 +167,52 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 </section>
 </main>
 
-<div class="footer">Dayton Sports · V12.3.3.2</div>
+
+<main id="collegefootball" class="view" style="display:none">
+  <section class="section">
+    <div class="section-title">
+      <div>
+        <h2>College Football</h2>
+        <div class="note">Top 25 + Notre Dame · schedule by week</div>
+      </div>
+      <span class="live-note" id="cfbStatus">Live schedule</span>
+    </div>
+    <div id="cfbWeeks" class="league-weeks"></div>
+  </section>
+  <section class="section">
+    <div class="section-title">
+      <div><h2>Current Rankings</h2><div class="note">AP Top 25 · Coaches Poll</div></div>
+    </div>
+    <div id="cfbRankingsMirror" class="rankings-pair"></div>
+  </section>
+</main>
+
+<main id="nfl" class="view" style="display:none">
+  <section class="section">
+    <div class="section-title">
+      <div>
+        <h2>NFL</h2>
+        <div class="note">Full league schedule by week</div>
+      </div>
+      <span class="live-note" id="nflStatus">Live schedule</span>
+    </div>
+    <div id="nflWeeks" class="league-weeks"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">
+      <div><h2>NFL Standings</h2><div class="note">Current division tables</div></div>
+      <span class="live-note">Live standings</span>
+    </div>
+    <div class="standings-grid">
+      <div class="card standing-card" id="nflNfcNorth"></div>
+      <div class="card standing-card" id="nflAfcEast"></div>
+      <div class="card standing-card" id="nflAfcSouth"></div>
+    </div>
+  </section>
+</main>
+
+<div class="footer">Dayton Sports · V12.4.3.2</div>
 </div>
 
 <script src="sports-data.js"></script>
@@ -266,6 +343,210 @@ document.getElementById("eplPrev").onclick=()=>loadEplWeek(eplWeekOffset-1);
 document.getElementById("eplNext").onclick=()=>loadEplWeek(eplWeekOffset+1);
 document.getElementById("eplToday").onclick=()=>loadEplWeek(0);
 loadEplWeek(0); loadPremierFullTable();
+
+
+// ---- College Football + NFL weekly league tabs ----
+const LEAGUE_CACHE={cfb:{},nfl:{}};
+
+function ctNow(){
+  return new Date(new Date().toLocaleString("en-US",{timeZone:"America/Chicago"}));
+}
+function fmtLeagueTime(iso){
+  const d=new Date(iso);
+  return new Intl.DateTimeFormat("en-US",{
+    timeZone:"America/Chicago",weekday:"short",month:"short",day:"numeric",
+    hour:"numeric",minute:"2-digit"
+  }).format(d)+" CT";
+}
+function eventTeams(e){
+  const c=e.competitions?.[0]||{}, arr=c.competitors||[];
+  return {
+    comp:c,
+    home:arr.find(x=>x.homeAway==="home")||arr[0]||{},
+    away:arr.find(x=>x.homeAway==="away")||arr[1]||{}
+  };
+}
+function leagueTeamName(c){
+  return c?.team?.shortDisplayName||c?.team?.displayName||c?.team?.name||"";
+}
+function cfbRank(c){
+  const r=Number(c?.curatedRank?.current||99);
+  return Number.isFinite(r)&&r<=25?r:null;
+}
+function cfbTeamLabel(c){
+  const r=cfbRank(c), n=leagueTeamName(c);
+  return `${r?`<span class="league-team-rank">#${r}</span> `:""}${n}`;
+}
+function scoreText(e,home,away){
+  const st=e.status?.type||{};
+  if(st.state==="in"||st.completed||st.state==="post") return `${home.score??""}–${away.score??""}`;
+  return "vs";
+}
+function broadcastText(comp){
+  return (comp.broadcasts||[]).flatMap(b=>b.names||[]).filter(Boolean).join(" / ");
+}
+function isNotreDameCompetitor(c){
+  const s=(leagueTeamName(c)+" "+(c?.team?.abbreviation||"")).toLowerCase();
+  return s.includes("notre dame")||/\bnd\b/.test(s);
+}
+function renderLeagueGame(e,kind){
+  const {comp,home,away}=eventTeams(e);
+  const featured=kind==="cfb"?(isNotreDameCompetitor(home)||isNotreDameCompetitor(away)):
+    ["gb","buf","ind"].some(a=>[home,away].some(c=>(c?.team?.abbreviation||"").toLowerCase()===a));
+  const homeLabel=kind==="cfb"?cfbTeamLabel(home):leagueTeamName(home);
+  const awayLabel=kind==="cfb"?cfbTeamLabel(away):leagueTeamName(away);
+  const tv=broadcastText(comp);
+  const detail=e.status?.type?.state==="in"?(e.status?.type?.shortDetail||"LIVE"):"";
+  return `<div class="league-game ${featured?"featured":""}">
+    <div class="league-game-time">${fmtLeagueTime(e.date)}${detail?` · ${detail}`:""}</div>
+    <div class="league-matchup">
+      <div class="league-home">${homeLabel}</div>
+      <div class="league-score">${scoreText(e,home,away)}</div>
+      <div class="league-away">${awayLabel}</div>
+    </div>
+    <div class="league-broadcast">${tv?`📺 ${tv}`:""}</div>
+  </div>`;
+}
+function filterCfbEvents(events){
+  return (events||[]).filter(e=>{
+    const {home,away}=eventTeams(e);
+    return cfbRank(home)||cfbRank(away)||isNotreDameCompetitor(home)||isNotreDameCompetitor(away);
+  });
+}
+function currentCfbWeek(){
+  // ESPN CFB "week" numbering maps preseason/Week 0/Week 1 imperfectly.
+  // Determine the closest week by finding the weekly scoreboard whose dates surround today.
+  const now=ctNow();
+  const seasonStart=new Date(2026,7,22); // Aug 22 approximate Week 0 anchor.
+  const days=Math.floor((now-seasonStart)/86400000);
+  return Math.max(0,Math.min(16,Math.floor(days/7)));
+}
+function currentNflWeek(){
+  const now=ctNow();
+  const regularStart=new Date(2026,8,8); // approximate opening week anchor
+  if(now<regularStart)return 1;
+  const days=Math.floor((now-regularStart)/86400000);
+  return Math.max(1,Math.min(18,Math.floor(days/7)+1));
+}
+async function fetchWeek(kind,week){
+  const cache=LEAGUE_CACHE[kind];
+  if(cache[week])return cache[week];
+  let url;
+  if(kind==="cfb"){
+    url=`https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?seasontype=2&week=${week}`;
+  }else{
+    url=`https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&week=${week}`;
+  }
+  const r=await fetch(url,{cache:"no-store"});
+  if(!r.ok)throw new Error(r.status);
+  const j=await r.json();
+  cache[week]=j.events||[];
+  return cache[week];
+}
+function panelHtml(kind,week,label,state,eventCount){
+  const isCurrent=state==="current";
+  const kicker=isCurrent?"Current Week":state==="past"?"Previous Results":"Future Week";
+  return `<div class="week-panel ${isCurrent?"current open":""}" data-kind="${kind}" data-week="${week}">
+    <button class="week-toggle" type="button" aria-expanded="${isCurrent?"true":"false"}">
+      <div class="week-title-wrap">
+        <div>
+          <div class="week-kicker">${kicker}</div>
+          <div class="week-name">${label}</div>
+        </div>
+        <span class="week-meta">${eventCount==null?"Tap to load":`${eventCount} game${eventCount===1?"":"s"}`}</span>
+      </div>
+      <span class="week-chevron">›</span>
+    </button>
+    <div class="week-games">${isCurrent?`<div class="league-empty">Loading…</div>`:""}</div>
+  </div>`;
+}
+async function loadPanel(panel){
+  const kind=panel.dataset.kind, week=Number(panel.dataset.week);
+  const box=panel.querySelector(".week-games");
+  const meta=panel.querySelector(".week-meta");
+  box.innerHTML=`<div class="league-empty">Loading…</div>`;
+  try{
+    let events=await fetchWeek(kind,week);
+    if(kind==="cfb")events=filterCfbEvents(events);
+    events.sort((a,b)=>new Date(a.date)-new Date(b.date));
+    meta.textContent=`${events.length} game${events.length===1?"":"s"}`;
+    box.innerHTML=events.length?events.map(e=>renderLeagueGame(e,kind)).join(""):`<div class="league-empty">No games in this view.</div>`;
+  }catch(e){
+    box.innerHTML=`<div class="league-empty">Schedule temporarily unavailable.</div>`;
+    meta.textContent="Feed unavailable";
+  }
+}
+function wireWeekPanels(container){
+  container.querySelectorAll(".week-panel").forEach(panel=>{
+    const btn=panel.querySelector(".week-toggle");
+    btn.addEventListener("click",async()=>{
+      const opening=!panel.classList.contains("open");
+      panel.classList.toggle("open",opening);
+      btn.setAttribute("aria-expanded",opening?"true":"false");
+      if(opening && !panel.dataset.loaded){
+        panel.dataset.loaded="1";
+        await loadPanel(panel);
+      }
+    });
+  });
+}
+async function renderCfbWeeks(){
+  const current=currentCfbWeek();
+  const container=document.getElementById("cfbWeeks");
+  const weeks=[];
+  for(let w=0;w<=16;w++){
+    const state=w<current?"past":w===current?"current":"future";
+    const label=w===0?"Week 0":`Week ${w}`;
+    weeks.push(panelHtml("cfb",w,label,state,null));
+  }
+  container.innerHTML=weeks.join("");
+  wireWeekPanels(container);
+  const currentPanel=container.querySelector(`.week-panel[data-week="${current}"]`);
+  if(currentPanel){currentPanel.dataset.loaded="1";await loadPanel(currentPanel);}
+}
+async function renderNflWeeks(){
+  const current=currentNflWeek();
+  const container=document.getElementById("nflWeeks");
+  const weeks=[];
+  for(let w=1;w<=18;w++){
+    const state=w<current?"past":w===current?"current":"future";
+    weeks.push(panelHtml("nfl",w,`Week ${w}`,state,null));
+  }
+  container.innerHTML=weeks.join("");
+  wireWeekPanels(container);
+  const currentPanel=container.querySelector(`.week-panel[data-week="${current}"]`);
+  if(currentPanel){currentPanel.dataset.loaded="1";await loadPanel(currentPanel);}
+}
+function mirrorCfbRankings(){
+  const holder=document.getElementById("cfbRankingsMirror");
+  if(!holder)return;
+  const rankingsView=document.querySelector("#rankings .rankings-pair");
+  if(rankingsView)holder.innerHTML=rankingsView.innerHTML;
+}
+async function loadNflDivisionTables(){
+  const stored=D.standings||{};
+  if(Array.isArray(stored.nfcNorth))renderStandings("nflNfcNorth","NFC North",stored.nfcNorth,"nfl",["Green Bay","Packers"]);
+  if(Array.isArray(stored.afcEast))renderStandings("nflAfcEast","AFC East",stored.afcEast,"nfl",["Buffalo","Bills"]);
+  if(Array.isArray(stored.afcSouth))renderStandings("nflAfcSouth","AFC South",stored.afcSouth,"nfl",["Indianapolis","Colts"]);
+  try{
+    const r=await fetch("https://site.api.espn.com/apis/v2/sports/football/nfl/standings?season=2026&type=0",{cache:"no-store"});
+    if(!r.ok)throw new Error(r.status);
+    const j=await r.json(), groups=allGroups(j);
+    const configs=[
+      ["nflNfcNorth","NFC North","NFC North",["Green Bay","Packers"]],
+      ["nflAfcEast","AFC East","AFC East",["Buffalo","Bills"]],
+      ["nflAfcSouth","AFC South","AFC South",["Indianapolis","Colts"]]
+    ];
+    configs.forEach(([target,title,needle,focus])=>{
+      const g=groups.find(x=>(x.name||"").toLowerCase().includes(needle.toLowerCase()));
+      if(g?.entries?.length)renderStandings(target,title,g.entries,"nfl",focus);
+    });
+  }catch(e){}
+}
+renderCfbWeeks();
+renderNflWeeks();
+mirrorCfbRankings();
+loadNflDivisionTables();
 
 // ---- Automatic scores / live results ----
 // ESPN's public scoreboard feeds are used where available. If a feed fails,

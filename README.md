@@ -1,14 +1,32 @@
-# Dayton Sports V12.3
+# Dayton Sports V12.4
 
-Fix over V12.2:
-- Cubs are now present in the BASELINE Upcoming & Where to Watch data immediately.
-- Next stored Cubs game inserted: WED · AUG 19 vs Chicago White Sox 1:20 PM CT Marquee Sports Network.
-- V12.2 updater logic remains in place, so future runs continue to guarantee the Cubs a slot.
-- Premier League tab remains unchanged.
+Changes over V12.3:
 
-If V12.2 is already live, replace:
+## College Football tab
+- Current week expanded automatically
+- Previous weeks collapsed with final scores/results
+- Future weeks collapsed
+- Schedule view is focused on AP Top 25 teams plus Notre Dame
+- Notre Dame games are visually emphasized
+- Current AP Top 25 and Coaches Poll are mirrored beneath the schedule
+
+## NFL tab
+- Full NFL regular-season schedule by week
+- Current week expanded automatically
+- Previous weeks collapsed with results
+- Future weeks collapsed
+- Packers, Bills and Colts games are visually emphasized
+- NFC North, AFC East and AFC South standings below the weekly schedule
+
+## Existing behavior preserved
+- Premier League tab
+- Cubs baseline fix in Upcoming & Where to Watch
+- ESPN Where to Watch broadcast priority
+- GitHub Actions automated sports-data refresh
+
+If V12.3 is already live, replace:
+- index.html
 - sports-data.json
 - sports-data.js
-- index.html
 
-You do not need to replace scripts/update_data.py for this patch.
+No updater-script or workflow change is required for V12.4.
