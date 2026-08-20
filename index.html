@@ -290,6 +290,50 @@ nav button{flex:0 0 auto;min-height:44px}
   nav button[data-view="collegevolleyball"]::after{content:"Volleyball";font-size:11px}
 }
 
+
+.upnext-context{
+  margin-top:4px;
+  font-size:10px;
+  color:#8fb0c6;
+  font-weight:800;
+}
+.home-next .upnext-context{
+  font-size:11px;
+  margin-top:2px;
+}
+
+.team-utility-strip{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:2px 0 7px;
+  scrollbar-width:none;
+}
+.team-utility-strip::-webkit-scrollbar{display:none}
+.team-utility{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-height:42px;
+  padding:7px 10px 7px 8px;
+  border:1px solid #1e3d54;
+  background:#091827;
+  border-radius:999px;
+  color:#dce8f0;
+  cursor:pointer;
+  font-size:11px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.team-utility:hover{background:#0d2234;border-color:#3e637d}
+.team-utility .logo-box{width:26px;height:26px;flex:0 0 26px}
+.team-utility-name{max-width:150px;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:760px){
+  .team-utility{min-height:44px;padding:7px 10px 7px 7px}
+  .team-utility-name{max-width:125px}
+}
+
 </style>
 </head>
 <body>
@@ -307,7 +351,7 @@ nav button{flex:0 0 auto;min-height:44px}
 
 <main id="home" class="view">
 <section class="section"><div class="section-title"><h2>Up Next</h2><span class="note">Next or active game for each team</span></div><div id="upcoming" class="grid"></div></section>
-<section class="section"><div class="section-title"><h2>My Teams</h2><span class="note">Kids first · then favorites</span></div><div id="myteams" class="grid"></div></section>
+<section class="section"><div class="section-title"><h2>My Teams</h2><span class="note">Quick team access</span></div><div id="myteams"></div></section>
 </main>
 
 <main id="schedules" class="view" style="display:none">
@@ -619,7 +663,7 @@ function upCard(u){
     ? siriusXmButton("mlb",u._liveEvent.home,u._liveEvent.away,"in","sxm-row-link")
     : "";
   return `<article class="card up-card ${s?"has-result":""}${clickable}"${eventAttrs} style="--team:${t.color}">
-    <div class="row">${logo(t)}<div><div class="eyebrow">${u.date}</div><div class="team-name">${t.name}</div></div></div>
+    <div class="row">${logo(t)}<div><div class="eyebrow">${u.date}</div><div class="team-name">${t.name}</div>${t.context?`<div class="upnext-context">${t.context}</div>`:""}</div></div>
     <div class="match">${u.opp}</div>
     <div class="time">${u.time}</div>
     ${score}
@@ -700,20 +744,20 @@ function renderHomeUpcoming(){
   const heroOdds=kind?(f._liveEvent?findDkOddsForCompetitors(kind,f._liveEvent.home,f._liveEvent.away):dkOddsForScheduleGame(t,uiNextGame(t))):null;
   box.innerHTML=`<div class="home-next">
     <div class="ui-kicker">Soonest Game</div>
-    <div class="home-next-title">${t?.name||""} · ${f.opp||""}</div>
+    <div class="home-next-title">${t?.name||""} · ${f.opp||""}</div>${t?.context?`<div class="upnext-context">${t.context}</div>`:""}
     <div class="ui-meta"><span class="chip">${f.date||""}</span><span class="chip">${f.time||""}</span>${f.tv?`<span class="chip tvchip">📺 ${f.tv}</span>`:""}</div>
     ${kind?dkOddsStrip(heroOdds):""}
   </div><div class="home-rest">${rest.map(upCard).join("")}</div>`;
 }
 function compactTeamRow(t){
-  const g=uiNextGame(t),kind=dkKindForTeam(t),odds=kind?dkOddsForScheduleGame(t,g):null,s=odds?dkMarketSummary(odds):null;
-  const betting=s?`<div class="compact-team-odds">DK${s.spText?` · ${s.spText}`:""}${s.tText?` · O/U ${s.tText}`:""}</div>`:"";
-  return `<div class="compact-team gotoSchedule" data-team="${t.id}">${logo(t,true)}
-    <div><div class="compact-team-name">${t.name}</div><div class="compact-team-next">${g?.opp?`${g.ha==="AWAY"?"@":"vs"} ${uiDisplayOpponent(t,g)} · ${g.date||""} ${g.time||""}`:"No upcoming game"}</div>${betting}</div>
-    <div class="compact-team-record">${t.record||""}</div></div>`;
+  return `<button class="team-utility gotoSchedule" type="button" data-team="${t.id}" aria-label="Open ${t.name} schedule">
+    ${logo(t,true)}
+    <span class="team-utility-name">${t.name}</span>
+  </button>`;
 }
 function renderCompactTeams(){
-  const box=document.getElementById("myteams");if(box)box.innerHTML=`<div class="compact-teams">${D.teams.map(compactTeamRow).join("")}</div>`;
+  const box=document.getElementById("myteams");
+  if(box)box.innerHTML=`<div class="team-utility-strip">${D.teams.map(compactTeamRow).join("")}</div>`;
 }
 
 const UI_AVCA_NAMES=(D.rankings?.avca||D.rankings?.volleyball||[]);
