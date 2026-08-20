@@ -780,7 +780,22 @@ renderCompactTeams();
 
 function showView(v,anchor){if(v==="home"){renderHomeUpcoming();renderCompactTeams();}document.querySelectorAll(".view").forEach(x=>x.style.display="none");document.getElementById(v).style.display="block";document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));window.scrollTo({top:0,behavior:"smooth"});if(anchor)setTimeout(()=>document.getElementById(anchor)?.scrollIntoView({behavior:"smooth"}),80)}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>showView(b.dataset.view));
-document.addEventListener("click",e=>{const j=e.target.closest(".jump");if(j){e.preventDefault();const q=j.dataset.target;(q==="football-rankings"||q==="volleyball-rankings")?showView("rankings",q):showView(q)}});
+document.addEventListener("click",e=>{
+  const sched=e.target.closest(".gotoSchedule");
+  if(sched){
+    e.preventDefault();
+    const team=sched.dataset.team;
+    showView("schedules");
+    if(team)renderSchedule(team);
+    return;
+  }
+  const j=e.target.closest(".jump");
+  if(j){
+    e.preventDefault();
+    const q=j.dataset.target;
+    (q==="football-rankings"||q==="volleyball-rankings")?showView("rankings",q):showView(q);
+  }
+});
 
 document.getElementById("teamSelector").innerHTML=D.teams.map((t,i)=>`<button class="team-chip ${i===0?"active":""}" data-team="${t.id}"><img src="${logos[t.id]}" onerror="this.style.display='none'">${t.name}</button>`).join("");
 

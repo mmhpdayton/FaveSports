@@ -1,5 +1,5 @@
 {
-  "version": "v14.2.1",
+  "version": "v14.2.2",
   "teams": [
     {
       "id": "payton",
@@ -7,7 +7,7 @@
       "abbr": "P",
       "color": "#f47b20",
       "record": "0–0",
-      "context": "",
+      "context": "Hadley - Setter",
       "target": "",
       "schedule": [
         {
@@ -148,7 +148,7 @@
       "abbr": "A",
       "color": "#b61f2e",
       "record": "0–0",
-      "context": "",
+      "context": "Patrick - WR/DB",
       "target": "",
       "schedule": [
         {
