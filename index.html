@@ -222,6 +222,57 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 .cvb-wisc{background:#d6b2670d}
 
 
+
+/* V14.1 — sports-app UX polish */
+:root{--ds-radius:13px;--ds-border:#1f3c53}
+nav{position:sticky;top:0;z-index:60;overflow-x:auto;white-space:nowrap;scrollbar-width:none;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;min-height:44px}
+.card,.team-card,.game-card,.standing-card,.week-panel,.epl-week-card{border-radius:var(--ds-radius)}
+.section{margin-bottom:22px}.section-title{margin-bottom:10px}
+.ui-next-hero{border:1px solid #31566f;background:linear-gradient(180deg,#0d2235,#091827);border-radius:16px;padding:16px;margin:12px 0}
+.ui-kicker{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#8fb3cb;font-weight:950}
+.ui-next-match{font-size:20px;font-weight:950;letter-spacing:-.02em;margin:5px 0 8px}
+.ui-meta{display:flex;flex-wrap:wrap;gap:6px}
+.ui-section-label{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:950;margin:12px 2px 8px}
+.ui-collapse{border:1px solid var(--ds-border);border-radius:12px;background:#081522;overflow:hidden;margin-top:10px}
+.ui-collapse summary{list-style:none;cursor:pointer;padding:12px 13px;display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:950}
+.ui-collapse summary::-webkit-details-marker{display:none}
+.ui-collapse summary:after{content:"›";font-size:19px;transition:transform .15s ease}
+.ui-collapse[open] summary:after{transform:rotate(90deg)}
+.ui-collapse-body{padding:0 10px 10px}
+.ui-month{margin-top:7px}
+.home-next{border:1px solid #335a75;background:#0b1e30;border-radius:16px;padding:14px;margin-bottom:11px}
+.home-next-title{font-size:19px;font-weight:950;margin:5px 0}
+.home-rest{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.compact-teams{display:grid;gap:7px}
+.compact-team{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:9px;border:1px solid #1b3a51;background:#091827;border-radius:11px;padding:9px 10px;cursor:pointer}
+.compact-team:hover{background:#0d2031}
+.compact-team .logo-box{width:34px;height:34px}
+.compact-team-name{font-weight:900;font-size:12px}
+.compact-team-next{font-size:10px;color:#8ca7ba;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.compact-team-record{font-size:11px;font-weight:900}
+.standings-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:8px}
+.standings-tabs::-webkit-scrollbar{display:none}
+.standings-tab{flex:0 0 auto;border:1px solid #29495f;border-radius:999px;background:#091827;color:#a9bfd0;padding:7px 11px;font-size:10px;font-weight:900;cursor:pointer}
+.standings-tab.active{background:#1b3951;color:#fff;border-color:#4b718d}
+.ds-hidden{display:none!important}
+#premierAccordion{display:grid;gap:8px}
+.epl-accordion-fixtures{padding:0 10px 10px}
+.league-game,.epl-fixture{border-radius:10px}
+@media(max-width:760px){
+  .wrap{padding-left:10px;padding-right:10px}
+  .home-rest{display:flex;overflow-x:auto;gap:9px;scroll-snap-type:x mandatory;padding-bottom:6px}
+  .home-rest .up-card{min-width:84%;scroll-snap-align:start}
+  .card,.game-card,.team-card{border-radius:11px}
+  .section-title h2{font-size:18px}
+  .league-game{padding:10px}
+  .dk-odds-strip{font-size:9px}
+  .team-selector{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
+  .team-selector::-webkit-scrollbar{display:none}
+  .team-chip{flex:0 0 auto}
+}
+
 </style>
 </head>
 <body>
@@ -251,19 +302,20 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 <section class="section">
   <div class="section-title">
     <div><h2>Premier League</h2><div class="note">League fixtures by week · current table</div></div>
-    <div class="epl-week-controls">
+    <div class="epl-week-controls" style="display:none">
       <button class="view-schedule" id="eplPrev">‹ Previous</button>
       <button class="view-schedule" id="eplToday">Current Week</button>
       <button class="view-schedule" id="eplNext">Next ›</button>
     </div>
   </div>
-  <div class="card epl-week-card">
+  <div class="card epl-week-card" style="display:none">
     <div class="epl-week-heading">
       <strong id="eplWeekLabel">Current Week</strong>
       <span class="live-refresh-badge" id="eplScheduleStatus"><span class="live-refresh-dot"></span>Loading fixtures…</span>
     </div>
     <div id="eplFixtures" class="epl-fixtures"></div>
   </div>
+  <div id="premierAccordion"></div>
 </section>
 <section class="section">
   <div class="section-title"><h2>Premier League Table</h2><span class="live-note" id="eplTableStatus">Live table</span></div>
@@ -514,23 +566,103 @@ function upCard(u){
     ${sxm}
   </article>`;
 }
-document.getElementById("upcoming").innerHTML=D.upcoming.map(upCard).join("");
-document.getElementById("myteams").innerHTML=D.teams.map(homeTeamCard).join("");
 
-function showView(v,anchor){document.querySelectorAll(".view").forEach(x=>x.style.display="none");document.getElementById(v).style.display="block";document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));window.scrollTo({top:0,behavior:"smooth"});if(anchor)setTimeout(()=>document.getElementById(anchor)?.scrollIntoView({behavior:"smooth"}),80)}
+function uiToday(){const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate())}
+function uiGameDate(g){
+  const ms=scheduleDateValue(g);
+  return Number.isFinite(ms)?new Date(ms):null;
+}
+function uiPast(g){
+  const d=uiGameDate(g);if(!d)return false;
+  const dd=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  return dd<uiToday();
+}
+function uiFinished(g){return Boolean(g?._score&&!g._score.live)||/^(W|L|T|FINAL)\b/i.test(String(g?.result||""))}
+function uiEligible(t,g){
+  if(!g||uiPast(g)||uiFinished(g))return false;
+  if(["gb","buf"].includes(t.id)&&/preseason/i.test(String(g.type||g.event||"")))return false;
+  return true;
+}
+function uiNextGame(t){return (t.schedule||[]).find(g=>uiEligible(t,g))||nextEvent(t)||{}}
+function uiUpcomingDate(g){
+  const d=uiGameDate(g);if(!d)return String(g.date||"").toUpperCase();
+  return new Intl.DateTimeFormat("en-US",{weekday:"short",month:"short",day:"numeric"}).format(d).replace(","," ·").toUpperCase();
+}
+function rebuildHomeUpcoming(){
+  const order=["payton","amundsen","amundsenvarsity","nd","wisc","lfc","gb","buf","cubs"];
+  const picked=[],seen=new Set(),today=uiToday(),h=new Date(today);h.setDate(h.getDate()+7);
+  const add=(t,g)=>{const k=`${t.id}|${g.date||""}|${g.opp||""}`;if(seen.has(k))return;seen.add(k);picked.push({t,g,ms:scheduleDateValue(g)})};
+  order.forEach(id=>{const t=byId[id];if(!t)return;const g=(t.schedule||[]).find(x=>uiEligible(t,x));if(g)add(t,g)});
+  order.forEach(id=>{const t=byId[id];if(!t)return;(t.schedule||[]).forEach(g=>{if(!uiEligible(t,g))return;const d=uiGameDate(g);if(d&&d<=h)add(t,g)})});
+  picked.sort((a,b)=>a.ms-b.ms);
+  D.upcoming=picked.slice(0,14).map(({t,g})=>({
+    id:t.id,date:uiUpcomingDate(g),opp:`${g.ha==="AWAY"?"@":"vs"} ${g.opp||""}`,time:g.time||"",tv:g.tv||"",where:g.ha||"",
+    _score:g._score,_eventId:g._eventId,_sportKind:g._sportKind,_liveEvent:g._eventTeams
+  }));
+}
+function renderHomeUpcoming(){
+  rebuildHomeUpcoming();
+  const box=document.getElementById("upcoming");if(!box)return;
+  if(!D.upcoming.length){box.innerHTML=`<div class="league-empty">No upcoming events.</div>`;return}
+  const f=D.upcoming[0],t=byId[f.id],rest=D.upcoming.slice(1);
+  box.innerHTML=`<div class="home-next">
+    <div class="ui-kicker">Next Up</div>
+    <div class="home-next-title">${t?.name||""} · ${f.opp||""}</div>
+    <div class="ui-meta"><span class="chip">${f.date||""}</span><span class="chip">${f.time||""}</span>${f.tv?`<span class="chip tvchip">📺 ${f.tv}</span>`:""}</div>
+  </div><div class="home-rest">${rest.map(upCard).join("")}</div>`;
+}
+function compactTeamRow(t){
+  const g=uiNextGame(t);
+  return `<div class="compact-team gotoSchedule" data-team="${t.id}">${logo(t,true)}
+    <div><div class="compact-team-name">${t.name}</div><div class="compact-team-next">${g?.opp?`${g.ha==="AWAY"?"@":"vs"} ${g.opp} · ${g.date||""} ${g.time||""}`:"No upcoming game"}</div></div>
+    <div class="compact-team-record">${t.record||""}</div></div>`;
+}
+function renderCompactTeams(){
+  const box=document.getElementById("myteams");if(box)box.innerHTML=`<div class="compact-teams">${D.teams.map(compactTeamRow).join("")}</div>`;
+}
+function uiScheduleCard(t,g){
+  const s=g._score;
+  const score=s?`<div class="scoreline"><span class="${s.awayWinner?"winner":""}">${s.awayName||""} ${s.awayScore??""}</span><span>·</span><span class="${s.homeWinner?"winner":""}">${s.homeName||""} ${s.homeScore??""}</span></div><div class="${s.live?"live-badge":"final-badge"}">${s.live?"LIVE":"FINAL"}</div>`:(g.result?`<div class="result">${g.result}</div><div class="manual-result">FINAL</div>`:"");
+  return `<article class="card game-card ${s?"has-result":""} ${g._eventId?"game-clickable":""}" ${g._eventId?`data-event-id="${g._eventId}" data-sport-kind="${g._sportKind||""}"`:""} style="--team:${t.color}">
+    <div class="game-top"><span class="game-date">${g.date||""}</span><span class="game-time">${g.time||""}</span></div>
+    <div class="game-main">${logo(t)}<div><div class="game-title">${g.ha==="AWAY"?"@ ":""}${g.opp||""}</div><div class="game-sub">${g.event||""}</div>${score}</div></div>
+    <div class="game-bottom"><div><div class="chips"><span class="chip">${g.ha||""}</span>${g.conference?`<span class="chip">CONFERENCE</span>`:""}</div>${g.venue?`<div class="venue" style="margin-top:7px">📍 ${g.venue}</div>`:""}</div><div class="broadcast">${g.tv?`📺 ${g.tv}`:""}</div></div>
+    ${["cubs","gb","buf","ind","nd"].includes(t.id)?dkOddsStrip(dkOddsForScheduleGame(t,g)):""}
+  </article>`;
+}
+function uiMonth(g){const m=String(g.date||"").match(/^([A-Z][a-z]{2})/);return m?m[1]:"Later"}
+function uiScheduleBody(t){
+  const next=uiNextGame(t), key=`${next.date||""}|${next.opp||""}`;
+  const prev=(t.schedule||[]).filter(g=>uiPast(g)||uiFinished(g));
+  const future=(t.schedule||[]).filter(g=>uiEligible(t,g)&&`${g.date||""}|${g.opp||""}`!==key);
+  const hero=`<div class="ui-next-hero"><div class="ui-kicker">Next Game</div><div class="ui-next-match">${next.ha==="AWAY"?"@":"vs"} ${next.opp||"TBD"}</div><div class="ui-meta"><span class="chip">${next.date||""}</span><span class="chip">${next.time||""}</span>${next.ha?`<span class="chip">${next.ha}</span>`:""}${next.tv?`<span class="chip tvchip">📺 ${next.tv}</span>`:""}</div></div>`;
+  let fut="";
+  if(t.id==="cubs"){
+    const months={};future.forEach(g=>(months[uiMonth(g)]||=[]).push(g));
+    fut=Object.entries(months).map(([m,a],i)=>`<details class="ui-collapse ui-month" ${i===0?"open":""}><summary><span>${m}</span><span>${a.length} games</span></summary><div class="ui-collapse-body">${a.map(g=>uiScheduleCard(t,g)).join("")}</div></details>`).join("");
+  }else fut=future.map(g=>uiScheduleCard(t,g)).join("");
+  const futureBlock=`<div class="ui-section-label"><span>Upcoming</span><span>${future.length}</span></div>${fut||`<div class="league-empty">No future games.</div>`}`;
+  const pm={};prev.forEach(g=>(pm[uiMonth(g)]||=[]).push(g));
+  const previousInner=t.id==="cubs"
+    ?Object.entries(pm).map(([m,a])=>`<details class="ui-collapse ui-month"><summary><span>${m}</span><span>${a.length} games</span></summary><div class="ui-collapse-body">${a.map(g=>uiScheduleCard(t,g)).join("")}</div></details>`).join("")
+    :prev.map(g=>uiScheduleCard(t,g)).join("");
+  const prevBlock=`<details class="ui-collapse"><summary><span>Previous Games</span><span>${prev.length}</span></summary><div class="ui-collapse-body">${previousInner||`<div class="league-empty">No completed games yet.</div>`}</div></details>`;
+  return hero+futureBlock+prevBlock;
+}
+
+renderHomeUpcoming();
+renderCompactTeams();
+
+function showView(v,anchor){if(v==="home"){renderHomeUpcoming();renderCompactTeams();}document.querySelectorAll(".view").forEach(x=>x.style.display="none");document.getElementById(v).style.display="block";document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));window.scrollTo({top:0,behavior:"smooth"});if(anchor)setTimeout(()=>document.getElementById(anchor)?.scrollIntoView({behavior:"smooth"}),80)}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>showView(b.dataset.view));
 document.addEventListener("click",e=>{const j=e.target.closest(".jump");if(j){e.preventDefault();const q=j.dataset.target;(q==="football-rankings"||q==="volleyball-rankings")?showView("rankings",q):showView(q)}});
 
 document.getElementById("teamSelector").innerHTML=D.teams.map((t,i)=>`<button class="team-chip ${i===0?"active":""}" data-team="${t.id}"><img src="${logos[t.id]}" onerror="this.style.display='none'">${t.name}</button>`).join("");
 
 function renderSchedule(id){
-  const t=byId[id];
-  document.querySelectorAll(".team-chip").forEach(b=>b.classList.toggle("active",b.dataset.team===id));
-  const tour=t.schedule.filter(g=>g.tournament);
-  const normal=t.schedule.filter(g=>!g.tournament);
-  let cards=normal.map(g=>{const s=g._score;const score=s?`<div class="scoreline"><span class="${s.awayWinner?"winner":""}">${s.awayName} ${s.awayScore}</span><span>·</span><span class="${s.homeWinner?"winner":""}">${s.homeName} ${s.homeScore}</span></div><div class="${s.live?"live-badge":"final-badge"}">${s.live?"LIVE":"FINAL"}</div><div class="score-source">Score automatically refreshed when available.</div>`:(g.result?`<div class="result">${g.result}</div><div class="manual-result">FINAL</div>`:"");return `<article class="card game-card ${s?"has-result":""}" style="--team:${t.color}"><div class="game-top"><span class="game-date">${g.date}</span><span class="game-time">${g.time}</span></div><div class="game-main">${logo(t)}<div><div class="game-title">${g.ha==="AWAY"?"@ ":""}${g.opp}</div><div class="game-sub">${g.event||""}</div>${score}</div></div><div class="game-bottom"><div><div class="chips"><span class="chip">${g.ha}</span>${g.conference?`<span class="chip">CONFERENCE</span>`:""}</div>${g.venue?`<div class="venue" style="margin-top:7px">📍 ${g.venue}</div>`:""}</div><div class="broadcast">${g.tv?`📺 ${g.tv}`:""}</div></div>${["cubs","gb","buf","ind","nd"].includes(t.id)?dkOddsStrip(dkOddsForScheduleGame(t,g)):""}</article>`}).join("");
-  if(tour.length){cards+=`<article class="card tournament-card" style="border-left:5px solid ${t.color}"><div class="game-top"><span class="game-date">SEP 12</span><span class="game-time">TBA</span></div><div class="tour-title">Rickover Naval Academy JV Tournament</div><div class="tour-games">${tour.map((g,i)=>`<div class="tour-row"><strong>Game ${i+1}</strong><span>Opponent TBA</span><span>TBA</span></div>`).join("")}</div></article>`}
-  document.getElementById("scheduleArea").innerHTML=`<div class="schedule-hero">${logo(t)}<div><h2 style="margin:0">${t.name}</h2><div class="schedule-meta">${t.record}${t.context?` · ${t.context}`:""} · ${t.schedule.length} games${t._fullSeasonLoaded?" · Full 2026 regular season":""}</div></div></div><div class="schedule-list">${cards}</div>`;
+  const t=byId[id]||D.teams[0];
+  document.querySelectorAll(".team-chip").forEach(b=>b.classList.toggle("active",b.dataset.team===t.id));
+  document.getElementById("scheduleArea").innerHTML=`<div class="schedule-hero">${logo(t)}<div><h2 style="margin:0">${t.name}</h2><div class="schedule-meta">${t.record||""}${t.context?` · ${t.context}`:""} · ${(t.schedule||[]).length} games${t._fullSeasonLoaded?" · Full 2026 regular season":""}</div></div></div><div class="schedule-list">${uiScheduleBody(t)}</div>`;
 }
 renderSchedule(D.teams[0].id);
 document.querySelectorAll(".team-chip").forEach(b=>b.onclick=()=>renderSchedule(b.dataset.team));
@@ -553,6 +685,22 @@ document.getElementById("standingsGrid").innerHTML=[
   ["nlCentral","NL Central · Cubs"]
 ].map(([id,title])=>`<div class="card standing-card" id="${id}"><div class="standing-head"><h3>${title}</h3><span class="live-note">Loading live standings…</span></div></div>`).join("");
 
+
+
+function setupStandingsSwitcher(){
+  const grid=document.getElementById("standingsGrid");if(!grid)return;
+  const cards=[...grid.querySelectorAll(".standing-card")];if(cards.length<2)return;
+  const tabs=document.createElement("div");tabs.className="standings-tabs";
+  cards.forEach((c,i)=>{
+    const label=(c.querySelector("h3")?.textContent||`Table ${i+1}`).split("·")[0].trim();
+    const b=document.createElement("button");b.className="standings-tab"+(i===0?" active":"");b.textContent=label;
+    b.onclick=()=>{[...tabs.children].forEach((x,j)=>x.classList.toggle("active",j===i));cards.forEach((x,j)=>x.classList.toggle("ds-hidden",j!==i))};
+    tabs.appendChild(b);c.classList.toggle("ds-hidden",i!==0);
+  });
+  grid.parentNode.insertBefore(tabs,grid);
+}
+
+setupStandingsSwitcher();
 
 // ---- Premier League weekly fixtures + table ----
 let eplWeekOffset=0;
@@ -600,6 +748,36 @@ async function loadEplWeek(offset=0,silent=false){
     document.getElementById("eplScheduleStatus").innerHTML=`<span class="live-refresh-dot"></span>Feed unavailable`;
   }
 }
+
+async function loadPremierAccordionPanel(panel,force=false){
+  const offset=Number(panel.dataset.eplOffset||0);
+  const start=startOfWeekCT(offset),end=new Date(start);end.setDate(end.getDate()+6);
+  const box=panel.querySelector(".epl-accordion-fixtures"),meta=panel.querySelector(".week-meta");
+  box.innerHTML=`<div class="epl-empty">Loading fixtures…</div>`;
+  try{
+    const url=`https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=${ymdLocal(start)}-${ymdLocal(end)}&limit=100`;
+    const r=await fetch(url,{cache:force?"no-store":"default"});if(!r.ok)throw new Error(r.status);
+    const j=await r.json(),ev=(j.events||[]).sort((a,b)=>new Date(a.date)-new Date(b.date));
+    meta.textContent=`${ev.length} match${ev.length===1?"":"es"}`;
+    box.innerHTML=ev.length?ev.map(renderEplEvent).join(""):`<div class="epl-empty">No Premier League matches.</div>`;
+  }catch(e){meta.textContent="Unavailable";box.innerHTML=`<div class="epl-empty">Premier League fixtures temporarily unavailable.</div>`}
+}
+async function renderPremierAccordion(){
+  const root=document.getElementById("premierAccordion");if(!root)return;
+  const parts=[];
+  for(let o=-2;o<=8;o++){
+    const s=startOfWeekCT(o),label=weekLabel(s),state=o<0?"Previous Results":o===0?"Current Week":"Future Week";
+    parts.push(`<div class="week-panel ${o===0?"current open":""}" data-epl-offset="${o}"><button class="week-toggle" type="button" aria-expanded="${o===0?"true":"false"}"><div class="week-title-wrap"><div><div class="week-kicker">${state}</div><div class="week-name">${label}</div></div><span class="week-meta">${o===0?"Loading…":"Tap to load"}</span></div><span class="week-chevron">›</span></button><div class="epl-accordion-fixtures">${o===0?`<div class="epl-empty">Loading fixtures…</div>`:""}</div></div>`);
+  }
+  root.innerHTML=parts.join("");
+  root.querySelectorAll(".week-panel").forEach(p=>{const b=p.querySelector(".week-toggle");b.onclick=async()=>{const open=!p.classList.contains("open");p.classList.toggle("open",open);b.setAttribute("aria-expanded",open?"true":"false");if(open&&!p.dataset.loaded){p.dataset.loaded="1";await loadPremierAccordionPanel(p)}}});
+  const cur=root.querySelector('[data-epl-offset="0"]');if(cur){cur.dataset.loaded="1";await loadPremierAccordionPanel(cur)}
+}
+async function refreshOpenPremierAccordion(){
+  const root=document.getElementById("premierAccordion");if(!root)return;
+  for(const p of root.querySelectorAll(".week-panel.open"))await loadPremierAccordionPanel(p,true);
+}
+
 async function loadPremierFullTable(){
   const target=document.getElementById("premierFullTable"); if(!target)return;
   const stored=D.standings?.epl;
@@ -613,7 +791,7 @@ async function loadPremierFullTable(){
 document.getElementById("eplPrev").onclick=()=>loadEplWeek(eplWeekOffset-1);
 document.getElementById("eplNext").onclick=()=>loadEplWeek(eplWeekOffset+1);
 document.getElementById("eplToday").onclick=()=>loadEplWeek(0);
-loadEplWeek(0); loadPremierFullTable();
+loadEplWeek(0); loadPremierFullTable(); renderPremierAccordion();
 
 
 // ---- College Football + NFL weekly league tabs ----
@@ -942,6 +1120,7 @@ async function autoRefreshLeagueScores(){
       const badge=document.getElementById("eplScheduleStatus");
       badge?.classList.add("refreshing");
       await loadEplWeek(eplWeekOffset,true);
+      await refreshOpenPremierAccordion();
       await loadPremierFullTable();
       badge?.classList.remove("refreshing");
     }else if(view==="collegefootball"){
@@ -973,6 +1152,7 @@ document.querySelectorAll('nav button[data-view]').forEach(btn=>{
     }else if(target==="collegevolleyball"){
       setCvbFilter("top25").then(()=>setTimeout(autoRefreshLeagueScores,100));
     }else if(["premier","nfl"].includes(target)){
+      if(target==="premier")setTimeout(renderPremierAccordion,0);
       setTimeout(autoRefreshLeagueScores,100);
     }
   });

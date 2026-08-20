@@ -1,58 +1,40 @@
-# Dayton Sports V14.0
+# Dayton Sports V14.1 — Full UI/UX Pass
 
-Three fixes requested Aug 20, 2026.
+## Schedules
+- Next Game hero appears immediately
+- Upcoming games follow
+- Previous Games collapsed by default
+- Cubs upcoming/history grouped by month so 162 games do not become one giant scroll
+- TV, venue, results, scores, odds and game-detail links preserved
 
-## 1. Top menu
-Exact order:
-1. Home
-2. Schedules
-3. College Football
-4. Premier League
-5. NFL
-6. College Volleyball
-7. Standings
+## Home
+- First upcoming event gets a prominent Next Up treatment
+- Remaining upcoming cards become a horizontal swipe row on mobile
+- My Teams is a compact list
+- Home rebuilds from team schedules whenever opened, helping remove stale prior-date games
 
-Rankings remains available inside the app where team/ranking links point to it, but is no longer a top-level menu item.
+## League pages
+- College Football: existing week accordion retained
+- NFL: existing week accordion retained
+- College Volleyball: existing week accordion retained
+- Premier League: now also uses previous/current/future weekly accordions
 
-## 2. Upcoming & Where to Watch
-Upcoming is no longer dependent solely on the last GitHub-generated `sports-data.js`.
+## Standings
+- One standings table shown at a time
+- scrollable selector for EPL / NFC North / AFC East / AFC South / NL Central
 
-On every site load, after current schedules/results are hydrated from ESPN, the browser rebuilds Upcoming:
-- removes prior-date games
-- removes completed games
-- guarantees the next eligible game for each featured team
-- adds extra games within the next seven days
-- excludes Packers/Bills preseason from Home Upcoming
-- keeps Colts excluded
-- preserves live score/event/game-detail data
+## Mobile polish
+- sticky horizontal nav
+- horizontally scrollable team selector
+- tighter card radius and spacing
+- larger tap areas
+- swipeable Upcoming cards
+- reduced vertical wall-of-cards effect
 
-This specifically prevents a completed Cubs game from yesterday remaining on Home if the updater has not yet refreshed the static file.
-
-## 3. DraftKings betting lines
-V13.9 parsed the visible Sportsbook page, which is not where the actual game-line data lives.
-
-V14.0 uses DraftKings Sportsbook's event-group JSON feed:
-- MLB event group: 84240
-- NFL event group: 88808
-- College Football event group: 87637
-
-The updater searches all offer categories/subcategories and extracts:
-- Point Spread / MLB Run Line
-- Moneyline
-- Over/Under
-
-It tries the generic DraftKings Sportsbook endpoint first and Illinois / nash mirrors as fallbacks.
-
-College Volleyball still uses discovery because the NCAA women's volleyball event-group ID can appear/disappear as DraftKings posts that market.
-
-## Update frequency
-The existing GitHub Action remains every 30 minutes.
-
-## Fresh upload from V13.9
+## Upgrade from V14.0
 Replace:
 - index.html
 - sports-data.json
 - sports-data.js
-- scripts/update_data.py
 
-The workflow file is unchanged from V13.5/V13.9.
+Updater and 30-minute workflow are unchanged.
