@@ -1,46 +1,58 @@
-# Dayton Sports V13.9
+# Dayton Sports V14.0
 
-Switches betting-line architecture to DraftKings Sportsbook as the primary source.
+Three fixes requested Aug 20, 2026.
 
-## Primary DraftKings pages
-- MLB: https://sportsbook.draftkings.com/leagues/baseball/mlb
-- NFL: https://sportsbook.draftkings.com/leagues/football/nfl
-- College Football: https://sportsbook.draftkings.com/leagues/football/ncaaf
+## 1. Top menu
+Exact order:
+1. Home
+2. Schedules
+3. College Football
+4. Premier League
+5. NFL
+6. College Volleyball
+7. Standings
 
-DraftKings Network remains fallback-only if the Sportsbook page does not expose usable game lines during an updater run.
+Rankings remains available inside the app where team/ranking links point to it, but is no longer a top-level menu item.
 
-## College Volleyball
-The updater now checks DraftKings' Volleyball / A-Z Sports navigation for a live NCAA / college women's-volleyball league page.
+## 2. Upcoming & Where to Watch
+Upcoming is no longer dependent solely on the last GitHub-generated `sports-data.js`.
 
-If DraftKings has college-volleyball markets posted:
-- those games are ingested as `cvb`
-- spread/handicap, moneyline and total are shown on College Volleyball game rows
-- the same lines appear inside volleyball game-detail pages
+On every site load, after current schedules/results are hydrated from ESPN, the browser rebuilds Upcoming:
+- removes prior-date games
+- removes completed games
+- guarantees the next eligible game for each featured team
+- adds extra games within the next seven days
+- excludes Packers/Bills preseason from Home Upcoming
+- keeps Colts excluded
+- preserves live score/event/game-detail data
 
-If DraftKings does not have that league posted:
-- no other sportsbook is substituted
-- Dayton Sports shows "DraftKings Sportsbook — Lines not posted"
+This specifically prevents a completed Cubs game from yesterday remaining on Home if the updater has not yet refreshed the static file.
 
-## Parsing strategy
-The updater first parses embedded Sportsbook JSON for events/markets/outcomes.
-If that is unavailable it tries server-rendered Sportsbook text.
-Only after that does NFL/CFB/MLB fall back to DraftKings Network.
+## 3. DraftKings betting lines
+V13.9 parsed the visible Sportsbook page, which is not where the actual game-line data lives.
 
-## Preserved from V13.8
-- daily merged college-volleyball schedules
-- weekly expand/collapse volleyball UX
-- live scoring
-- Amundsen Varsity
-- Cubs live score and game detail
-- SiriusXM priority team audio
-- College Football All-FBS/conference views
-- 30-minute GitHub workflow
+V14.0 uses DraftKings Sportsbook's event-group JSON feed:
+- MLB event group: 84240
+- NFL event group: 88808
+- College Football event group: 87637
 
-## Upgrade from V13.8
+The updater searches all offer categories/subcategories and extracts:
+- Point Spread / MLB Run Line
+- Moneyline
+- Over/Under
+
+It tries the generic DraftKings Sportsbook endpoint first and Illinois / nash mirrors as fallbacks.
+
+College Volleyball still uses discovery because the NCAA women's volleyball event-group ID can appear/disappear as DraftKings posts that market.
+
+## Update frequency
+The existing GitHub Action remains every 30 minutes.
+
+## Fresh upload from V13.9
 Replace:
 - index.html
 - sports-data.json
 - sports-data.js
 - scripts/update_data.py
 
-The existing V13.5 30-minute workflow is unchanged.
+The workflow file is unchanged from V13.5/V13.9.

@@ -30,8 +30,10 @@ JS_PATH = ROOT / "sports-data.js"
 CT = ZoneInfo("America/Chicago")
 
 HEADERS = {
-    "User-Agent": "DaytonSports/13.9 (+GitHub Actions)",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/140 Safari/537.36",
     "Accept": "application/json,text/plain,*/*",
+    "Referer": "https://sportsbook.draftkings.com/",
+    "Origin": "https://sportsbook.draftkings.com",
 }
 
 TEAM_ALIASES = {
@@ -683,22 +685,19 @@ def refresh_siriusxm(data):
 # Sportsbook moneyline / spread (run line for MLB) / total prices without
 # requiring a sportsbook login or geolocation session.
 
-# DraftKings Sportsbook is the primary odds source.
-# DraftKings Network remains a last-good fallback only.
-DK_SPORTSBOOK_SOURCES = {
-    "mlb": ["https://sportsbook.draftkings.com/leagues/baseball/mlb"],
-    "nfl": [
-        "https://sportsbook.draftkings.com/leagues/football/nfl",
-        "https://sportsbook.draftkings.com/leagues/football/nfl-preseason",
-    ],
-    "cfb": ["https://sportsbook.draftkings.com/leagues/football/ncaaf"],
+# DraftKings Sportsbook game lines.
+# These event-group IDs are the league IDs used by DraftKings' own Sportsbook feed.
+DK_EVENTGROUP_IDS = {
+    "mlb": "84240",
+    "nfl": "88808",
+    "cfb": "87637",
 }
 
-DK_NETWORK_FALLBACKS = {
-    "mlb": ["https://dknetwork.draftkings.com/moneyline-total-spread/?tb_eg=MLB&tb_edate=n7days"],
-    "nfl": ["https://dknetwork.draftkings.com/moneyline-total-spread/?tb_eg=NFL&tb_edate=n30days"],
-    "cfb": ["https://dknetwork.draftkings.com/moneyline-total-spread/?tb_eg=College%20Football&tb_edate=n30days"],
-}
+DK_API_TEMPLATES = [
+    "https://sportsbook.draftkings.com/sites/US-SB/api/v5/eventgroups/{group}?format=json",
+    "https://sportsbook-us-il.draftkings.com/sites/US-IL-SB/api/v5/eventgroups/{group}?format=json",
+    "https://sportsbook-nash.draftkings.com/sites/US-SB/api/v5/eventgroups/{group}?format=json",
+]
 
 DK_VOLLEYBALL_DISCOVERY = [
     "https://sportsbook.draftkings.com/sports/volleyball",
@@ -708,266 +707,272 @@ DK_VOLLEYBALL_DISCOVERY = [
 def dk_clean_odds(v):
     if v is None:
         return None
-    return str(v).replace("−", "-").replace("–", "-").strip()
+    if isinstance(v, dict):
+        v = v.get("american") or v.get("americanOdds") or v.get("display")
+    if v is None:
+        return None
+    s = str(v).replace("−","-").replace("–","-").strip()
+    # DraftKings sometimes emits EV/Even.
+    if s.lower() in {"ev","even","even money"}:
+        return "+100"
+    return s
 
 def dk_clean_team(v):
     v = html_lib.unescape(str(v or ""))
-    return re.sub(r"\s+", " ", v).strip(" -·|")
+    return re.sub(r"\s+"," ",v).strip(" -·|")
 
-def dk_plain_text(raw):
-    raw = re.sub(r"</(?:h[1-6]|div|p|li|tr|section|article|td|th|button|span)>", "\n", raw, flags=re.I)
-    raw = re.sub(r"<br\s*/?>", "\n", raw, flags=re.I)
-    raw = re.sub(r"<script\b[^>]*>.*?</script>", " ", raw, flags=re.I|re.S)
-    raw = re.sub(r"<style\b[^>]*>.*?</style>", " ", raw, flags=re.I|re.S)
-    raw = re.sub(r"<[^>]+>", " ", raw)
-    raw = html_lib.unescape(raw).replace("\u2212","-").replace("\xa0"," ")
-    lines = [re.sub(r"\s+"," ",x).strip() for x in raw.splitlines()]
-    return "\n".join(x for x in lines if x)
+def dk_event_teams(event):
+    away = event.get("teamName1") or event.get("awayTeamName")
+    home = event.get("teamName2") or event.get("homeTeamName")
+    parts = event.get("participants") or []
+    for p in parts:
+        if not isinstance(p, dict):
+            continue
+        role = str(p.get("venueRole") or p.get("homeAway") or p.get("role") or "").lower()
+        name = p.get("name") or p.get("displayName") or p.get("teamName")
+        if role in {"away","visitor"} and name:
+            away = name
+        elif role == "home" and name:
+            home = name
+    if (not away or not home) and event.get("name"):
+        bits = re.split(r"\s+@\s+|\s+vs\.?\s+", str(event["name"]), flags=re.I)
+        if len(bits) == 2:
+            away = away or bits[0]
+            home = home or bits[1]
+    return dk_clean_team(away), dk_clean_team(home)
 
-def dk_extract_json_blobs(raw):
-    """Yield JSON blobs embedded in Sportsbook HTML."""
-    blobs = []
-    patterns = [
-        r'<script[^>]+type=["\']application/json["\'][^>]*>(.*?)</script>',
-        r'<script[^>]+id=["\']__NEXT_DATA__["\'][^>]*>(.*?)</script>',
-    ]
-    for pat in patterns:
-        for m in re.finditer(pat, raw, flags=re.I|re.S):
-            txt = html_lib.unescape(m.group(1)).strip()
-            try:
-                blobs.append(json.loads(txt))
-            except Exception:
-                pass
-    return blobs
+def dk_outcome_name(o):
+    return dk_clean_team(
+        o.get("participant") or o.get("label") or o.get("name") or
+        o.get("participantName") or o.get("displayName")
+    )
 
-def dk_walk(obj):
-    if isinstance(obj, dict):
-        yield obj
-        for v in obj.values():
-            yield from dk_walk(v)
-    elif isinstance(obj, list):
-        for v in obj:
-            yield from dk_walk(v)
+def dk_outcome_line(o):
+    v = o.get("line")
+    if v is None: v = o.get("points")
+    if v is None: v = o.get("handicap")
+    return None if v is None else str(v).replace("−","-").replace("–","-")
 
-def dk_first(d, keys):
-    for k in keys:
-        if k in d and d[k] not in (None, ""):
-            return d[k]
+def dk_outcome_price(o):
+    for key in ("oddsAmerican","americanOdds","odds","price"):
+        if key in o:
+            return dk_clean_odds(o[key])
     return None
 
-def dk_parse_sportsbook_json(raw, sport):
-    """
-    Generic DraftKings Sportsbook embedded-JSON parser.
-    Handles common event/market/outcome shapes without depending on one private API schema.
-    """
-    games_by_id = {}
-    for blob in dk_extract_json_blobs(raw):
-        for d in dk_walk(blob):
-            # Capture event/team identity.
-            event_id = dk_first(d, ["eventId","eventID","id"])
-            name = dk_first(d, ["name","eventName","displayName"])
-            participants = dk_first(d, ["participants","competitors","teams"])
-            if event_id and (participants or (isinstance(name,str) and ("@" in name or " vs " in name.lower()))):
-                rec = games_by_id.setdefault(str(event_id), {
-                    "sport": sport, "eventId": str(event_id),
-                    "away": None, "home": None,
-                    "moneyline": {}, "spread": {}, "total": {},
-                    "source": "DraftKings Sportsbook"
-                })
-                if isinstance(participants, list):
-                    for p in participants:
-                        if not isinstance(p, dict): continue
-                        nm = dk_first(p, ["name","displayName","teamName"])
-                        role = str(dk_first(p, ["venueRole","homeAway","role"]) or "").lower()
-                        if nm:
-                            if role in ("away","visitor"): rec["away"] = dk_clean_team(nm)
-                            elif role == "home": rec["home"] = dk_clean_team(nm)
-                if (not rec["away"] or not rec["home"]) and isinstance(name,str):
-                    parts = re.split(r"\s+@\s+|\s+vs\.?\s+", name, flags=re.I)
-                    if len(parts) == 2:
-                        rec["away"], rec["home"] = map(dk_clean_team, parts)
+def dk_iter_offers(event_group):
+    """Yield every offer object under all categories/subcategories."""
+    for cat in event_group.get("offerCategories") or []:
+        cat_name = str(cat.get("name") or "")
+        for desc in cat.get("offerSubcategoryDescriptors") or []:
+            sub_name = str(desc.get("name") or "")
+            sub = desc.get("offerSubcategory") or {}
+            groups = sub.get("offers") or []
+            for offer_group in groups:
+                seq = offer_group if isinstance(offer_group, list) else [offer_group]
+                for offer in seq:
+                    if isinstance(offer, dict):
+                        yield cat_name, sub_name, offer
 
-            # Capture markets/outcomes; attach by event id when present.
-            market_name = str(dk_first(d, ["marketName","name","label","displayName"]) or "")
-            outcomes = dk_first(d, ["outcomes","selections","offers"])
-            parent_event = dk_first(d, ["eventId","eventID","event"])
-            if isinstance(parent_event, dict):
-                parent_event = dk_first(parent_event, ["id","eventId"])
-            if not parent_event or not isinstance(outcomes, list):
-                continue
-            rec = games_by_id.setdefault(str(parent_event), {
-                "sport": sport, "eventId": str(parent_event),
-                "away": None, "home": None,
-                "moneyline": {}, "spread": {}, "total": {},
-                "source": "DraftKings Sportsbook"
-            })
-            ml = re.search(r"money\s*line|moneyline", market_name, re.I)
-            sp = re.search(r"spread|run\s*line|handicap", market_name, re.I)
-            tot = re.search(r"total|over.?under", market_name, re.I)
+def dk_market_type(cat_name, sub_name, offer):
+    text = " ".join([
+        cat_name, sub_name,
+        str(offer.get("label") or ""),
+        str(offer.get("name") or ""),
+        str(offer.get("marketName") or ""),
+    ]).lower()
+    if "moneyline" in text or "money line" in text:
+        return "moneyline"
+    if "run line" in text or "spread" in text or "handicap" in text:
+        return "spread"
+    if "total" in text or "over/under" in text or "over under" in text:
+        return "total"
+    return None
+
+def dk_parse_eventgroup(payload, sport):
+    eg = payload.get("eventGroup") or payload
+    events = eg.get("events") or payload.get("events") or []
+    event_map = {}
+    games = {}
+
+    for e in events:
+        if not isinstance(e, dict):
+            continue
+        eid = str(e.get("eventId") or e.get("id") or "")
+        if not eid:
+            continue
+        away, home = dk_event_teams(e)
+        event_map[eid] = e
+        games[eid] = {
+            "sport": sport,
+            "eventId": eid,
+            "away": away,
+            "home": home,
+            "startDate": e.get("startDate") or e.get("startDateTime"),
+            "moneyline": {},
+            "spread": {},
+            "total": {},
+            "source": "DraftKings Sportsbook",
+        }
+
+    for cat_name, sub_name, offer in dk_iter_offers(eg):
+        market = dk_market_type(cat_name, sub_name, offer)
+        if not market:
+            continue
+
+        eid = str(
+            offer.get("eventId") or offer.get("providerEventId") or
+            offer.get("eventID") or ""
+        )
+        if not eid:
+            continue
+
+        rec = games.setdefault(eid, {
+            "sport": sport, "eventId": eid, "away": "", "home": "",
+            "moneyline": {}, "spread": {}, "total": {},
+            "source": "DraftKings Sportsbook",
+        })
+
+        # If the event wasn't in events[], recover matchup identity from offer.
+        if not rec.get("away") or not rec.get("home"):
+            ev = event_map.get(eid, {})
+            away, home = dk_event_teams(ev)
+            rec["away"] = rec.get("away") or away
+            rec["home"] = rec.get("home") or home
+
+        outcomes = offer.get("outcomes") or []
+        if market == "moneyline":
             for o in outcomes:
                 if not isinstance(o, dict): continue
-                label = dk_clean_team(dk_first(o, ["label","name","participant","displayName"]) or "")
-                odds = dk_clean_odds(dk_first(o, ["oddsAmerican","americanOdds","odds","price"]))
-                line = dk_clean_odds(dk_first(o, ["line","points","handicap","value"]))
-                if ml and label and odds:
-                    rec["moneyline"][label] = odds
-                elif sp and label:
-                    rec["spread"][label] = {"line": line, "odds": odds}
-                elif tot:
-                    low = label.lower()
-                    if "over" in low:
-                        rec["total"]["line"] = line or re.sub(r"[^0-9.]+","",label)
-                        rec["total"]["overOdds"] = odds
-                    elif "under" in low:
-                        rec["total"].setdefault("line", line or re.sub(r"[^0-9.]+","",label))
-                        rec["total"]["underOdds"] = odds
+                name, price = dk_outcome_name(o), dk_outcome_price(o)
+                if name and price:
+                    rec["moneyline"][name] = price
 
-    return [
-        g for g in games_by_id.values()
-        if g.get("away") and g.get("home") and (g["moneyline"] or g["spread"] or g["total"])
-    ]
+        elif market == "spread":
+            for o in outcomes:
+                if not isinstance(o, dict): continue
+                name, line, price = dk_outcome_name(o), dk_outcome_line(o), dk_outcome_price(o)
+                if name and (line is not None or price):
+                    rec["spread"][name] = {"line": line, "odds": price}
 
-def dk_parse_sportsbook_visible_text(raw, sport):
-    """
-    Fallback for server-rendered Sportsbook pages when event lines are visible as text.
-    """
-    text = dk_plain_text(raw)
-    lines = text.splitlines()
-    games = []
-    # Search windows around matchup-looking lines.
-    for i, line in enumerate(lines):
-        m = re.match(r"^(.{2,60}?)\s+@\s+(.{2,60}?)$", line)
-        if not m:
+        elif market == "total":
+            for o in outcomes:
+                if not isinstance(o, dict): continue
+                name = dk_outcome_name(o).lower()
+                line, price = dk_outcome_line(o), dk_outcome_price(o)
+                # Some DK payloads store "Over"/"Under" as label rather than participant.
+                label = str(o.get("label") or o.get("name") or o.get("participant") or "").lower()
+                side = name or label
+                if "over" in side:
+                    if line is not None: rec["total"]["line"] = line
+                    rec["total"]["overOdds"] = price
+                elif "under" in side:
+                    if line is not None: rec["total"].setdefault("line", line)
+                    rec["total"]["underOdds"] = price
+
+    out = []
+    for g in games.values():
+        if not g.get("away") or not g.get("home"):
             continue
-        away, home = map(dk_clean_team, m.groups())
-        window = "\n".join(lines[i:i+60])
-        moneyline, spread, total = {}, {}, {}
+        if g["moneyline"] or g["spread"] or g["total"]:
+            out.append(g)
+    return out
 
-        # Accept either table-like "Team -1.5 -110" or separated labels.
-        for team in (away, home):
-            last = re.escape(team.split()[-1])
-            mm = re.search(rf"(?:{re.escape(team)}|{last}).{{0,50}}?([+-]\d{3,4})", window, re.I|re.S)
-            if mm: moneyline[team] = dk_clean_odds(mm.group(1))
-            sm = re.search(rf"(?:{re.escape(team)}|{last}).{{0,30}}?([+-]\d+(?:\.\d+)?)\s+([+-]\d{3,4})", window, re.I|re.S)
-            if sm: spread[team] = {"line":dk_clean_odds(sm.group(1)), "odds":dk_clean_odds(sm.group(2))}
-        tm = re.search(r"\bO(?:ver)?\s*(\d+(?:\.\d+)?)\s*([+-]\d{3,4}).*?\bU(?:nder)?\s*\1\s*([+-]\d{3,4})", window, re.I|re.S)
-        if tm:
-            total = {"line":tm.group(1),"overOdds":dk_clean_odds(tm.group(2)),"underOdds":dk_clean_odds(tm.group(3))}
-        if moneyline or spread or total:
-            games.append({
-                "sport":sport,"away":away,"home":home,
-                "moneyline":moneyline,"spread":spread,"total":total,
-                "source":"DraftKings Sportsbook"
-            })
-    return games
+def dk_fetch_eventgroup(sport, group):
+    last_exc = None
+    for tmpl in DK_API_TEMPLATES:
+        url = tmpl.format(group=group)
+        try:
+            payload = fetch_json(url, timeout=20)
+            games = dk_parse_eventgroup(payload, sport)
+            if games:
+                return games, url
+        except Exception as exc:
+            last_exc = exc
+            print(f"DraftKings eventgroup failed {sport} via {url}: {exc}")
+    if last_exc:
+        raise last_exc
+    return [], None
 
-def dk_discover_college_volleyball_urls():
-    urls = []
-    href_re = re.compile(r'href=["\']([^"\']+)["\'][^>]*>(.*?)</a>', re.I|re.S)
+def dk_plain_text(raw):
+    raw = re.sub(r"<script\b[^>]*>.*?</script>", " ", raw, flags=re.I|re.S)
+    raw = re.sub(r"<style\b[^>]*>.*?</style>", " ", raw, flags=re.I|re.S)
+    raw = re.sub(r"<[^>]+>", "\n", raw)
+    raw = html_lib.unescape(raw)
+    return "\n".join(re.sub(r"\s+"," ",x).strip() for x in raw.splitlines() if x.strip())
+
+def dk_discover_college_volleyball_group():
+    """
+    Look for an NCAA/college women's volleyball event-group ID in DK's volleyball navigation.
+    If DraftKings is not offering that league, return None.
+    """
     for page in DK_VOLLEYBALL_DISCOVERY:
         try:
             raw = fetch_text(page)
         except Exception:
             continue
-        for href, label_html in href_re.findall(raw):
-            label = dk_plain_text(label_html).lower()
-            href_low = href.lower()
-            # Be conservative: NCAA/college + volleyball + women/womens if present.
-            if "volleyball" not in href_low and "volleyball" not in label:
-                continue
-            if any(k in (href_low+" "+label) for k in ["ncaa","college","women","womens"]):
-                if href.startswith("/"):
-                    href = "https://sportsbook.draftkings.com" + href
-                if href.startswith("https://sportsbook.draftkings.com") and href not in urls:
-                    urls.append(href)
-    return urls
 
-def dk_parse_network_page(raw, sport):
-    # Retains the older DK Network text parser only as a fallback.
-    text = dk_plain_text(raw)
-    game_re = re.compile(
-        r"(?m)^(.{2,60}?)\s+@\s+(.{2,60}?)\n(\d{1,2}/\d{1,2},\s*\d{1,2}:\d{2}\s*(?:AM|PM))"
-    )
-    matches = list(game_re.finditer(text))
-    games = []
-    for i,m in enumerate(matches):
-        away,home = map(dk_clean_team,m.group(1,2))
-        body=text[m.end():matches[i+1].start() if i+1<len(matches) else len(text)]
-        ml,sp,tot={},{},{}
-        for team in (away,home):
-            cand=re.escape(team.split()[-1])
-            mm=re.search(rf"(?:^|\n).*?{cand}\s+([+-]\d+)\b",body,re.I|re.M)
-            if mm: ml[team]=dk_clean_odds(mm.group(1))
-            sm=re.search(rf"(?:^|\n).*?{cand}\s+([+-]?\d+(?:\.\d+)?)\s+([+-]\d+)\b",body,re.I|re.M)
-            if sm: sp[team]={"line":dk_clean_odds(sm.group(1)),"odds":dk_clean_odds(sm.group(2))}
-        over=re.search(r"(?:^|\n)Over\s+(\d+(?:\.\d+)?)\s+([+-]\d+)",body,re.I|re.M)
-        under=re.search(r"(?:^|\n)Under\s+(\d+(?:\.\d+)?)\s+([+-]\d+)",body,re.I|re.M)
-        if over:
-            tot={"line":over.group(1),"overOdds":dk_clean_odds(over.group(2))}
-        if under:
-            tot.setdefault("line",under.group(1));tot["underOdds"]=dk_clean_odds(under.group(2))
-        if ml or sp or tot:
-            games.append({"sport":sport,"away":away,"home":home,"moneyline":ml,"spread":sp,"total":tot,"source":"DraftKings Network fallback"})
-    return games
+        # Search links/API references where the surrounding text says college/NCAA volleyball.
+        for m in re.finditer(r'href=["\']([^"\']+)["\'][^>]*>(.*?)</a>', raw, flags=re.I|re.S):
+            href, label_html = m.group(1), m.group(2)
+            label = dk_plain_text(label_html).lower()
+            joined = (href + " " + label).lower()
+            if "volleyball" not in joined:
+                continue
+            if not any(k in joined for k in ("college","ncaa","women","womens")):
+                continue
+            gid = re.search(r"(?:eventgroups?/|eventgroup=)(\d{4,10})", joined)
+            if gid:
+                return gid.group(1)
+    return None
 
 def refresh_draftkings_odds(data):
-    all_games=[]
-    seen=set()
-    source_pages={}
+    all_games = []
+    source_pages = {}
+    seen = set()
 
-    # Primary: official DraftKings Sportsbook league pages.
-    sources=dict(DK_SPORTSBOOK_SOURCES)
-    cvb_urls=dk_discover_college_volleyball_urls()
-    if cvb_urls:
-        sources["cvb"]=cvb_urls
-        source_pages["cvb"]=cvb_urls
+    groups = dict(DK_EVENTGROUP_IDS)
+    cvb_group = dk_discover_college_volleyball_group()
+    if cvb_group:
+        groups["cvb"] = cvb_group
 
-    for sport,urls in sources.items():
-        source_pages.setdefault(sport,urls)
-        for url in urls:
-            try:
-                raw=fetch_text(url)
-                parsed=dk_parse_sportsbook_json(raw,sport)
-                if not parsed:
-                    parsed=dk_parse_sportsbook_visible_text(raw,sport)
-                for g in parsed:
-                    key=(sport,dk_clean_team(g.get("away")).lower(),dk_clean_team(g.get("home")).lower())
-                    if key in seen: continue
-                    seen.add(key);all_games.append(g)
-            except Exception as exc:
-                print(f"DraftKings Sportsbook source failed ({sport}): {exc}")
+    for sport, group in groups.items():
+        try:
+            games, source_url = dk_fetch_eventgroup(sport, group)
+            if source_url:
+                source_pages[sport] = source_url
+            for g in games:
+                key = (
+                    sport,
+                    dk_clean_team(g.get("away")).lower(),
+                    dk_clean_team(g.get("home")).lower(),
+                    str(g.get("startDate") or "")[:10],
+                )
+                if key in seen:
+                    continue
+                seen.add(key)
+                all_games.append(g)
+        except Exception as exc:
+            print(f"DraftKings {sport}: no usable event-group feed ({exc})")
 
-    # Fallback only for sports where Sportsbook produced no game lines.
-    sports_found={g["sport"] for g in all_games}
-    for sport,urls in DK_NETWORK_FALLBACKS.items():
-        if sport in sports_found:
-            continue
-        for url in urls:
-            try:
-                raw=fetch_text(url)
-                for g in dk_parse_network_page(raw,sport):
-                    key=(sport,g["away"].lower(),g["home"].lower())
-                    if key in seen: continue
-                    seen.add(key);all_games.append(g)
-            except Exception as exc:
-                print(f"DraftKings Network fallback failed ({sport}): {exc}")
+    previous = data.get("draftkingsOdds") or {}
 
-    previous=data.get("draftkingsOdds") or {}
     if all_games:
-        data["draftkingsOdds"]={
-            "updatedAt":datetime.now(timezone.utc).isoformat(),
-            "source":"DraftKings",
-            "primarySource":"DraftKings Sportsbook",
-            "fallbackSource":"DraftKings Network",
-            "sourcePages":source_pages,
-            "collegeVolleyballDiscovered":bool(cvb_urls),
-            "games":all_games,
+        data["draftkingsOdds"] = {
+            "updatedAt": datetime.now(timezone.utc).isoformat(),
+            "source": "DraftKings",
+            "primarySource": "DraftKings Sportsbook event-group feed",
+            "sourcePages": source_pages,
+            "collegeVolleyballDiscovered": bool(cvb_group),
+            "games": all_games,
         }
-        print(f"DraftKings Sportsbook odds refreshed: {len(all_games)} games; sports={sorted({g['sport'] for g in all_games})}")
+        counts = {}
+        for g in all_games:
+            counts[g["sport"]] = counts.get(g["sport"], 0) + 1
+        print(f"DraftKings odds refreshed: {counts}")
     else:
-        print("DraftKings Sportsbook refresh returned no usable game lines; preserving last-good odds.")
+        print("DraftKings returned no usable game lines; preserving last-good odds.")
         if previous:
-            data["draftkingsOdds"]=previous
+            data["draftkingsOdds"] = previous
 
 
 def main():
@@ -981,7 +986,7 @@ def main():
     refresh_draftkings_odds(data)
     regenerate_upcoming(data)
 
-    data["version"] = "v13.9"
+    data["version"] = "v14.0"
     data["lastUpdated"] = datetime.now(timezone.utc).isoformat()
     data.setdefault("automation", {})["enabled"] = True
     data["automation"]["lastRun"] = data["lastUpdated"]

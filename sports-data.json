@@ -1,5 +1,5 @@
 {
-  "version": "v13.9",
+  "version": "v14.0",
   "teams": [
     {
       "id": "payton",
@@ -1981,6 +1981,6 @@
     "updatedAt": null,
     "source": "DraftKings",
     "games": [],
-    "primarySource": "DraftKings Sportsbook"
+    "primarySource": "DraftKings Sportsbook event-group feed"
   }
 }
