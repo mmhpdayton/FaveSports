@@ -1,58 +1,42 @@
-# Dayton Sports V14.2 — REDO
+# Dayton Sports V14.2.1
 
-This replaces the earlier V14.2.
+Fixes two College Volleyball regressions.
 
-## Visible menu
-Home → Schedules → College Football → Premier League → NFL → College Volleyball → Standings
+## College Volleyball league page
+The ESPN women's-college-volleyball scoreboard does not behave consistently with a single `groups=` value.
 
-Rankings remains accessible from ranking links but is not in the visible top navigation.
+V14.2.1 now merges three daily sources:
+1. the unfiltered ESPN volleyball scoreboard
+2. the selected conference / D-I group feed
+3. `groups=50` as an additional fallback
 
-## UX/cosmetic redesign
-The full sports-app redesign remains:
-- sticky horizontal mobile nav
-- Up Next: one active-or-next game per team
-- Next Game first on Schedules
-- Previous Games collapsed
-- Cubs grouped by month
-- compact My Teams
-- week accordions for CFB, NFL, College Volleyball and Premier League
-- one-at-a-time Standings selector
-- tighter mobile spacing/tap targets
+It does this separately for all seven days in each displayed week, merges the results, and deduplicates by ESPN event ID.
 
-## Betting lines everywhere
-DraftKings lines now render anywhere a game is listed and a market is available:
-- Up Next
-- My Teams next-game rows
-- Schedules
-- College Football
-- NFL
-- College Volleyball
-- Premier League
-- game detail
+This prevents one empty/broken group response from blanking an entire week.
 
-## Current DraftKings fix
-The updater now uses DraftKings' v1 full event-group endpoint:
-`/sites/<state>-SB/api/v1/eventgroup/<group>/full?format=json`
+## Wisconsin rankings in Schedules
+The UI now reapplies the stored AVCA Top 25 at render time.
 
-Known groups:
-- MLB 84240
-- NFL 88808
-- College Football 87637
+That means even if the live ESPN schedule refresh replaces:
+`#3 Kentucky`
+with:
+`Kentucky`
 
-Illinois is tried first, then New Jersey, then generic.
-EPL and college volleyball are discovered dynamically when DraftKings posts those markets.
+Dayton Sports renders:
+`#3 Kentucky`
 
-Old DraftKings data is no longer preserved on a failed refresh.
-The browser also refuses to display odds older than 50 minutes.
+The ranking restoration is applied to:
+- Wisconsin Schedule cards
+- Wisconsin Next Game hero
+- Wisconsin compact My Teams row
+- Wisconsin Up Next card
 
-## Upload
+Exhibitions/alumni/tournament labels are left alone.
+
+## Upgrade
 Replace:
 - index.html
 - sports-data.json
 - sports-data.js
-- scripts/update_data.py
 
-Then run:
-Actions → Update Dayton Sports Data → Run workflow
-
-That first manual run is important because this clean build intentionally ships without stale odds.
+Updater/workflow are unchanged from the V14.2 REDO.

@@ -681,7 +681,7 @@ function rebuildHomeUpcoming(){
   D.upcoming=picked.map(({t,g})=>({
     id:t.id,
     date:uiUpcomingDate(g),
-    opp:`${g.ha==="AWAY"?"@":"vs"} ${g.opp||""}`,
+    opp:`${g.ha==="AWAY"?"@":"vs"} ${t.id==="wisc"?uiDisplayOpponent(t,g):(g.opp||"")}`,
     time:g.time||"",
     tv:g.tv||"",
     where:g.ha||"",
@@ -709,18 +709,48 @@ function compactTeamRow(t){
   const g=uiNextGame(t),kind=dkKindForTeam(t),odds=kind?dkOddsForScheduleGame(t,g):null,s=odds?dkMarketSummary(odds):null;
   const betting=s?`<div class="compact-team-odds">DK${s.spText?` · ${s.spText}`:""}${s.tText?` · O/U ${s.tText}`:""}</div>`:"";
   return `<div class="compact-team gotoSchedule" data-team="${t.id}">${logo(t,true)}
-    <div><div class="compact-team-name">${t.name}</div><div class="compact-team-next">${g?.opp?`${g.ha==="AWAY"?"@":"vs"} ${g.opp} · ${g.date||""} ${g.time||""}`:"No upcoming game"}</div>${betting}</div>
+    <div><div class="compact-team-name">${t.name}</div><div class="compact-team-next">${g?.opp?`${g.ha==="AWAY"?"@":"vs"} ${uiDisplayOpponent(t,g)} · ${g.date||""} ${g.time||""}`:"No upcoming game"}</div>${betting}</div>
     <div class="compact-team-record">${t.record||""}</div></div>`;
 }
 function renderCompactTeams(){
   const box=document.getElementById("myteams");if(box)box.innerHTML=`<div class="compact-teams">${D.teams.map(compactTeamRow).join("")}</div>`;
 }
+
+const UI_AVCA_NAMES=(D.rankings?.avca||D.rankings?.volleyball||[]);
+function uiCleanSchoolName(s){
+  return String(s||"")
+    .replace(/^#\d+\s*/,"")
+    .replace(/\s*\([^)]*\)\s*$/,"")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g," ")
+    .trim();
+}
+function uiAvcaRankForOpponent(name){
+  const want=uiCleanSchoolName(name);
+  if(!want)return null;
+  for(let i=0;i<UI_AVCA_NAMES.length;i++){
+    const entry=UI_AVCA_NAMES[i];
+    const school=typeof entry==="string"?entry:(entry?.team||entry?.name||entry?.school||"");
+    const clean=uiCleanSchoolName(school);
+    if(clean && (clean===want || clean.includes(want) || want.includes(clean)))return i+1;
+  }
+  return null;
+}
+function uiDisplayOpponent(t,g){
+  const raw=String(g?.opp||"");
+  if(t?.id!=="wisc")return raw;
+  if(/^#\d+\s/.test(raw))return raw;
+  if(/alumni|exhibition|tournament/i.test(raw))return raw;
+  const r=uiAvcaRankForOpponent(raw);
+  return r?`#${r} ${raw}`:raw;
+}
+
 function uiScheduleCard(t,g){
   const s=g._score;
   const score=s?`<div class="scoreline"><span class="${s.awayWinner?"winner":""}">${s.awayName||""} ${s.awayScore??""}</span><span>·</span><span class="${s.homeWinner?"winner":""}">${s.homeName||""} ${s.homeScore??""}</span></div><div class="${s.live?"live-badge":"final-badge"}">${s.live?"LIVE":"FINAL"}</div>`:(g.result?`<div class="result">${g.result}</div><div class="manual-result">FINAL</div>`:"");
   return `<article class="card game-card ${s?"has-result":""} ${g._eventId?"game-clickable":""}" ${g._eventId?`data-event-id="${g._eventId}" data-sport-kind="${g._sportKind||""}"`:""} style="--team:${t.color}">
     <div class="game-top"><span class="game-date">${g.date||""}</span><span class="game-time">${g.time||""}</span></div>
-    <div class="game-main">${logo(t)}<div><div class="game-title">${g.ha==="AWAY"?"@ ":""}${g.opp||""}</div><div class="game-sub">${g.event||""}</div>${score}</div></div>
+    <div class="game-main">${logo(t)}<div><div class="game-title">${g.ha==="AWAY"?"@ ":""}${uiDisplayOpponent(t,g)}</div><div class="game-sub">${g.event||""}</div>${score}</div></div>
     <div class="game-bottom"><div><div class="chips"><span class="chip">${g.ha||""}</span>${g.conference?`<span class="chip">CONFERENCE</span>`:""}</div>${g.venue?`<div class="venue" style="margin-top:7px">📍 ${g.venue}</div>`:""}</div><div class="broadcast">${g.tv?`📺 ${g.tv}`:""}</div></div>
     ${dkKindForTeam(t)?dkOddsStrip(dkOddsForScheduleGame(t,g)):""}
   </article>`;
@@ -730,7 +760,7 @@ function uiScheduleBody(t){
   const next=uiNextGame(t), key=`${next.date||""}|${next.opp||""}`;
   const prev=(t.schedule||[]).filter(g=>uiPast(g)||uiFinished(g));
   const future=(t.schedule||[]).filter(g=>uiEligible(t,g)&&`${g.date||""}|${g.opp||""}`!==key);
-  const hero=`<div class="ui-next-hero"><div class="ui-kicker">Next Game</div><div class="ui-next-match">${next.ha==="AWAY"?"@":"vs"} ${next.opp||"TBD"}</div><div class="ui-meta"><span class="chip">${next.date||""}</span><span class="chip">${next.time||""}</span>${next.ha?`<span class="chip">${next.ha}</span>`:""}${next.tv?`<span class="chip tvchip">📺 ${next.tv}</span>`:""}</div></div>`;
+  const hero=`<div class="ui-next-hero"><div class="ui-kicker">Next Game</div><div class="ui-next-match">${next.ha==="AWAY"?"@":"vs"} ${next.opp?uiDisplayOpponent(t,next):"TBD"}</div><div class="ui-meta"><span class="chip">${next.date||""}</span><span class="chip">${next.time||""}</span>${next.ha?`<span class="chip">${next.ha}</span>`:""}${next.tv?`<span class="chip tvchip">📺 ${next.tv}</span>`:""}</div></div>`;
   let fut="";
   if(t.id==="cubs"){
     const months={};future.forEach(g=>(months[uiMonth(g)]||=[]).push(g));
@@ -1643,13 +1673,13 @@ function cvbFilterEvents(events){
   }
   if(cvbFilter==="d1")return list;
 
-  // If we had to fall back to the all-D-I feed, filter locally using any
-  // conference metadata ESPN supplied on the competitors.
   if(CVB_CONFERENCES[cvbFilter]){
     const local=list.filter(e=>{
       const {home,away}=eventTeams(e);
       return cvbInConference(home,cvbFilter)||cvbInConference(away,cvbFilter);
     });
+    // If ESPN omitted conference metadata entirely, don't blank the whole page.
+    // The merged direct group feed is still more useful than showing zero matches.
     return local.length?local:list;
   }
   return list;
@@ -1683,17 +1713,42 @@ function cvbGroupParam(){
   if(cvbFilter==="top25"||cvbFilter==="d1")return "50";
   return CVB_CONFERENCES[cvbFilter]?.group||"50";
 }
-async function fetchCvbDay(dateObj,group,force=false){
-  const ymd=cvbYmd(dateObj);
-  const key=`day:${group}:${ymd}`;
+async function fetchCvbSource(ymd,group,force=false){
+  const groupKey=group===null?"default":String(group);
+  const key=`source:${groupKey}:${ymd}`;
   if(!force&&CVB_CACHE[key])return CVB_CACHE[key];
 
-  const url=`https://site.api.espn.com/apis/site/v2/sports/volleyball/womens-college-volleyball/scoreboard?dates=${ymd}&groups=${group}&limit=500`;
+  const groupParam=group===null?"":`&groups=${encodeURIComponent(group)}`;
+  const url=`https://site.api.espn.com/apis/site/v2/sports/volleyball/womens-college-volleyball/scoreboard?dates=${ymd}${groupParam}&limit=500`;
   const r=await fetch(url,{cache:"no-store"});
   if(!r.ok)throw new Error(r.status);
   const j=await r.json();
   CVB_CACHE[key]=j.events||[];
   return CVB_CACHE[key];
+}
+async function fetchCvbDay(dateObj,group,force=false){
+  const ymd=cvbYmd(dateObj);
+  const merged=[],seen=new Set();
+
+  // Volleyball's ESPN group behavior is inconsistent. Merge:
+  // 1) the unfiltered daily scoreboard,
+  // 2) the requested conference/D-I group,
+  // 3) groups=50 as an additional D-I fallback.
+  const sources=[null];
+  if(group!==null && group!==undefined)sources.push(String(group));
+  if(String(group)!=="50")sources.push("50");
+
+  for(const src of [...new Set(sources)]){
+    try{
+      const events=await fetchCvbSource(ymd,src,force);
+      for(const e of events){
+        const id=e.id||`${e.date||""}|${e.name||""}`;
+        if(!seen.has(id)){seen.add(id);merged.push(e);}
+      }
+    }catch(err){}
+  }
+
+  return merged;
 }
 async function fetchCvbWeek(offset=0,force=false){
   const start=cvbMondayForOffset(offset);
@@ -1701,39 +1756,16 @@ async function fetchCvbWeek(offset=0,force=false){
   const key=`week:${cvbFilter}:${group}:${cvbYmd(start)}`;
   if(!force&&CVB_CACHE[key])return CVB_CACHE[key];
 
-  const merged=[];
-  const seen=new Set();
-
-  // ESPN's volleyball scoreboard is much more reliable one calendar day
-  // at a time than with a Monday-Sunday date range.
+  const merged=[],seen=new Set();
   for(let i=0;i<7;i++){
     const d=new Date(start);d.setDate(d.getDate()+i);
     try{
       const events=await fetchCvbDay(d,group,force);
       for(const e of events){
-        const id=e.id||`${e.date}-${e.name||""}`;
+        const id=e.id||`${e.date||""}|${e.name||""}`;
         if(!seen.has(id)){seen.add(id);merged.push(e);}
       }
     }catch(err){}
-  }
-
-  // Conference group feeds occasionally return nothing even when matches exist.
-  // Fall back to the full D-I daily feed, then apply conference metadata locally.
-  if(!merged.length && group!=="50"){
-    const full=[];
-    const fullSeen=new Set();
-    for(let i=0;i<7;i++){
-      const d=new Date(start);d.setDate(d.getDate()+i);
-      try{
-        const events=await fetchCvbDay(d,"50",force);
-        for(const e of events){
-          const id=e.id||`${e.date}-${e.name||""}`;
-          if(!fullSeen.has(id)){fullSeen.add(id);full.push(e);}
-        }
-      }catch(err){}
-    }
-    CVB_CACHE[key]=full;
-    return full;
   }
 
   CVB_CACHE[key]=merged;
@@ -1783,7 +1815,7 @@ async function loadCvbPanel(panel,{force=false}={}){
     let events=await fetchCvbWeek(offset,force);
     events=cvbFilterEvents(events);
     events.sort((a,b)=>new Date(a.date)-new Date(b.date));
-    meta.textContent=`${events.length} match${events.length===1?"":"es"}`;
+    meta.textContent=`${events.length} match${events.length===1?"":"es"} · ESPN daily merge`;
     box.innerHTML=events.length
       ? events.map(cvbEventHtml).join("")
       : `<div class="league-empty">No matches in this view.</div>`;
