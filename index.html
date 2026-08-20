@@ -384,7 +384,7 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
   </div>
 </div>
 
-<div class="footer">Dayton Sports · V13.7.3.2</div>
+<div class="footer">Dayton Sports · V13.9.3.2</div>
 </div>
 
 <script src="sports-data.js"></script>
@@ -437,7 +437,7 @@ function dkTeamMatch(dkName,comp){
   return dLast && fLast && dLast.length>=4 && dLast===fLast;
 }
 function dkSportForKind(kind){
-  return kind==="mlb"?"mlb":kind==="nfl"?"nfl":kind==="cfb"?"cfb":"";
+  return kind==="mlb"?"mlb":kind==="nfl"?"nfl":kind==="cfb"?"cfb":kind==="cvb"?"cvb":"";
 }
 function findDkOddsForCompetitors(kind,home,away){
   const sport=dkSportForKind(kind);
@@ -459,10 +459,10 @@ function dkMarketSummary(odds){
   return {mlText,spText,tText};
 }
 function dkOddsStrip(odds){
-  if(!odds)return `<div class="dk-odds-strip"><span class="dk-book">DraftKings</span><span class="dk-odds-missing">Lines not posted</span></div>`;
+  if(!odds)return `<div class="dk-odds-strip"><span class="dk-book">DraftKings Sportsbook</span><span class="dk-odds-missing">Lines not posted</span></div>`;
   const s=dkMarketSummary(odds);
   return `<div class="dk-odds-strip">
-    <span class="dk-book">DraftKings</span>
+    <span class="dk-book">DraftKings Sportsbook</span>
     <span class="dk-market"><b>Spread</b>${s.spText||"—"}</span>
     <span class="dk-market"><b>ML</b>${s.mlText||"—"}</span>
     <span class="dk-market"><b>O/U</b>${s.tText||"—"}</span>
@@ -474,7 +474,7 @@ function dkOddsDetail(kind,home,away){
   if(!odds)return `<div class="dk-detail"><div class="dk-detail-head"><div class="dk-detail-title">DraftKings</div>${stamp?`<div class="dk-updated">Updated ${stamp} CT</div>`:""}</div><div class="dk-odds-missing">Game lines not posted yet.</div></div>`;
   const s=dkMarketSummary(odds);
   return `<div class="dk-detail">
-    <div class="dk-detail-head"><div class="dk-detail-title">DraftKings Game Lines</div>${stamp?`<div class="dk-updated">Updated ${stamp} CT</div>`:""}</div>
+    <div class="dk-detail-head"><div class="dk-detail-title">DraftKings Sportsbook Game Lines</div>${stamp?`<div class="dk-updated">Updated ${stamp} CT</div>`:""}</div>
     <div class="dk-detail-grid">
       <div class="dk-detail-market"><div class="dk-detail-label">Point Spread</div><div class="dk-detail-value">${s.spText||"—"}</div></div>
       <div class="dk-detail-market"><div class="dk-detail-label">Moneyline</div><div class="dk-detail-value">${s.mlText||"—"}</div></div>
@@ -1183,7 +1183,7 @@ function renderGameDetail(j,kind){
       <div class="game-info-card"><div class="game-info-label">Venue</div><div class="game-info-value">${esc(venue||"TBD")}</div></div>
       <div class="game-info-card"><div class="game-info-label">Attendance</div><div class="game-info-value">${esc(attendance||"—")}</div></div>
     </div>
-    ${["mlb","nfl","cfb"].includes(kind)?dkOddsDetail(kind,home,away):""}
+    ${["mlb","nfl","cfb","cvb"].includes(kind)?dkOddsDetail(kind,home,away):""}
     ${kind==="mlb"?renderBaseballLinescore(j,home,away):""}
     ${renderKeyStats(j,home,away)}
     ${renderScoring(j)}
@@ -1297,15 +1297,15 @@ const CVB_CACHE={};
 // ESPN's non-football NCAA group IDs are used for conference-specific feeds.
 // 50 = all Division I.
 const CVB_CONFERENCES={
-  bigten:{label:"B1G",group:"7"},
-  sec:{label:"SEC",group:"23"},
-  acc:{label:"ACC",group:"2"},
-  big12:{label:"Big 12",group:"8"},
-  bigeast:{label:"Big East",group:"4"},
-  a10:{label:"Atlantic 10",group:"3"},
-  mvc:{label:"MVC",group:"18"},
-  mwc:{label:"Mountain West",group:"44"},
-  wcc:{label:"WCC",group:"29"}
+  bigten:{label:"B1G",group:"7",names:["big ten","b1g"]},
+  sec:{label:"SEC",group:"23",names:["sec","southeastern"]},
+  acc:{label:"ACC",group:"2",names:["acc","atlantic coast"]},
+  big12:{label:"Big 12",group:"8",names:["big 12","big twelve"]},
+  bigeast:{label:"Big East",group:"4",names:["big east"]},
+  a10:{label:"Atlantic 10",group:"3",names:["atlantic 10","a-10"]},
+  mvc:{label:"MVC",group:"18",names:["missouri valley","mvc"]},
+  mwc:{label:"Mountain West",group:"44",names:["mountain west"]},
+  wcc:{label:"WCC",group:"29",names:["west coast","wcc"]}
 };
 let cvbFilter="top25";
 
@@ -1320,13 +1320,43 @@ function cvbMondayForOffset(offset=0){
 function cvbYmd(d){
   return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;
 }
+const CVB_AVCA_ROWS=(D.rankings?.avca||D.rankings?.volleyball||[]);
+const CVB_AVCA_MAP=new Map(
+  (Array.isArray(CVB_AVCA_ROWS)?CVB_AVCA_ROWS:[]).map((r,i)=>{
+    const name=String(r.team||r.name||r.school||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+    return [name,Number(r.rank||i+1)];
+  })
+);
+function cvbStoredRank(c){
+  const name=leagueTeamName(c).toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+  if(CVB_AVCA_MAP.has(name))return CVB_AVCA_MAP.get(name);
+  for(const [n,r] of CVB_AVCA_MAP.entries()){
+    if(n&&name&&(n.includes(name)||name.includes(n)))return r;
+  }
+  return null;
+}
 function cvbRank(c){
-  const r=Number(c?.curatedRank?.current||99);
-  return Number.isFinite(r)&&r<=25?r:null;
+  const espn=Number(c?.curatedRank?.current||99);
+  if(Number.isFinite(espn)&&espn<=25)return espn;
+  const stored=cvbStoredRank(c);
+  return stored&&stored<=25?stored:null;
 }
 function isWisconsinVolleyball(c){
   const text=(leagueTeamName(c)+" "+(c?.team?.abbreviation||"")).toLowerCase();
   return text.includes("wisconsin")||/\bwisc\b/.test(text);
+}
+function cvbConferenceText(c){
+  const t=c?.team||{};
+  return [
+    c?.conference?.name,c?.conference?.shortName,c?.conference?.abbreviation,
+    t?.conference?.name,t?.conference?.shortName,t?.conference?.abbreviation
+  ].filter(Boolean).join(" ").toLowerCase();
+}
+function cvbInConference(c,key){
+  const cfg=CVB_CONFERENCES[key];
+  if(!cfg?.names)return false;
+  const text=cvbConferenceText(c);
+  return cfg.names.some(n=>text.includes(n));
 }
 function cvbFilterEvents(events){
   const list=events||[];
@@ -1336,7 +1366,17 @@ function cvbFilterEvents(events){
       return cvbRank(home)||cvbRank(away)||isWisconsinVolleyball(home)||isWisconsinVolleyball(away);
     });
   }
-  // All D-I and conference feeds are already filtered server-side.
+  if(cvbFilter==="d1")return list;
+
+  // If we had to fall back to the all-D-I feed, filter locally using any
+  // conference metadata ESPN supplied on the competitors.
+  if(CVB_CONFERENCES[cvbFilter]){
+    const local=list.filter(e=>{
+      const {home,away}=eventTeams(e);
+      return cvbInConference(home,cvbFilter)||cvbInConference(away,cvbFilter);
+    });
+    return local.length?local:list;
+  }
   return list;
 }
 function cvbTeamLabel(c){
@@ -1361,25 +1401,68 @@ function cvbEventHtml(e){
       <div class="league-away">${cvbTeamLabel(away)}</div>
     </div>
     <div class="league-broadcast">${tv?`📺 ${esc(tv)}`:""}</div>
+    ${dkOddsStrip(findDkOddsForCompetitors("cvb",home,away))}
   </div>`;
 }
 function cvbGroupParam(){
   if(cvbFilter==="top25"||cvbFilter==="d1")return "50";
   return CVB_CONFERENCES[cvbFilter]?.group||"50";
 }
-async function fetchCvbWeek(offset=0,force=false){
-  const start=cvbMondayForOffset(offset);
-  const end=new Date(start);end.setDate(end.getDate()+6);
-  const group=cvbGroupParam();
-  const key=`${cvbFilter}:${group}:${cvbYmd(start)}-${cvbYmd(end)}`;
+async function fetchCvbDay(dateObj,group,force=false){
+  const ymd=cvbYmd(dateObj);
+  const key=`day:${group}:${ymd}`;
   if(!force&&CVB_CACHE[key])return CVB_CACHE[key];
 
-  const url=`https://site.api.espn.com/apis/site/v2/sports/volleyball/womens-college-volleyball/scoreboard?dates=${cvbYmd(start)}-${cvbYmd(end)}&groups=${group}&limit=500`;
+  const url=`https://site.api.espn.com/apis/site/v2/sports/volleyball/womens-college-volleyball/scoreboard?dates=${ymd}&groups=${group}&limit=500`;
   const r=await fetch(url,{cache:"no-store"});
   if(!r.ok)throw new Error(r.status);
   const j=await r.json();
   CVB_CACHE[key]=j.events||[];
   return CVB_CACHE[key];
+}
+async function fetchCvbWeek(offset=0,force=false){
+  const start=cvbMondayForOffset(offset);
+  const group=cvbGroupParam();
+  const key=`week:${cvbFilter}:${group}:${cvbYmd(start)}`;
+  if(!force&&CVB_CACHE[key])return CVB_CACHE[key];
+
+  const merged=[];
+  const seen=new Set();
+
+  // ESPN's volleyball scoreboard is much more reliable one calendar day
+  // at a time than with a Monday-Sunday date range.
+  for(let i=0;i<7;i++){
+    const d=new Date(start);d.setDate(d.getDate()+i);
+    try{
+      const events=await fetchCvbDay(d,group,force);
+      for(const e of events){
+        const id=e.id||`${e.date}-${e.name||""}`;
+        if(!seen.has(id)){seen.add(id);merged.push(e);}
+      }
+    }catch(err){}
+  }
+
+  // Conference group feeds occasionally return nothing even when matches exist.
+  // Fall back to the full D-I daily feed, then apply conference metadata locally.
+  if(!merged.length && group!=="50"){
+    const full=[];
+    const fullSeen=new Set();
+    for(let i=0;i<7;i++){
+      const d=new Date(start);d.setDate(d.getDate()+i);
+      try{
+        const events=await fetchCvbDay(d,"50",force);
+        for(const e of events){
+          const id=e.id||`${e.date}-${e.name||""}`;
+          if(!fullSeen.has(id)){fullSeen.add(id);full.push(e);}
+        }
+      }catch(err){}
+    }
+    CVB_CACHE[key]=full;
+    return full;
+  }
+
+  CVB_CACHE[key]=merged;
+  return merged;
 }
 function cvbFilterDisplay(){
   if(cvbFilter==="top25")return "Top 25 + Wisconsin";

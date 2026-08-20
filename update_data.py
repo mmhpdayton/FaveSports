@@ -30,7 +30,7 @@ JS_PATH = ROOT / "sports-data.js"
 CT = ZoneInfo("America/Chicago")
 
 HEADERS = {
-    "User-Agent": "DaytonSports/13.5 (+GitHub Actions)",
+    "User-Agent": "DaytonSports/13.9 (+GitHub Actions)",
     "Accept": "application/json,text/plain,*/*",
 }
 
@@ -682,21 +682,28 @@ def refresh_siriusxm(data):
 # Official DraftKings Network odds pages. These pages publish DraftKings
 # Sportsbook moneyline / spread (run line for MLB) / total prices without
 # requiring a sportsbook login or geolocation session.
-DK_ODDS_SOURCES = {
-    "mlb": [
-        "https://dknetwork.draftkings.com/moneyline-total-spread/?tb_eg=MLB&tb_edate=n7days",
-        "https://dknetwork.draftkings.com/draftkings-sportsbook-betting-splits/?tb_eg=MLB&tb_edate=n7days",
-    ],
+
+# DraftKings Sportsbook is the primary odds source.
+# DraftKings Network remains a last-good fallback only.
+DK_SPORTSBOOK_SOURCES = {
+    "mlb": ["https://sportsbook.draftkings.com/leagues/baseball/mlb"],
     "nfl": [
-        "https://dknetwork.draftkings.com/moneyline-total-spread/?tb_eg=NFL&tb_edate=n30days",
-        "https://dknetwork.draftkings.com/draftkings-sportsbook-betting-splits/?tb_eg=NFL&tb_edate=n30days",
+        "https://sportsbook.draftkings.com/leagues/football/nfl",
+        "https://sportsbook.draftkings.com/leagues/football/nfl-preseason",
     ],
-    "cfb": [
-        "https://dknetwork.draftkings.com/moneyline-total-spread/?tb_eg=College%20Football&tb_edate=n30days",
-        "https://dknetwork.draftkings.com/draftkings-sportsbook-betting-splits/?tb_eg=College%20Football&tb_edate=n30days",
-        "https://dknetwork.draftkings.com/draftkings-sportsbook-betting-splits/?tb_eg=84240&tb_edate=n30days",
-    ],
+    "cfb": ["https://sportsbook.draftkings.com/leagues/football/ncaaf"],
 }
+
+DK_NETWORK_FALLBACKS = {
+    "mlb": ["https://dknetwork.draftkings.com/moneyline-total-spread/?tb_eg=MLB&tb_edate=n7days"],
+    "nfl": ["https://dknetwork.draftkings.com/moneyline-total-spread/?tb_eg=NFL&tb_edate=n30days"],
+    "cfb": ["https://dknetwork.draftkings.com/moneyline-total-spread/?tb_eg=College%20Football&tb_edate=n30days"],
+}
+
+DK_VOLLEYBALL_DISCOVERY = [
+    "https://sportsbook.draftkings.com/sports/volleyball",
+    "https://sportsbook.draftkings.com/",
+]
 
 def dk_clean_odds(v):
     if v is None:
@@ -705,132 +712,262 @@ def dk_clean_odds(v):
 
 def dk_clean_team(v):
     v = html_lib.unescape(str(v or ""))
-    v = re.sub(r"\s+", " ", v).strip(" -·|")
-    return v
+    return re.sub(r"\s+", " ", v).strip(" -·|")
 
-def dk_strip_page(raw):
-    # Preserve useful separators before flattening the server-rendered page.
-    raw = re.sub(r"</(?:h[1-6]|div|p|li|tr|section|article|td|th)>", "\n", raw, flags=re.I)
+def dk_plain_text(raw):
+    raw = re.sub(r"</(?:h[1-6]|div|p|li|tr|section|article|td|th|button|span)>", "\n", raw, flags=re.I)
     raw = re.sub(r"<br\s*/?>", "\n", raw, flags=re.I)
     raw = re.sub(r"<script\b[^>]*>.*?</script>", " ", raw, flags=re.I|re.S)
     raw = re.sub(r"<style\b[^>]*>.*?</style>", " ", raw, flags=re.I|re.S)
     raw = re.sub(r"<[^>]+>", " ", raw)
-    raw = html_lib.unescape(raw)
-    raw = raw.replace("\u2212", "-").replace("\xa0", " ")
-    lines = [re.sub(r"\s+", " ", x).strip() for x in raw.splitlines()]
+    raw = html_lib.unescape(raw).replace("\u2212","-").replace("\xa0"," ")
+    lines = [re.sub(r"\s+"," ",x).strip() for x in raw.splitlines()]
     return "\n".join(x for x in lines if x)
 
-def dk_parse_team_prices(section, team1, team2, spread=False):
-    out = {}
-    for team in (team1, team2):
-        # DraftKings may shorten a team name on the odds page. First try the
-        # exact visible name; then the last word (mascot/nickname).
-        candidates = [re.escape(team)]
-        last = team.split()[-1] if team.split() else team
-        if last and last.lower() != team.lower():
-            candidates.append(re.escape(last))
-        found = None
-        for cand in candidates:
-            if spread:
-                pat = rf"(?:^|\n){cand}\s+([+-]?\d+(?:\.\d+)?)\s+([+-]\d+)\b"
-            else:
-                pat = rf"(?:^|\n){cand}\s+([+-]\d+)\b"
-            m = re.search(pat, section, flags=re.I|re.M)
-            if m:
-                found = m.groups()
-                break
-        if found:
-            if spread:
-                out[team] = {"line": dk_clean_odds(found[0]), "odds": dk_clean_odds(found[1])}
-            else:
-                out[team] = dk_clean_odds(found[0])
-    return out
+def dk_extract_json_blobs(raw):
+    """Yield JSON blobs embedded in Sportsbook HTML."""
+    blobs = []
+    patterns = [
+        r'<script[^>]+type=["\']application/json["\'][^>]*>(.*?)</script>',
+        r'<script[^>]+id=["\']__NEXT_DATA__["\'][^>]*>(.*?)</script>',
+    ]
+    for pat in patterns:
+        for m in re.finditer(pat, raw, flags=re.I|re.S):
+            txt = html_lib.unescape(m.group(1)).strip()
+            try:
+                blobs.append(json.loads(txt))
+            except Exception:
+                pass
+    return blobs
 
-def parse_dk_odds_html(raw, sport):
-    text = dk_strip_page(raw)
-    # A game block starts with a matchup line and its date/time. Keep the
-    # matchup parser conservative so navigation text is not interpreted as a game.
-    game_re = re.compile(
-        r"(?m)^(?P<away>[A-Z0-9][A-Za-z0-9 .&'()/-]{1,55}?)\s+@\s+"
-        r"(?P<home>[A-Z0-9][A-Za-z0-9 .&'()/-]{1,55}?)\n"
-        r"(?P<date>\d{1,2}/\d{1,2},\s*\d{1,2}:\d{2}\s*(?:AM|PM))\b"
-    )
-    matches = list(game_re.finditer(text))
+def dk_walk(obj):
+    if isinstance(obj, dict):
+        yield obj
+        for v in obj.values():
+            yield from dk_walk(v)
+    elif isinstance(obj, list):
+        for v in obj:
+            yield from dk_walk(v)
+
+def dk_first(d, keys):
+    for k in keys:
+        if k in d and d[k] not in (None, ""):
+            return d[k]
+    return None
+
+def dk_parse_sportsbook_json(raw, sport):
+    """
+    Generic DraftKings Sportsbook embedded-JSON parser.
+    Handles common event/market/outcome shapes without depending on one private API schema.
+    """
+    games_by_id = {}
+    for blob in dk_extract_json_blobs(raw):
+        for d in dk_walk(blob):
+            # Capture event/team identity.
+            event_id = dk_first(d, ["eventId","eventID","id"])
+            name = dk_first(d, ["name","eventName","displayName"])
+            participants = dk_first(d, ["participants","competitors","teams"])
+            if event_id and (participants or (isinstance(name,str) and ("@" in name or " vs " in name.lower()))):
+                rec = games_by_id.setdefault(str(event_id), {
+                    "sport": sport, "eventId": str(event_id),
+                    "away": None, "home": None,
+                    "moneyline": {}, "spread": {}, "total": {},
+                    "source": "DraftKings Sportsbook"
+                })
+                if isinstance(participants, list):
+                    for p in participants:
+                        if not isinstance(p, dict): continue
+                        nm = dk_first(p, ["name","displayName","teamName"])
+                        role = str(dk_first(p, ["venueRole","homeAway","role"]) or "").lower()
+                        if nm:
+                            if role in ("away","visitor"): rec["away"] = dk_clean_team(nm)
+                            elif role == "home": rec["home"] = dk_clean_team(nm)
+                if (not rec["away"] or not rec["home"]) and isinstance(name,str):
+                    parts = re.split(r"\s+@\s+|\s+vs\.?\s+", name, flags=re.I)
+                    if len(parts) == 2:
+                        rec["away"], rec["home"] = map(dk_clean_team, parts)
+
+            # Capture markets/outcomes; attach by event id when present.
+            market_name = str(dk_first(d, ["marketName","name","label","displayName"]) or "")
+            outcomes = dk_first(d, ["outcomes","selections","offers"])
+            parent_event = dk_first(d, ["eventId","eventID","event"])
+            if isinstance(parent_event, dict):
+                parent_event = dk_first(parent_event, ["id","eventId"])
+            if not parent_event or not isinstance(outcomes, list):
+                continue
+            rec = games_by_id.setdefault(str(parent_event), {
+                "sport": sport, "eventId": str(parent_event),
+                "away": None, "home": None,
+                "moneyline": {}, "spread": {}, "total": {},
+                "source": "DraftKings Sportsbook"
+            })
+            ml = re.search(r"money\s*line|moneyline", market_name, re.I)
+            sp = re.search(r"spread|run\s*line|handicap", market_name, re.I)
+            tot = re.search(r"total|over.?under", market_name, re.I)
+            for o in outcomes:
+                if not isinstance(o, dict): continue
+                label = dk_clean_team(dk_first(o, ["label","name","participant","displayName"]) or "")
+                odds = dk_clean_odds(dk_first(o, ["oddsAmerican","americanOdds","odds","price"]))
+                line = dk_clean_odds(dk_first(o, ["line","points","handicap","value"]))
+                if ml and label and odds:
+                    rec["moneyline"][label] = odds
+                elif sp and label:
+                    rec["spread"][label] = {"line": line, "odds": odds}
+                elif tot:
+                    low = label.lower()
+                    if "over" in low:
+                        rec["total"]["line"] = line or re.sub(r"[^0-9.]+","",label)
+                        rec["total"]["overOdds"] = odds
+                    elif "under" in low:
+                        rec["total"].setdefault("line", line or re.sub(r"[^0-9.]+","",label))
+                        rec["total"]["underOdds"] = odds
+
+    return [
+        g for g in games_by_id.values()
+        if g.get("away") and g.get("home") and (g["moneyline"] or g["spread"] or g["total"])
+    ]
+
+def dk_parse_sportsbook_visible_text(raw, sport):
+    """
+    Fallback for server-rendered Sportsbook pages when event lines are visible as text.
+    """
+    text = dk_plain_text(raw)
+    lines = text.splitlines()
     games = []
-    for i, m in enumerate(matches):
-        away = dk_clean_team(m.group("away"))
-        home = dk_clean_team(m.group("home"))
-        body = text[m.end(): matches[i+1].start() if i+1 < len(matches) else len(text)]
+    # Search windows around matchup-looking lines.
+    for i, line in enumerate(lines):
+        m = re.match(r"^(.{2,60}?)\s+@\s+(.{2,60}?)$", line)
+        if not m:
+            continue
+        away, home = map(dk_clean_team, m.groups())
+        window = "\n".join(lines[i:i+60])
+        moneyline, spread, total = {}, {}, {}
 
-        # The DK Network page can label MLB handicap markets "Run Line".
-        ml_m = re.search(r"\bMoneyline\b(.*?)(?=\b(?:Run Line|Spread|Total)\b|$)", body, flags=re.I|re.S)
-        sp_m = re.search(r"\b(?:Run Line|Spread)\b(.*?)(?=\bTotal\b|$)", body, flags=re.I|re.S)
-        tot_m = re.search(r"\bTotal\b(.*?)(?=\b(?:Prev|Next|Moneyline|Run Line|Spread)\b|$)", body, flags=re.I|re.S)
-
-        moneyline = dk_parse_team_prices(ml_m.group(1) if ml_m else "", away, home, spread=False)
-        spread = dk_parse_team_prices(sp_m.group(1) if sp_m else "", away, home, spread=True)
-
-        total = {}
-        if tot_m:
-            sec = tot_m.group(1)
-            over = re.search(r"(?:^|\n)Over\s+(\d+(?:\.\d+)?)\s+([+-]\d+)\b", sec, flags=re.I|re.M)
-            under = re.search(r"(?:^|\n)Under\s+(\d+(?:\.\d+)?)\s+([+-]\d+)\b", sec, flags=re.I|re.M)
-            if over:
-                total["line"] = dk_clean_odds(over.group(1))
-                total["overOdds"] = dk_clean_odds(over.group(2))
-            if under:
-                total.setdefault("line", dk_clean_odds(under.group(1)))
-                total["underOdds"] = dk_clean_odds(under.group(2))
-
+        # Accept either table-like "Team -1.5 -110" or separated labels.
+        for team in (away, home):
+            last = re.escape(team.split()[-1])
+            mm = re.search(rf"(?:{re.escape(team)}|{last}).{{0,50}}?([+-]\d{3,4})", window, re.I|re.S)
+            if mm: moneyline[team] = dk_clean_odds(mm.group(1))
+            sm = re.search(rf"(?:{re.escape(team)}|{last}).{{0,30}}?([+-]\d+(?:\.\d+)?)\s+([+-]\d{3,4})", window, re.I|re.S)
+            if sm: spread[team] = {"line":dk_clean_odds(sm.group(1)), "odds":dk_clean_odds(sm.group(2))}
+        tm = re.search(r"\bO(?:ver)?\s*(\d+(?:\.\d+)?)\s*([+-]\d{3,4}).*?\bU(?:nder)?\s*\1\s*([+-]\d{3,4})", window, re.I|re.S)
+        if tm:
+            total = {"line":tm.group(1),"overOdds":dk_clean_odds(tm.group(2)),"underOdds":dk_clean_odds(tm.group(3))}
         if moneyline or spread or total:
             games.append({
-                "sport": sport,
-                "away": away,
-                "home": home,
-                "dateText": m.group("date"),
-                "moneyline": moneyline,
-                "spread": spread,
-                "total": total,
+                "sport":sport,"away":away,"home":home,
+                "moneyline":moneyline,"spread":spread,"total":total,
+                "source":"DraftKings Sportsbook"
             })
     return games
 
+def dk_discover_college_volleyball_urls():
+    urls = []
+    href_re = re.compile(r'href=["\']([^"\']+)["\'][^>]*>(.*?)</a>', re.I|re.S)
+    for page in DK_VOLLEYBALL_DISCOVERY:
+        try:
+            raw = fetch_text(page)
+        except Exception:
+            continue
+        for href, label_html in href_re.findall(raw):
+            label = dk_plain_text(label_html).lower()
+            href_low = href.lower()
+            # Be conservative: NCAA/college + volleyball + women/womens if present.
+            if "volleyball" not in href_low and "volleyball" not in label:
+                continue
+            if any(k in (href_low+" "+label) for k in ["ncaa","college","women","womens"]):
+                if href.startswith("/"):
+                    href = "https://sportsbook.draftkings.com" + href
+                if href.startswith("https://sportsbook.draftkings.com") and href not in urls:
+                    urls.append(href)
+    return urls
+
+def dk_parse_network_page(raw, sport):
+    # Retains the older DK Network text parser only as a fallback.
+    text = dk_plain_text(raw)
+    game_re = re.compile(
+        r"(?m)^(.{2,60}?)\s+@\s+(.{2,60}?)\n(\d{1,2}/\d{1,2},\s*\d{1,2}:\d{2}\s*(?:AM|PM))"
+    )
+    matches = list(game_re.finditer(text))
+    games = []
+    for i,m in enumerate(matches):
+        away,home = map(dk_clean_team,m.group(1,2))
+        body=text[m.end():matches[i+1].start() if i+1<len(matches) else len(text)]
+        ml,sp,tot={},{},{}
+        for team in (away,home):
+            cand=re.escape(team.split()[-1])
+            mm=re.search(rf"(?:^|\n).*?{cand}\s+([+-]\d+)\b",body,re.I|re.M)
+            if mm: ml[team]=dk_clean_odds(mm.group(1))
+            sm=re.search(rf"(?:^|\n).*?{cand}\s+([+-]?\d+(?:\.\d+)?)\s+([+-]\d+)\b",body,re.I|re.M)
+            if sm: sp[team]={"line":dk_clean_odds(sm.group(1)),"odds":dk_clean_odds(sm.group(2))}
+        over=re.search(r"(?:^|\n)Over\s+(\d+(?:\.\d+)?)\s+([+-]\d+)",body,re.I|re.M)
+        under=re.search(r"(?:^|\n)Under\s+(\d+(?:\.\d+)?)\s+([+-]\d+)",body,re.I|re.M)
+        if over:
+            tot={"line":over.group(1),"overOdds":dk_clean_odds(over.group(2))}
+        if under:
+            tot.setdefault("line",under.group(1));tot["underOdds"]=dk_clean_odds(under.group(2))
+        if ml or sp or tot:
+            games.append({"sport":sport,"away":away,"home":home,"moneyline":ml,"spread":sp,"total":tot,"source":"DraftKings Network fallback"})
+    return games
+
 def refresh_draftkings_odds(data):
-    all_games = []
-    seen = set()
-    for sport, urls in DK_ODDS_SOURCES.items():
-        sport_games = []
+    all_games=[]
+    seen=set()
+    source_pages={}
+
+    # Primary: official DraftKings Sportsbook league pages.
+    sources=dict(DK_SPORTSBOOK_SOURCES)
+    cvb_urls=dk_discover_college_volleyball_urls()
+    if cvb_urls:
+        sources["cvb"]=cvb_urls
+        source_pages["cvb"]=cvb_urls
+
+    for sport,urls in sources.items():
+        source_pages.setdefault(sport,urls)
         for url in urls:
             try:
-                raw = fetch_text(url)
-                parsed = parse_dk_odds_html(raw, sport)
-                # Keep trying fallbacks if a filtered page returned no useful games.
-                if parsed:
-                    sport_games.extend(parsed)
+                raw=fetch_text(url)
+                parsed=dk_parse_sportsbook_json(raw,sport)
+                if not parsed:
+                    parsed=dk_parse_sportsbook_visible_text(raw,sport)
+                for g in parsed:
+                    key=(sport,dk_clean_team(g.get("away")).lower(),dk_clean_team(g.get("home")).lower())
+                    if key in seen: continue
+                    seen.add(key);all_games.append(g)
             except Exception as exc:
-                print(f"DraftKings odds source failed ({sport}): {exc}")
+                print(f"DraftKings Sportsbook source failed ({sport}): {exc}")
 
-        # Deduplicate pages/fallbacks, preferring the first occurrence.
-        for g in sport_games:
-            key = (sport, g["away"].lower(), g["home"].lower(), g["dateText"])
-            if key in seen:
-                continue
-            seen.add(key)
-            all_games.append(g)
+    # Fallback only for sports where Sportsbook produced no game lines.
+    sports_found={g["sport"] for g in all_games}
+    for sport,urls in DK_NETWORK_FALLBACKS.items():
+        if sport in sports_found:
+            continue
+        for url in urls:
+            try:
+                raw=fetch_text(url)
+                for g in dk_parse_network_page(raw,sport):
+                    key=(sport,g["away"].lower(),g["home"].lower())
+                    if key in seen: continue
+                    seen.add(key);all_games.append(g)
+            except Exception as exc:
+                print(f"DraftKings Network fallback failed ({sport}): {exc}")
 
-    previous = data.get("draftkingsOdds") or {}
-    # Do not erase a known-good set if DraftKings changes page markup temporarily.
+    previous=data.get("draftkingsOdds") or {}
     if all_games:
-        data["draftkingsOdds"] = {
-            "updatedAt": datetime.now(timezone.utc).isoformat(),
-            "source": "DraftKings",
-            "sourceLabel": "DraftKings Sportsbook via DraftKings Network",
-            "games": all_games,
+        data["draftkingsOdds"]={
+            "updatedAt":datetime.now(timezone.utc).isoformat(),
+            "source":"DraftKings",
+            "primarySource":"DraftKings Sportsbook",
+            "fallbackSource":"DraftKings Network",
+            "sourcePages":source_pages,
+            "collegeVolleyballDiscovered":bool(cvb_urls),
+            "games":all_games,
         }
-        print(f"DraftKings odds refreshed: {len(all_games)} games")
+        print(f"DraftKings Sportsbook odds refreshed: {len(all_games)} games; sports={sorted({g['sport'] for g in all_games})}")
     else:
-        print("DraftKings odds refresh returned no games; preserving last-good odds.")
+        print("DraftKings Sportsbook refresh returned no usable game lines; preserving last-good odds.")
         if previous:
-            data["draftkingsOdds"] = previous
+            data["draftkingsOdds"]=previous
 
 
 def main():
@@ -844,7 +981,7 @@ def main():
     refresh_draftkings_odds(data)
     regenerate_upcoming(data)
 
-    data["version"] = "v13.5"
+    data["version"] = "v13.9"
     data["lastUpdated"] = datetime.now(timezone.utc).isoformat()
     data.setdefault("automation", {})["enabled"] = True
     data["automation"]["lastRun"] = data["lastUpdated"]
