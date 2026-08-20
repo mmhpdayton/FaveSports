@@ -1,22 +1,56 @@
-# Dayton Sports V13.3
+# Dayton Sports V13.6
 
-Fixes the Cubs live score on Home / Upcoming & Where to Watch.
+Adds a full College Volleyball tab modeled after the College Football experience.
 
-## What was wrong
-The live Cubs updater was fetching the current MLB game correctly, but it was searching for generic `.game-card` / `.event-card` DOM elements. The actual Home card uses `.up-card`, and Home is frequently re-rendered by the site's normal score hydration.
+## College Volleyball tab
+Default view:
+- Top 25 + Wisconsin
 
-## What changed
-- The Cubs live event now writes directly into the underlying `D.upcoming` data.
-- The actual Upcoming card renderer displays that live score.
-- The Cubs Upcoming card receives the ESPN event ID and is clickable into the MLB game-detail view.
-- The live SiriusXM Cubs button is rendered as part of the card itself.
-- The Cubs live data is re-applied after normal Home score refreshes so it cannot be wiped out.
-- Live Cubs polling remains every 30 seconds.
+Filters:
+- Top 25
+- All Division I
+- B1G
+- SEC
+- ACC
+- Big 12
+- Big East
+- Atlantic 10
+- Missouri Valley
+- Mountain West
+- WCC
 
-## Upgrade from V13.2
+## Weekly schedule
+- Current week is shown immediately
+- Previous / Next controls move week-by-week
+- Results remain visible for completed matches
+- Future matches show date/time/TV when ESPN provides them
+- Wisconsin matches are highlighted
+- Top-25 rankings are shown inline beside ranked teams
+- Live scores refresh automatically every 60 seconds while the tab is active
+
+## Game detail
+Volleyball games are clickable into the same in-app game-detail overlay used by football, MLB and soccer.
+The detail view uses ESPN's women's college-volleyball summary feed and shows available score/status, venue, broadcast and team stats.
+
+## Rankings
+The AVCA Top 25 is mirrored beneath the schedule with Wisconsin highlighted when ranking data is available.
+
+## DraftKings
+No DraftKings NCAA women's-volleyball markets are forced into this tab. Dayton Sports will not substitute another sportsbook or fabricate unavailable lines.
+
+## Everything from V13.5 is included
+- DraftKings NFL / College Football / MLB lines
+- 30-minute GitHub update workflow
+- Amundsen Varsity Football
+- Cubs live score fix
+- SiriusXM priority-team audio
+- College Football All FBS / conference fixes
+- live game pages
+
+## Upgrade from V13.5
 Replace:
 - index.html
 - sports-data.json
 - sports-data.js
 
-`scripts/update_data.py` from V13.2 is unchanged and can remain in place.
+The V13.5 updater script and workflow are unchanged.

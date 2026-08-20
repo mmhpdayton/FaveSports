@@ -198,12 +198,41 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 .up-card.game-clickable{cursor:pointer}
 .up-card.game-clickable:hover{background:#ffffff07}
 
+
+.dk-odds-strip{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:7px 12px;margin:2px 0 0;padding:8px 10px;border-top:1px solid #ffffff0c;background:#05111d80;font-size:10px;color:#b8cada}
+.dk-book{display:inline-flex;align-items:center;border:1px solid #356225;border-radius:999px;padding:3px 7px;color:#aee48d;font-weight:950;letter-spacing:.02em}
+.dk-market b{color:#f0d18d;margin-right:4px}
+.dk-odds-missing{color:#758fa4;font-style:italic}
+.dk-detail{margin-top:14px;border:1px solid #25445e;background:#091a2a;border-radius:13px;padding:11px}
+.dk-detail-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+.dk-detail-title{font-size:12px;font-weight:950}
+.dk-updated{font-size:9px;color:#7894a9}
+.dk-detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dk-detail-market{border:1px solid #1d3850;border-radius:10px;padding:8px}
+.dk-detail-label{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#829db1;font-weight:900}
+.dk-detail-value{font-size:11px;font-weight:850;margin-top:4px;line-height:1.45}
+.game-card .dk-odds-strip,.up-card .dk-odds-strip{margin-top:10px;border:1px solid #ffffff0c;border-radius:10px}
+@media(max-width:760px){
+  .dk-detail-grid{grid-template-columns:1fr}
+  .dk-odds-strip{justify-content:center;text-align:center}
+}
+
+
+.cvb-week-nav{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin:10px 0}
+.cvb-week-title{text-align:center;font-size:12px;font-weight:900;color:#d9e6f1}
+.cvb-rank{color:#d6b267;font-weight:950}
+.cvb-wisc{background:#d6b2670d}
+@media(max-width:640px){
+  .cvb-week-nav{grid-template-columns:auto 1fr auto}
+  .cvb-week-title{font-size:11px}
+}
+
 </style>
 </head>
 <body>
 <div class="wrap">
 <header><div class="brand"><img src="apple-touch-icon.png" class="brand-icon" alt=""><div><h1>Dayton Sports</h1><p>Our teams. Our games. One place.</p><div id="dataStatus" class="data-status"></div></div></div>
-<nav><button class="active" data-view="home">Home</button><button data-view="schedules">Schedules</button><button data-view="standings">Standings</button><button data-view="rankings">Rankings</button><button data-view="premier">Premier League</button><button data-view="collegefootball">College Football</button><button data-view="nfl">NFL</button></nav></header>
+<nav><button class="active" data-view="home">Home</button><button data-view="schedules">Schedules</button><button data-view="standings">Standings</button><button data-view="rankings">Rankings</button><button data-view="premier">Premier League</button><button data-view="collegefootball">College Football</button><button data-view="collegevolleyball">College Volleyball</button><button data-view="nfl">NFL</button></nav></header>
 
 <main id="home" class="view">
 <section class="section"><div class="section-title"><h2>Upcoming & Where to Watch</h2><span class="note">Quick glance</span></div><div id="upcoming" class="grid"></div></section>
@@ -282,6 +311,51 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
   </section>
 </main>
 
+
+<main id="collegevolleyball" class="view" style="display:none">
+  <section class="section">
+    <div class="section-title">
+      <div>
+        <h2>College Volleyball</h2>
+        <div class="note">NCAA Division I Women · Top 25 is always the default</div>
+      </div>
+      <span class="live-refresh-badge" id="cvbStatus"><span class="live-refresh-dot"></span>Live · updates every 60 sec</span>
+    </div>
+
+    <div class="cfb-filter-wrap" id="cvbFilterWrap" aria-label="College volleyball schedule filter">
+      <button class="cfb-filter cvb-filter active" type="button" data-cvb-filter="top25">Top 25</button>
+      <button class="cfb-filter cvb-filter" type="button" data-cvb-filter="d1">All D-I</button>
+      <button class="cfb-filter cvb-filter" type="button" data-cvb-filter="bigten">B1G</button>
+      <button class="cfb-filter cvb-filter" type="button" data-cvb-filter="sec">SEC</button>
+      <button class="cfb-filter cvb-filter" type="button" data-cvb-filter="acc">ACC</button>
+      <button class="cfb-filter cvb-filter" type="button" data-cvb-filter="big12">Big 12</button>
+      <button class="cfb-filter cvb-filter" type="button" data-cvb-filter="bigeast">Big East</button>
+      <button class="cfb-filter cvb-filter" type="button" data-cvb-filter="a10">Atlantic 10</button>
+      <button class="cfb-filter cvb-filter" type="button" data-cvb-filter="mvc">MVC</button>
+      <button class="cfb-filter cvb-filter" type="button" data-cvb-filter="mwc">Mountain West</button>
+      <button class="cfb-filter cvb-filter" type="button" data-cvb-filter="wcc">WCC</button>
+    </div>
+    <div id="cvbFilterLabel" class="cfb-filter-label">Showing: Top 25 + Wisconsin</div>
+
+    <div class="cvb-week-nav">
+      <button id="cvbPrevWeek" class="mini-btn" type="button">← Previous</button>
+      <div id="cvbWeekTitle" class="cvb-week-title">Current Week</div>
+      <button id="cvbNextWeek" class="mini-btn" type="button">Next →</button>
+    </div>
+    <div id="cvbWeeks" class="league-weeks"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">
+      <div>
+        <h2>AVCA Top 25</h2>
+        <div class="note">Wisconsin highlighted</div>
+      </div>
+    </div>
+    <div id="cvbRankingsMirror"></div>
+  </section>
+</main>
+
 <main id="nfl" class="view" style="display:none">
   <section class="section">
     <div class="section-title">
@@ -321,7 +395,7 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
   </div>
 </div>
 
-<div class="footer">Dayton Sports · V13.3.3.2</div>
+<div class="footer">Dayton Sports · V13.6.3.2</div>
 </div>
 
 <script src="sports-data.js"></script>
@@ -340,6 +414,7 @@ document.getElementById("dataStatus").innerHTML=dataStatusText();
 const logos={
 payton:"payton-logo.png",
 amundsen:"amundsen-logo.png",
+amundsenvarsity:"amundsen-logo.png",
 nd:"https://a.espncdn.com/i/teamlogos/ncaa/500/87.png",
 wisc:"https://a.espncdn.com/i/teamlogos/ncaa/500/275.png",
 lfc:"https://a.espncdn.com/i/teamlogos/soccer/500/364.png",
@@ -351,6 +426,84 @@ const byId=Object.fromEntries(D.teams.map(t=>[t.id,t]));
 function logo(t,small=false){return `<div class="logo-box"><img class="logo" src="${logos[t.id]}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="fallback" style="display:none">${t.abbr}</span></div>`}
 function scheduleDateValue(g){const months={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};const m=(g.date||"").match(/([A-Z][a-z]{2})\s+(\d{1,2})/);if(!m)return Number.POSITIVE_INFINITY;const now=new Date();let y=2026;const mon=months[m[1]];if(mon<=5&&now.getMonth()>=6)y=2027;return new Date(y,mon,Number(m[2])).getTime()}function nextEvent(t){const today=new Date();today.setHours(0,0,0,0);return t.schedule.find(g=>scheduleDateValue(g)>=today.getTime()&&!g.result)||t.schedule.find(g=>scheduleDateValue(g)>=today.getTime())||t.schedule[t.schedule.length-1]||{}}
 function homeTeamCard(t){const n=nextEvent(t);return `<article class="card team-card ${t.id==="ind"?"colts-muted":""}" style="--team:${t.color}"><div class="row">${logo(t)}<div><div class="team-name">${t.name}</div><div class="record">${t.record}</div>${t.context?`<a class="context jump" href="#" data-target="${t.target}">${t.context} ›</a>`:""}</div></div><div class="next"><span class="eyebrow">NEXT</span><strong>${n.date||""} · ${n.time||""} · ${n.ha==="AWAY"?"@":"vs"} ${n.opp||""}</strong>${n.tv?`<div class="tvline">📺 ${n.tv}</div>`:""}</div><button class="view-schedule gotoSchedule" data-team="${t.id}">View schedule ›</button></article>`}
+
+const DK_ODDS=D.draftkingsOdds||{games:[]};
+
+function dkNorm(s){
+  return String(s||"").toLowerCase()
+    .replace(/#\d+/g,"")
+    .replace(/\bst\.?\b/g,"state")
+    .replace(/\buniversity\b/g,"")
+    .replace(/[^a-z0-9]+/g," ")
+    .replace(/\s+/g," ").trim();
+}
+function dkTeamMatch(dkName,comp){
+  const d=dkNorm(dkName);
+  const full=dkNorm(leagueTeamName(comp));
+  const ab=dkNorm(comp?.team?.abbreviation||"");
+  if(!d||!full)return false;
+  if(d===full||d.includes(full)||full.includes(d))return true;
+  if(ab && new RegExp(`(^| )${ab}( |$)`).test(d))return true;
+  const dLast=d.split(" ").pop(), fLast=full.split(" ").pop();
+  return dLast && fLast && dLast.length>=4 && dLast===fLast;
+}
+function dkSportForKind(kind){
+  return kind==="mlb"?"mlb":kind==="nfl"?"nfl":kind==="cfb"?"cfb":"";
+}
+function findDkOddsForCompetitors(kind,home,away){
+  const sport=dkSportForKind(kind);
+  if(!sport)return null;
+  const candidates=(DK_ODDS.games||[]).filter(g=>g.sport===sport);
+  return candidates.find(g=>
+    dkTeamMatch(g.home,home)&&dkTeamMatch(g.away,away)
+  ) || candidates.find(g=>
+    dkTeamMatch(g.home,away)&&dkTeamMatch(g.away,home)
+  ) || null;
+}
+function dkPrice(v){return v===undefined||v===null||v===""?"—":String(v).replace("−","-")}
+function dkMarketSummary(odds){
+  if(!odds)return "";
+  const ml=odds.moneyline||{}, sp=odds.spread||{}, tot=odds.total||{};
+  const mlText=[odds.away,odds.home].filter(n=>ml[n]).map(n=>`${n} ${dkPrice(ml[n])}`).join(" · ");
+  const spText=[odds.away,odds.home].filter(n=>sp[n]).map(n=>`${n} ${dkPrice(sp[n].line)} (${dkPrice(sp[n].odds)})`).join(" · ");
+  const tText=tot.line?`${dkPrice(tot.line)}${tot.overOdds||tot.underOdds?` (O ${dkPrice(tot.overOdds)} / U ${dkPrice(tot.underOdds)})`:""}`:"";
+  return {mlText,spText,tText};
+}
+function dkOddsStrip(odds){
+  if(!odds)return `<div class="dk-odds-strip"><span class="dk-book">DraftKings</span><span class="dk-odds-missing">Lines not posted</span></div>`;
+  const s=dkMarketSummary(odds);
+  return `<div class="dk-odds-strip">
+    <span class="dk-book">DraftKings</span>
+    <span class="dk-market"><b>Spread</b>${s.spText||"—"}</span>
+    <span class="dk-market"><b>ML</b>${s.mlText||"—"}</span>
+    <span class="dk-market"><b>O/U</b>${s.tText||"—"}</span>
+  </div>`;
+}
+function dkOddsDetail(kind,home,away){
+  const odds=findDkOddsForCompetitors(kind,home,away);
+  const stamp=DK_ODDS.updatedAt?new Date(DK_ODDS.updatedAt).toLocaleString("en-US",{timeZone:"America/Chicago",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"";
+  if(!odds)return `<div class="dk-detail"><div class="dk-detail-head"><div class="dk-detail-title">DraftKings</div>${stamp?`<div class="dk-updated">Updated ${stamp} CT</div>`:""}</div><div class="dk-odds-missing">Game lines not posted yet.</div></div>`;
+  const s=dkMarketSummary(odds);
+  return `<div class="dk-detail">
+    <div class="dk-detail-head"><div class="dk-detail-title">DraftKings Game Lines</div>${stamp?`<div class="dk-updated">Updated ${stamp} CT</div>`:""}</div>
+    <div class="dk-detail-grid">
+      <div class="dk-detail-market"><div class="dk-detail-label">Point Spread</div><div class="dk-detail-value">${s.spText||"—"}</div></div>
+      <div class="dk-detail-market"><div class="dk-detail-label">Moneyline</div><div class="dk-detail-value">${s.mlText||"—"}</div></div>
+      <div class="dk-detail-market"><div class="dk-detail-label">Over / Under</div><div class="dk-detail-value">${s.tText||"—"}</div></div>
+    </div>
+  </div>`;
+}
+function dkOddsForScheduleGame(t,g){
+  const kind=t.id==="cubs"?"mlb":(["gb","buf","ind"].includes(t.id)?"nfl":(t.id==="nd"?"cfb":""));
+  if(!kind)return null;
+  // Full-season ESPN-loaded games carry competitor metadata after V13.5.
+  if(g._eventTeams)return findDkOddsForCompetitors(kind,g._eventTeams.home,g._eventTeams.away);
+  // Fallback: create light pseudo-competitors from known team/opponent names.
+  const ours={team:{displayName:t.name,abbreviation:t.abbr}};
+  const opp={team:{displayName:g.opp,abbreviation:""}};
+  return g.ha==="AWAY"?findDkOddsForCompetitors(kind,opp,ours):findDkOddsForCompetitors(kind,ours,opp);
+}
+
 function upCard(u){
   const t=byId[u.id];
   const s=u._score;
@@ -368,6 +521,7 @@ function upCard(u){
     <div class="time">${u.time}</div>
     ${score}
     <div class="chips"><span class="chip">${u.where}</span>${u.tv?`<span class="chip tvchip">📺 ${u.tv}</span>`:""}</div>
+    ${(u._liveEvent&&["cubs","gb","buf","ind","nd"].includes(u.id))?dkOddsStrip(findDkOddsForCompetitors(u.id==="cubs"?"mlb":u.id==="nd"?"cfb":"nfl",u._liveEvent.home,u._liveEvent.away)):""}
     ${sxm}
   </article>`;
 }
@@ -385,7 +539,7 @@ function renderSchedule(id){
   document.querySelectorAll(".team-chip").forEach(b=>b.classList.toggle("active",b.dataset.team===id));
   const tour=t.schedule.filter(g=>g.tournament);
   const normal=t.schedule.filter(g=>!g.tournament);
-  let cards=normal.map(g=>{const s=g._score;const score=s?`<div class="scoreline"><span class="${s.awayWinner?"winner":""}">${s.awayName} ${s.awayScore}</span><span>·</span><span class="${s.homeWinner?"winner":""}">${s.homeName} ${s.homeScore}</span></div><div class="${s.live?"live-badge":"final-badge"}">${s.live?"LIVE":"FINAL"}</div><div class="score-source">Score automatically refreshed when available.</div>`:(g.result?`<div class="result">${g.result}</div><div class="manual-result">FINAL</div>`:"");return `<article class="card game-card ${s?"has-result":""}" style="--team:${t.color}"><div class="game-top"><span class="game-date">${g.date}</span><span class="game-time">${g.time}</span></div><div class="game-main">${logo(t)}<div><div class="game-title">${g.ha==="AWAY"?"@ ":""}${g.opp}</div><div class="game-sub">${g.event||""}</div>${score}</div></div><div class="game-bottom"><div><div class="chips"><span class="chip">${g.ha}</span>${g.conference?`<span class="chip">CONFERENCE</span>`:""}</div>${g.venue?`<div class="venue" style="margin-top:7px">📍 ${g.venue}</div>`:""}</div><div class="broadcast">${g.tv?`📺 ${g.tv}`:""}</div></div></article>`}).join("");
+  let cards=normal.map(g=>{const s=g._score;const score=s?`<div class="scoreline"><span class="${s.awayWinner?"winner":""}">${s.awayName} ${s.awayScore}</span><span>·</span><span class="${s.homeWinner?"winner":""}">${s.homeName} ${s.homeScore}</span></div><div class="${s.live?"live-badge":"final-badge"}">${s.live?"LIVE":"FINAL"}</div><div class="score-source">Score automatically refreshed when available.</div>`:(g.result?`<div class="result">${g.result}</div><div class="manual-result">FINAL</div>`:"");return `<article class="card game-card ${s?"has-result":""}" style="--team:${t.color}"><div class="game-top"><span class="game-date">${g.date}</span><span class="game-time">${g.time}</span></div><div class="game-main">${logo(t)}<div><div class="game-title">${g.ha==="AWAY"?"@ ":""}${g.opp}</div><div class="game-sub">${g.event||""}</div>${score}</div></div><div class="game-bottom"><div><div class="chips"><span class="chip">${g.ha}</span>${g.conference?`<span class="chip">CONFERENCE</span>`:""}</div>${g.venue?`<div class="venue" style="margin-top:7px">📍 ${g.venue}</div>`:""}</div><div class="broadcast">${g.tv?`📺 ${g.tv}`:""}</div></div>${["cubs","gb","buf","ind","nd"].includes(t.id)?dkOddsStrip(dkOddsForScheduleGame(t,g)):""}</article>`}).join("");
   if(tour.length){cards+=`<article class="card tournament-card" style="border-left:5px solid ${t.color}"><div class="game-top"><span class="game-date">SEP 12</span><span class="game-time">TBA</span></div><div class="tour-title">Rickover Naval Academy JV Tournament</div><div class="tour-games">${tour.map((g,i)=>`<div class="tour-row"><strong>Game ${i+1}</strong><span>Opponent TBA</span><span>TBA</span></div>`).join("")}</div></article>`}
   document.getElementById("scheduleArea").innerHTML=`<div class="schedule-hero">${logo(t)}<div><h2 style="margin:0">${t.name}</h2><div class="schedule-meta">${t.record}${t.context?` · ${t.context}`:""} · ${t.schedule.length} games${t._fullSeasonLoaded?" · Full 2026 regular season":""}</div></div></div><div class="schedule-list">${cards}</div>`;
 }
@@ -576,6 +730,7 @@ function renderLeagueGame(e,kind){
       <div class="league-away">${awayLabel}</div>
     </div>
     <div class="league-broadcast">${tv?`📺 ${tv}`:""}${siriusXmButton(kind,home,away,state,"sxm-row-link")}</div>
+    ${["cfb","nfl"].includes(kind)?dkOddsStrip(findDkOddsForCompetitors(kind,home,away)):""}
   </div>`;
 }
 const CFB_CONFERENCES={
@@ -811,6 +966,11 @@ async function autoRefreshLeagueScores(){
       await refreshOpenLeaguePanels("nfl");
       await loadNflDivisionTables();
       badge?.classList.remove("refreshing");
+    }else if(view==="collegevolleyball"){
+      const badge=document.getElementById("cvbStatus");
+      badge?.classList.add("refreshing");
+      await renderCvbWeek({force:true});
+      badge?.classList.remove("refreshing");
     }
   }catch(e){}
 }
@@ -824,6 +984,9 @@ document.querySelectorAll('nav button[data-view]').forEach(btn=>{
     if(target==="collegefootball"){
       // Product rule: always enter College Football on Top 25.
       setCfbFilter("top25").then(()=>setTimeout(autoRefreshLeagueScores,100));
+    }else if(target==="collegevolleyball"){
+      cvbWeekOffset=0;
+      setCvbFilter("top25").then(()=>setTimeout(autoRefreshLeagueScores,100));
     }else if(["premier","nfl"].includes(target)){
       setTimeout(autoRefreshLeagueScores,100);
     }
@@ -906,6 +1069,7 @@ function gameDetailUrl(kind,id){
   if(kind==="nfl") return `https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${id}`;
   if(kind==="soccer") return `https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/summary?event=${id}`;
   if(kind==="mlb") return `https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/summary?event=${id}`;
+  if(kind==="cvb") return `https://site.api.espn.com/apis/site/v2/sports/volleyball/womens-college-volleyball/summary?event=${id}`;
   return "";
 }
 function closeGameDetail(){
@@ -1034,6 +1198,7 @@ function renderGameDetail(j,kind){
       <div class="game-info-card"><div class="game-info-label">Venue</div><div class="game-info-value">${esc(venue||"TBD")}</div></div>
       <div class="game-info-card"><div class="game-info-label">Attendance</div><div class="game-info-value">${esc(attendance||"—")}</div></div>
     </div>
+    ${["mlb","nfl","cfb"].includes(kind)?dkOddsDetail(kind,home,away):""}
     ${kind==="mlb"?renderBaseballLinescore(j,home,away):""}
     ${renderKeyStats(j,home,away)}
     ${renderScoring(j)}
@@ -1140,6 +1305,172 @@ async function refreshCubsLive(){
 refreshCubsLive();
 CUBS_LIVE.timer=setInterval(refreshCubsLive,30000);
 
+
+// ---- College Volleyball league tab ----
+const CVB_CACHE={};
+const CVB_CONFERENCES={
+  bigten:{label:"B1G",names:["big ten","b1g"]},
+  sec:{label:"SEC",names:["sec","southeastern"]},
+  acc:{label:"ACC",names:["acc","atlantic coast"]},
+  big12:{label:"Big 12",names:["big 12","big twelve"]},
+  bigeast:{label:"Big East",names:["big east"]},
+  a10:{label:"Atlantic 10",names:["atlantic 10","a-10"]},
+  mvc:{label:"MVC",names:["missouri valley","mvc"]},
+  mwc:{label:"Mountain West",names:["mountain west"]},
+  wcc:{label:"WCC",names:["west coast","wcc"]}
+};
+let cvbFilter="top25";
+let cvbWeekOffset=0;
+
+function cvbMondayForOffset(offset=0){
+  const now=ctNow();
+  const d=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const day=(d.getDay()+6)%7;
+  d.setDate(d.getDate()-day+(offset*7));
+  d.setHours(0,0,0,0);
+  return d;
+}
+function cvbYmd(d){
+  return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;
+}
+function cvbRank(c){
+  const r=Number(c?.curatedRank?.current||99);
+  return Number.isFinite(r)&&r<=25?r:null;
+}
+function isWisconsinVolleyball(c){
+  const text=(leagueTeamName(c)+" "+(c?.team?.abbreviation||"")).toLowerCase();
+  return text.includes("wisconsin")||/\bwisc\b/.test(text);
+}
+function cvbConferenceText(c){
+  const t=c?.team||{};
+  return [
+    c?.conference?.name,c?.conference?.shortName,c?.conference?.abbreviation,
+    t?.conference?.name,t?.conference?.shortName,t?.conference?.abbreviation
+  ].filter(Boolean).join(" ").toLowerCase();
+}
+function cvbInConference(c,key){
+  const cfg=CVB_CONFERENCES[key];
+  if(!cfg)return false;
+  const text=cvbConferenceText(c);
+  return cfg.names.some(n=>text.includes(n));
+}
+function cvbFilterEvents(events){
+  const list=events||[];
+  if(cvbFilter==="d1")return list;
+  if(cvbFilter==="top25"){
+    return list.filter(e=>{
+      const {home,away}=eventTeams(e);
+      return cvbRank(home)||cvbRank(away)||isWisconsinVolleyball(home)||isWisconsinVolleyball(away);
+    });
+  }
+  if(CVB_CONFERENCES[cvbFilter]){
+    return list.filter(e=>{
+      const {home,away}=eventTeams(e);
+      return cvbInConference(home,cvbFilter)||cvbInConference(away,cvbFilter);
+    });
+  }
+  return list;
+}
+function cvbTeamLabel(c){
+  const r=cvbRank(c), n=leagueTeamName(c);
+  return `${r?`<span class="cvb-rank">#${r}</span> `:""}${esc(n)}`;
+}
+function cvbEventHtml(e){
+  const {comp,home,away}=eventTeams(e);
+  const st=e.status?.type||{};
+  const state=st.state||"";
+  const live=state==="in"?(st.shortDetail||"LIVE"):(st.completed||state==="post"?"FINAL":"");
+  const score=(state==="in"||state==="post"||st.completed)
+    ? `${away.score??""}–${home.score??""}`:"vs";
+  const tv=broadcastText(comp);
+  const featured=isWisconsinVolleyball(home)||isWisconsinVolleyball(away);
+  return `<div class="league-game game-clickable ${featured?"cvb-wisc":""}" data-event-id="${e.id||""}" data-sport-kind="cvb">
+    <div class="league-game-time">${formatLeagueDate(e,"cvb")}${live?` · ${esc(live)}`:""}</div>
+    <div class="league-matchup">
+      <div class="league-home">${cvbTeamLabel(home)}</div>
+      <div class="league-score">${esc(score)}</div>
+      <div class="league-away">${cvbTeamLabel(away)}</div>
+    </div>
+    <div class="league-broadcast">${tv?`📺 ${esc(tv)}`:""}</div>
+  </div>`;
+}
+async function fetchCvbWeek(offset=0,force=false){
+  const start=cvbMondayForOffset(offset);
+  const end=new Date(start);end.setDate(end.getDate()+6);
+  const key=`${cvbYmd(start)}-${cvbYmd(end)}`;
+  if(!force&&CVB_CACHE[key])return CVB_CACHE[key];
+  const url=`https://site.api.espn.com/apis/site/v2/sports/volleyball/womens-college-volleyball/scoreboard?dates=${cvbYmd(start)}-${cvbYmd(end)}&limit=500`;
+  const r=await fetch(url,{cache:"no-store"});
+  if(!r.ok)throw new Error(r.status);
+  const j=await r.json();
+  CVB_CACHE[key]=j.events||[];
+  return CVB_CACHE[key];
+}
+function cvbFilterDisplay(){
+  if(cvbFilter==="top25")return "Top 25 + Wisconsin";
+  if(cvbFilter==="d1")return "All Division I";
+  return CVB_CONFERENCES[cvbFilter]?.label||"Top 25 + Wisconsin";
+}
+function updateCvbFilterUi(){
+  document.querySelectorAll(".cvb-filter").forEach(b=>b.classList.toggle("active",b.dataset.cvbFilter===cvbFilter));
+  const label=document.getElementById("cvbFilterLabel");
+  if(label)label.textContent=`Showing: ${cvbFilterDisplay()}`;
+}
+async function renderCvbWeek({force=false}={}){
+  const box=document.getElementById("cvbWeeks");
+  if(!box)return;
+  const start=cvbMondayForOffset(cvbWeekOffset);
+  const end=new Date(start);end.setDate(end.getDate()+6);
+  const fmt=new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"});
+  document.getElementById("cvbWeekTitle").textContent=`${fmt.format(start)} – ${fmt.format(end)}`;
+  box.innerHTML=`<div class="league-empty">Loading volleyball…</div>`;
+  const status=document.getElementById("cvbStatus");
+  status?.classList.add("refreshing");
+  try{
+    let events=await fetchCvbWeek(cvbWeekOffset,force);
+    events=cvbFilterEvents(events);
+    events.sort((a,b)=>new Date(a.date)-new Date(b.date));
+    box.innerHTML=events.length?events.map(cvbEventHtml).join(""):`<div class="league-empty">No games in this view.</div>`;
+  }catch(e){
+    box.innerHTML=`<div class="league-empty">College volleyball schedule is temporarily unavailable.</div>`;
+  }finally{
+    status?.classList.remove("refreshing");
+  }
+}
+async function setCvbFilter(next){
+  cvbFilter=next||"top25";
+  updateCvbFilterUi();
+  await renderCvbWeek({force:false});
+}
+function mirrorCvbRankings(){
+  const target=document.getElementById("cvbRankingsMirror");
+  if(!target)return;
+  // Reuse the existing volleyball rankings content if present.
+  const source=document.querySelector("#rankings [data-ranking-section='volleyball'], #rankings .volleyball-ranking, #rankings #volleyball-rankings");
+  if(source)target.innerHTML=source.innerHTML;
+  else{
+    const rows=(D.rankings?.avca||D.rankings?.volleyball||[]);
+    if(Array.isArray(rows)&&rows.length){
+      target.innerHTML=`<div class="ranking-list">${rows.map((r,i)=>{
+        const name=r.team||r.name||r.school||"";
+        const rank=r.rank||i+1;
+        const hi=/wisconsin/i.test(name)?" highlight":"";
+        return `<div class="ranking-row${hi}"><span>${rank}</span><span>${esc(name)}</span></div>`;
+      }).join("")}</div>`;
+    }else{
+      target.innerHTML=`<div class="league-empty">AVCA rankings unavailable.</div>`;
+    }
+  }
+}
+document.querySelectorAll(".cvb-filter").forEach(btn=>{
+  btn.addEventListener("click",()=>setCvbFilter(btn.dataset.cvbFilter));
+});
+document.getElementById("cvbPrevWeek")?.addEventListener("click",()=>{cvbWeekOffset--;renderCvbWeek();});
+document.getElementById("cvbNextWeek")?.addEventListener("click",()=>{cvbWeekOffset++;renderCvbWeek();});
+updateCvbFilterUi();
+renderCvbWeek();
+mirrorCvbRankings();
+
 // ---- Automatic scores / live results ----
 // ESPN's public scoreboard feeds are used where available. If a feed fails,
 // the site simply leaves the static schedule intact.
@@ -1216,7 +1547,13 @@ async function hydrateTeamScores(t){
           const comp=e.competitions?.[0]?.competitors||[];
           return teamMatches(comp,feed.team)&&oppMatches(comp,g.opp);
         });
-        if(ev){const s=extractScore(ev);if(s)g._score=s}
+        if(ev){
+          const s=extractScore(ev);if(s)g._score=s;
+          const ec=ev.competitions?.[0]?.competitors||[];
+          g._eventId=ev.id||g._eventId||"";
+          g._sportKind=t.id==="cubs"?"mlb":(["gb","buf","ind"].includes(t.id)?"nfl":(t.id==="nd"?"cfb":""));
+          g._eventTeams={home:ec.find(x=>x.homeAway==="home")||ec[0]||{},away:ec.find(x=>x.homeAway==="away")||ec[1]||{}};
+        }
       });
     }catch(e){console.debug("Score refresh skipped",t.id,dc,e)}
   }
@@ -1257,7 +1594,10 @@ function eventToGame(e,t){
     date:dt.date,time:dt.time,
     opp:opp.team?.displayName||opp.team?.shortDisplayName||opp.team?.name||"Opponent",
     ha:ours.homeAway==="away"?"AWAY":(ours.homeAway==="home"?"HOME":"NEUTRAL"),
-    tv:tv||"",venue:c.venue?.fullName||"",event:notes||seasonType||""
+    tv:tv||"",venue:c.venue?.fullName||"",event:notes||seasonType||"",
+    _eventId:e.id||"",
+    _sportKind:t.id==="cubs"?"mlb":(["gb","buf","ind"].includes(t.id)?"nfl":(t.id==="nd"?"cfb":"")),
+    _eventTeams:{home:comps.find(x=>x.homeAway==="home")||comps[0]||{},away:comps.find(x=>x.homeAway==="away")||comps[1]||{}}
   };
   if(t.id==="gb"||t.id==="buf"||t.id==="ind"){
     const text=norm(seasonType+" "+notes);
@@ -1429,6 +1769,9 @@ async function hydrateAllScores(){
     const dc=dateCode(u.date);
     const g=t.schedule.find(x=>dateCode(x.date)===dc && (norm(u.opp).includes(norm(x.opp).split(" ")[0]) || norm(x.opp).includes(norm(u.opp).split(" ").pop())));
     if(g?._score)u._score=g._score;
+    if(g?._eventId){
+      u._eventId=g._eventId;u._sportKind=g._sportKind;u._liveEvent=g._eventTeams;
+    }
   });
   document.getElementById("upcoming").innerHTML=D.upcoming.map(upCard).join("");
   document.getElementById("myteams").innerHTML=D.teams.map(homeTeamCard).join("");

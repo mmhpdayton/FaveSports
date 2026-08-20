@@ -1,5 +1,5 @@
 {
-  "version": "v13.3",
+  "version": "v13.6",
   "teams": [
     {
       "id": "payton",
@@ -192,6 +192,73 @@
           "time": "4:30 PM",
           "opp": "Whitney Young",
           "ha": "AWAY"
+        }
+      ]
+    },
+    {
+      "id": "amundsenvarsity",
+      "name": "Amundsen Varsity Football",
+      "abbr": "A",
+      "color": "#b61f2e",
+      "record": "0–0",
+      "context": "Patrick dresses varsity",
+      "target": "",
+      "schedule": [
+        {
+          "date": "Aug 21",
+          "time": "4:30 PM",
+          "opp": "Chicago Marshall",
+          "ha": "HOME",
+          "conference": false
+        },
+        {
+          "date": "Aug 29",
+          "time": "1:00 PM",
+          "opp": "Kennedy",
+          "ha": "HOME",
+          "conference": false
+        },
+        {
+          "date": "Sep 5",
+          "time": "12:00 PM",
+          "opp": "Payton College Prep",
+          "ha": "HOME",
+          "conference": false
+        },
+        {
+          "date": "Sep 10",
+          "time": "4:15 PM",
+          "opp": "Bulls College Prep",
+          "ha": "HOME",
+          "conference": true
+        },
+        {
+          "date": "Sep 18",
+          "time": "7:30 PM",
+          "opp": "Lincoln Park",
+          "ha": "AWAY",
+          "conference": true
+        },
+        {
+          "date": "Sep 26",
+          "time": "1:30 PM",
+          "opp": "Kenwood",
+          "ha": "AWAY",
+          "conference": true
+        },
+        {
+          "date": "Oct 2",
+          "time": "7:30 PM",
+          "opp": "Lane Tech",
+          "ha": "AWAY",
+          "conference": true
+        },
+        {
+          "date": "Oct 10",
+          "time": "12:00 PM",
+          "opp": "Whitney Young",
+          "ha": "HOME",
+          "conference": true
         }
       ]
     },
@@ -1751,6 +1818,14 @@
       "tv": "ESPN"
     },
     {
+      "id": "amundsenvarsity",
+      "date": "FRI · AUG 21",
+      "time": "4:30 PM",
+      "opp": "vs Chicago Marshall",
+      "where": "HOME",
+      "tv": ""
+    },
+    {
       "id": "wisc",
       "date": "SAT · AUG 22",
       "time": "3:00 PM CT",
@@ -1901,5 +1976,10 @@
       "amundsen"
     ]
   },
-  "siriusxm": {}
+  "siriusxm": {},
+  "draftkingsOdds": {
+    "updatedAt": null,
+    "source": "DraftKings",
+    "games": []
+  }
 }

@@ -30,7 +30,7 @@ JS_PATH = ROOT / "sports-data.js"
 CT = ZoneInfo("America/Chicago")
 
 HEADERS = {
-    "User-Agent": "DaytonSports/12.0 (+GitHub Actions)",
+    "User-Agent": "DaytonSports/13.5 (+GitHub Actions)",
     "Accept": "application/json,text/plain,*/*",
 }
 
@@ -528,7 +528,7 @@ def regenerate_upcoming(data: dict):
     today = datetime.now(CT).date()
     horizon = today + timedelta(days=7)
     teams = {t["id"]: t for t in data.get("teams", [])}
-    featured_order = ["payton", "amundsen", "nd", "wisc", "lfc", "gb", "buf", "cubs"]
+    featured_order = ["payton", "amundsen", "amundsenvarsity", "nd", "wisc", "lfc", "gb", "buf", "cubs"]
 
     chosen = []
     chosen_keys = set()
@@ -678,6 +678,161 @@ def refresh_siriusxm(data):
             print(f"SiriusXM refresh failed for {key}: {exc}")
 
 
+
+# Official DraftKings Network odds pages. These pages publish DraftKings
+# Sportsbook moneyline / spread (run line for MLB) / total prices without
+# requiring a sportsbook login or geolocation session.
+DK_ODDS_SOURCES = {
+    "mlb": [
+        "https://dknetwork.draftkings.com/moneyline-total-spread/?tb_eg=MLB&tb_edate=n7days",
+        "https://dknetwork.draftkings.com/draftkings-sportsbook-betting-splits/?tb_eg=MLB&tb_edate=n7days",
+    ],
+    "nfl": [
+        "https://dknetwork.draftkings.com/moneyline-total-spread/?tb_eg=NFL&tb_edate=n30days",
+        "https://dknetwork.draftkings.com/draftkings-sportsbook-betting-splits/?tb_eg=NFL&tb_edate=n30days",
+    ],
+    "cfb": [
+        "https://dknetwork.draftkings.com/moneyline-total-spread/?tb_eg=College%20Football&tb_edate=n30days",
+        "https://dknetwork.draftkings.com/draftkings-sportsbook-betting-splits/?tb_eg=College%20Football&tb_edate=n30days",
+        "https://dknetwork.draftkings.com/draftkings-sportsbook-betting-splits/?tb_eg=84240&tb_edate=n30days",
+    ],
+}
+
+def dk_clean_odds(v):
+    if v is None:
+        return None
+    return str(v).replace("−", "-").replace("–", "-").strip()
+
+def dk_clean_team(v):
+    v = html_lib.unescape(str(v or ""))
+    v = re.sub(r"\s+", " ", v).strip(" -·|")
+    return v
+
+def dk_strip_page(raw):
+    # Preserve useful separators before flattening the server-rendered page.
+    raw = re.sub(r"</(?:h[1-6]|div|p|li|tr|section|article|td|th)>", "\n", raw, flags=re.I)
+    raw = re.sub(r"<br\s*/?>", "\n", raw, flags=re.I)
+    raw = re.sub(r"<script\b[^>]*>.*?</script>", " ", raw, flags=re.I|re.S)
+    raw = re.sub(r"<style\b[^>]*>.*?</style>", " ", raw, flags=re.I|re.S)
+    raw = re.sub(r"<[^>]+>", " ", raw)
+    raw = html_lib.unescape(raw)
+    raw = raw.replace("\u2212", "-").replace("\xa0", " ")
+    lines = [re.sub(r"\s+", " ", x).strip() for x in raw.splitlines()]
+    return "\n".join(x for x in lines if x)
+
+def dk_parse_team_prices(section, team1, team2, spread=False):
+    out = {}
+    for team in (team1, team2):
+        # DraftKings may shorten a team name on the odds page. First try the
+        # exact visible name; then the last word (mascot/nickname).
+        candidates = [re.escape(team)]
+        last = team.split()[-1] if team.split() else team
+        if last and last.lower() != team.lower():
+            candidates.append(re.escape(last))
+        found = None
+        for cand in candidates:
+            if spread:
+                pat = rf"(?:^|\n){cand}\s+([+-]?\d+(?:\.\d+)?)\s+([+-]\d+)\b"
+            else:
+                pat = rf"(?:^|\n){cand}\s+([+-]\d+)\b"
+            m = re.search(pat, section, flags=re.I|re.M)
+            if m:
+                found = m.groups()
+                break
+        if found:
+            if spread:
+                out[team] = {"line": dk_clean_odds(found[0]), "odds": dk_clean_odds(found[1])}
+            else:
+                out[team] = dk_clean_odds(found[0])
+    return out
+
+def parse_dk_odds_html(raw, sport):
+    text = dk_strip_page(raw)
+    # A game block starts with a matchup line and its date/time. Keep the
+    # matchup parser conservative so navigation text is not interpreted as a game.
+    game_re = re.compile(
+        r"(?m)^(?P<away>[A-Z0-9][A-Za-z0-9 .&'()/-]{1,55}?)\s+@\s+"
+        r"(?P<home>[A-Z0-9][A-Za-z0-9 .&'()/-]{1,55}?)\n"
+        r"(?P<date>\d{1,2}/\d{1,2},\s*\d{1,2}:\d{2}\s*(?:AM|PM))\b"
+    )
+    matches = list(game_re.finditer(text))
+    games = []
+    for i, m in enumerate(matches):
+        away = dk_clean_team(m.group("away"))
+        home = dk_clean_team(m.group("home"))
+        body = text[m.end(): matches[i+1].start() if i+1 < len(matches) else len(text)]
+
+        # The DK Network page can label MLB handicap markets "Run Line".
+        ml_m = re.search(r"\bMoneyline\b(.*?)(?=\b(?:Run Line|Spread|Total)\b|$)", body, flags=re.I|re.S)
+        sp_m = re.search(r"\b(?:Run Line|Spread)\b(.*?)(?=\bTotal\b|$)", body, flags=re.I|re.S)
+        tot_m = re.search(r"\bTotal\b(.*?)(?=\b(?:Prev|Next|Moneyline|Run Line|Spread)\b|$)", body, flags=re.I|re.S)
+
+        moneyline = dk_parse_team_prices(ml_m.group(1) if ml_m else "", away, home, spread=False)
+        spread = dk_parse_team_prices(sp_m.group(1) if sp_m else "", away, home, spread=True)
+
+        total = {}
+        if tot_m:
+            sec = tot_m.group(1)
+            over = re.search(r"(?:^|\n)Over\s+(\d+(?:\.\d+)?)\s+([+-]\d+)\b", sec, flags=re.I|re.M)
+            under = re.search(r"(?:^|\n)Under\s+(\d+(?:\.\d+)?)\s+([+-]\d+)\b", sec, flags=re.I|re.M)
+            if over:
+                total["line"] = dk_clean_odds(over.group(1))
+                total["overOdds"] = dk_clean_odds(over.group(2))
+            if under:
+                total.setdefault("line", dk_clean_odds(under.group(1)))
+                total["underOdds"] = dk_clean_odds(under.group(2))
+
+        if moneyline or spread or total:
+            games.append({
+                "sport": sport,
+                "away": away,
+                "home": home,
+                "dateText": m.group("date"),
+                "moneyline": moneyline,
+                "spread": spread,
+                "total": total,
+            })
+    return games
+
+def refresh_draftkings_odds(data):
+    all_games = []
+    seen = set()
+    for sport, urls in DK_ODDS_SOURCES.items():
+        sport_games = []
+        for url in urls:
+            try:
+                raw = fetch_text(url)
+                parsed = parse_dk_odds_html(raw, sport)
+                # Keep trying fallbacks if a filtered page returned no useful games.
+                if parsed:
+                    sport_games.extend(parsed)
+            except Exception as exc:
+                print(f"DraftKings odds source failed ({sport}): {exc}")
+
+        # Deduplicate pages/fallbacks, preferring the first occurrence.
+        for g in sport_games:
+            key = (sport, g["away"].lower(), g["home"].lower(), g["dateText"])
+            if key in seen:
+                continue
+            seen.add(key)
+            all_games.append(g)
+
+    previous = data.get("draftkingsOdds") or {}
+    # Do not erase a known-good set if DraftKings changes page markup temporarily.
+    if all_games:
+        data["draftkingsOdds"] = {
+            "updatedAt": datetime.now(timezone.utc).isoformat(),
+            "source": "DraftKings",
+            "sourceLabel": "DraftKings Sportsbook via DraftKings Network",
+            "games": all_games,
+        }
+        print(f"DraftKings odds refreshed: {len(all_games)} games")
+    else:
+        print("DraftKings odds refresh returned no games; preserving last-good odds.")
+        if previous:
+            data["draftkingsOdds"] = previous
+
+
 def main():
     data = json.loads(JSON_PATH.read_text(encoding="utf-8"))
     refresh_schedules(data)
@@ -685,9 +840,11 @@ def main():
     refresh_standings(data)
     refresh_rankings(data)
     update_team_contexts(data)
+    refresh_siriusxm(data)
+    refresh_draftkings_odds(data)
     regenerate_upcoming(data)
 
-    data["version"] = "v12.2"
+    data["version"] = "v13.5"
     data["lastUpdated"] = datetime.now(timezone.utc).isoformat()
     data.setdefault("automation", {})["enabled"] = True
     data["automation"]["lastRun"] = data["lastUpdated"]
