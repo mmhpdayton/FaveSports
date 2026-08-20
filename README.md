@@ -1,40 +1,58 @@
-# Dayton Sports V14.1 — Full UI/UX Pass
+# Dayton Sports V14.2 — REDO
 
-## Schedules
-- Next Game hero appears immediately
-- Upcoming games follow
-- Previous Games collapsed by default
-- Cubs upcoming/history grouped by month so 162 games do not become one giant scroll
-- TV, venue, results, scores, odds and game-detail links preserved
+This replaces the earlier V14.2.
 
-## Home
-- First upcoming event gets a prominent Next Up treatment
-- Remaining upcoming cards become a horizontal swipe row on mobile
-- My Teams is a compact list
-- Home rebuilds from team schedules whenever opened, helping remove stale prior-date games
+## Visible menu
+Home → Schedules → College Football → Premier League → NFL → College Volleyball → Standings
 
-## League pages
-- College Football: existing week accordion retained
-- NFL: existing week accordion retained
-- College Volleyball: existing week accordion retained
-- Premier League: now also uses previous/current/future weekly accordions
+Rankings remains accessible from ranking links but is not in the visible top navigation.
 
-## Standings
-- One standings table shown at a time
-- scrollable selector for EPL / NFC North / AFC East / AFC South / NL Central
+## UX/cosmetic redesign
+The full sports-app redesign remains:
+- sticky horizontal mobile nav
+- Up Next: one active-or-next game per team
+- Next Game first on Schedules
+- Previous Games collapsed
+- Cubs grouped by month
+- compact My Teams
+- week accordions for CFB, NFL, College Volleyball and Premier League
+- one-at-a-time Standings selector
+- tighter mobile spacing/tap targets
 
-## Mobile polish
-- sticky horizontal nav
-- horizontally scrollable team selector
-- tighter card radius and spacing
-- larger tap areas
-- swipeable Upcoming cards
-- reduced vertical wall-of-cards effect
+## Betting lines everywhere
+DraftKings lines now render anywhere a game is listed and a market is available:
+- Up Next
+- My Teams next-game rows
+- Schedules
+- College Football
+- NFL
+- College Volleyball
+- Premier League
+- game detail
 
-## Upgrade from V14.0
+## Current DraftKings fix
+The updater now uses DraftKings' v1 full event-group endpoint:
+`/sites/<state>-SB/api/v1/eventgroup/<group>/full?format=json`
+
+Known groups:
+- MLB 84240
+- NFL 88808
+- College Football 87637
+
+Illinois is tried first, then New Jersey, then generic.
+EPL and college volleyball are discovered dynamically when DraftKings posts those markets.
+
+Old DraftKings data is no longer preserved on a failed refresh.
+The browser also refuses to display odds older than 50 minutes.
+
+## Upload
 Replace:
 - index.html
 - sports-data.json
 - sports-data.js
+- scripts/update_data.py
 
-Updater and 30-minute workflow are unchanged.
+Then run:
+Actions → Update Dayton Sports Data → Run workflow
+
+That first manual run is important because this clean build intentionally ships without stale odds.

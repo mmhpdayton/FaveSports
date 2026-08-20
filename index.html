@@ -273,15 +273,40 @@ nav button{flex:0 0 auto;min-height:44px}
   .team-chip{flex:0 0 auto}
 }
 
+
+/* V14.2 REDO — consolidated sports-app look/feel */
+nav{display:flex!important;gap:2px;align-items:center;position:sticky!important;top:0;z-index:70;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;min-height:44px}
+.dk-age{font-size:8px;color:#7894a9;white-space:nowrap}
+.dk-stale{color:#d6ad68;font-style:italic}
+.compact-team-odds{font-size:9px;color:#b8c9d6;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-next .dk-odds-strip{margin-top:10px}
+.epl-fixture .dk-odds-strip{margin-top:8px}
+@media(max-width:760px){
+  nav button[data-view="collegefootball"]{font-size:0}
+  nav button[data-view="collegefootball"]::after{content:"CFB";font-size:11px}
+  nav button[data-view="collegevolleyball"]{font-size:0}
+  nav button[data-view="collegevolleyball"]::after{content:"Volleyball";font-size:11px}
+}
+
 </style>
 </head>
 <body>
 <div class="wrap">
 <header><div class="brand"><img src="apple-touch-icon.png" class="brand-icon" alt=""><div><h1>Dayton Sports</h1><p>Our teams. Our games. One place.</p><div id="dataStatus" class="data-status"></div></div></div>
-<nav><button class="active" data-view="home">Home</button><button data-view="schedules">Schedules</button><button data-view="standings">Standings</button><button data-view="rankings">Rankings</button><button data-view="premier">Premier League</button><button data-view="collegefootball">College Football</button><button data-view="collegevolleyball">College Volleyball</button><button data-view="nfl">NFL</button></nav></header>
+<nav>
+<button class="active" data-view="home">Home</button>
+<button data-view="schedules">Schedules</button>
+<button data-view="collegefootball">College Football</button>
+<button data-view="premier">Premier League</button>
+<button data-view="nfl">NFL</button>
+<button data-view="collegevolleyball">College Volleyball</button>
+<button data-view="standings">Standings</button>
+</nav></header>
 
 <main id="home" class="view">
-<section class="section"><div class="section-title"><h2>Upcoming & Where to Watch</h2><span class="note">Quick glance</span></div><div id="upcoming" class="grid"></div></section>
+<section class="section"><div class="section-title"><h2>Up Next</h2><span class="note">Next or active game for each team</span></div><div id="upcoming" class="grid"></div></section>
 <section class="section"><div class="section-title"><h2>My Teams</h2><span class="note">Kids first · then favorites</span></div><div id="myteams" class="grid"></div></section>
 </main>
 
@@ -489,57 +514,94 @@ function dkTeamMatch(dkName,comp){
   return dLast && fLast && dLast.length>=4 && dLast===fLast;
 }
 function dkSportForKind(kind){
-  return kind==="mlb"?"mlb":kind==="nfl"?"nfl":kind==="cfb"?"cfb":kind==="cvb"?"cvb":"";
+  return kind==="mlb"?"mlb":
+    kind==="nfl"?"nfl":
+    kind==="cfb"?"cfb":
+    kind==="cvb"?"cvb":
+    (kind==="soccer"||kind==="epl")?"epl":"";
+}
+function dkKindForTeam(t){
+  if(!t)return "";
+  if(t.id==="cubs")return "mlb";
+  if(["gb","buf","ind"].includes(t.id))return "nfl";
+  if(t.id==="nd")return "cfb";
+  if(t.id==="wisc")return "cvb";
+  if(t.id==="lfc")return "epl";
+  return "";
+}
+function dkOddsAgeMinutes(){
+  if(!DK_ODDS.updatedAt)return Infinity;
+  const age=(Date.now()-new Date(DK_ODDS.updatedAt).getTime())/60000;
+  return Number.isFinite(age)?Math.max(0,age):Infinity;
+}
+function dkOddsFresh(){return dkOddsAgeMinutes()<=50}
+function dkTeamMatch(dkName,comp){
+  const d=dkNorm(dkName);
+  const full=dkNorm(leagueTeamName(comp));
+  const ab=dkNorm(comp?.team?.abbreviation||"");
+  if(!d||!full)return false;
+  if(d===full||d.includes(full)||full.includes(d))return true;
+  if(ab && new RegExp(`(^| )${ab}( |$)`).test(d))return true;
+  const dl=d.split(" ").pop(), fl=full.split(" ").pop();
+  return dl&&fl&&dl.length>=4&&dl===fl;
 }
 function findDkOddsForCompetitors(kind,home,away){
+  if(!dkOddsFresh())return null;
   const sport=dkSportForKind(kind);
   if(!sport)return null;
-  const candidates=(DK_ODDS.games||[]).filter(g=>g.sport===sport);
-  return candidates.find(g=>
-    dkTeamMatch(g.home,home)&&dkTeamMatch(g.away,away)
-  ) || candidates.find(g=>
-    dkTeamMatch(g.home,away)&&dkTeamMatch(g.away,home)
-  ) || null;
+  const games=(DK_ODDS.games||[]).filter(g=>g.sport===sport);
+  return games.find(g=>dkTeamMatch(g.home,home)&&dkTeamMatch(g.away,away)) ||
+         games.find(g=>dkTeamMatch(g.home,away)&&dkTeamMatch(g.away,home)) || null;
 }
 function dkPrice(v){return v===undefined||v===null||v===""?"—":String(v).replace("−","-")}
 function dkMarketSummary(odds){
   if(!odds)return "";
-  const ml=odds.moneyline||{}, sp=odds.spread||{}, tot=odds.total||{};
-  const mlText=[odds.away,odds.home].filter(n=>ml[n]).map(n=>`${n} ${dkPrice(ml[n])}`).join(" · ");
-  const spText=[odds.away,odds.home].filter(n=>sp[n]).map(n=>`${n} ${dkPrice(sp[n].line)} (${dkPrice(sp[n].odds)})`).join(" · ");
+  const ml=odds.moneyline||{},sp=odds.spread||{},tot=odds.total||{};
+  const teams=[odds.away,odds.home].filter(Boolean);
+  const extra=Object.keys(ml).filter(n=>!teams.includes(n));
+  const mlText=[...teams,...extra].filter(n=>ml[n]).map(n=>`${n} ${dkPrice(ml[n])}`).join(" · ");
+  const spText=teams.filter(n=>sp[n]).map(n=>`${n} ${dkPrice(sp[n].line)} (${dkPrice(sp[n].odds)})`).join(" · ");
   const tText=tot.line?`${dkPrice(tot.line)}${tot.overOdds||tot.underOdds?` (O ${dkPrice(tot.overOdds)} / U ${dkPrice(tot.underOdds)})`:""}`:"";
   return {mlText,spText,tText};
 }
-function dkOddsStrip(odds){
-  if(!odds)return `<div class="dk-odds-strip"><span class="dk-book">DraftKings Sportsbook</span><span class="dk-odds-missing">Lines not posted</span></div>`;
+function dkAgeLabel(){
+  if(!DK_ODDS.updatedAt)return "";
+  const m=Math.round(dkOddsAgeMinutes());
+  return m<1?"just now":`${m}m ago`;
+}
+function dkOddsStrip(odds,{showMissing=true}={}){
+  if(!dkOddsFresh()){
+    return `<div class="dk-odds-strip"><span class="dk-book">DraftKings</span><span class="dk-stale">Refreshing current lines…</span></div>`;
+  }
+  if(!odds){
+    return showMissing?`<div class="dk-odds-strip"><span class="dk-book">DraftKings</span><span class="dk-odds-missing">Lines not posted</span><span class="dk-age">${dkAgeLabel()}</span></div>`:"";
+  }
   const s=dkMarketSummary(odds);
   return `<div class="dk-odds-strip">
-    <span class="dk-book">DraftKings Sportsbook</span>
+    <span class="dk-book">DraftKings</span>
     <span class="dk-market"><b>Spread</b>${s.spText||"—"}</span>
     <span class="dk-market"><b>ML</b>${s.mlText||"—"}</span>
     <span class="dk-market"><b>O/U</b>${s.tText||"—"}</span>
+    <span class="dk-age">${dkAgeLabel()}</span>
   </div>`;
 }
 function dkOddsDetail(kind,home,away){
   const odds=findDkOddsForCompetitors(kind,home,away);
   const stamp=DK_ODDS.updatedAt?new Date(DK_ODDS.updatedAt).toLocaleString("en-US",{timeZone:"America/Chicago",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"";
+  if(!dkOddsFresh())return `<div class="dk-detail"><div class="dk-detail-head"><div class="dk-detail-title">DraftKings</div></div><div class="dk-stale">Refreshing current lines…</div></div>`;
   if(!odds)return `<div class="dk-detail"><div class="dk-detail-head"><div class="dk-detail-title">DraftKings</div>${stamp?`<div class="dk-updated">Updated ${stamp} CT</div>`:""}</div><div class="dk-odds-missing">Game lines not posted yet.</div></div>`;
   const s=dkMarketSummary(odds);
-  return `<div class="dk-detail">
-    <div class="dk-detail-head"><div class="dk-detail-title">DraftKings Sportsbook Game Lines</div>${stamp?`<div class="dk-updated">Updated ${stamp} CT</div>`:""}</div>
-    <div class="dk-detail-grid">
-      <div class="dk-detail-market"><div class="dk-detail-label">Point Spread</div><div class="dk-detail-value">${s.spText||"—"}</div></div>
-      <div class="dk-detail-market"><div class="dk-detail-label">Moneyline</div><div class="dk-detail-value">${s.mlText||"—"}</div></div>
-      <div class="dk-detail-market"><div class="dk-detail-label">Over / Under</div><div class="dk-detail-value">${s.tText||"—"}</div></div>
-    </div>
-  </div>`;
+  return `<div class="dk-detail"><div class="dk-detail-head"><div class="dk-detail-title">DraftKings Sportsbook Game Lines</div>${stamp?`<div class="dk-updated">Updated ${stamp} CT</div>`:""}</div>
+  <div class="dk-detail-grid">
+    <div class="dk-detail-market"><div class="dk-detail-label">Point Spread</div><div class="dk-detail-value">${s.spText||"—"}</div></div>
+    <div class="dk-detail-market"><div class="dk-detail-label">Moneyline</div><div class="dk-detail-value">${s.mlText||"—"}</div></div>
+    <div class="dk-detail-market"><div class="dk-detail-label">Over / Under</div><div class="dk-detail-value">${s.tText||"—"}</div></div>
+  </div></div>`;
 }
 function dkOddsForScheduleGame(t,g){
-  const kind=t.id==="cubs"?"mlb":(["gb","buf","ind"].includes(t.id)?"nfl":(t.id==="nd"?"cfb":""));
-  if(!kind)return null;
-  // Full-season ESPN-loaded games carry competitor metadata after V13.5.
+  const kind=dkKindForTeam(t);
+  if(!kind||!g)return null;
   if(g._eventTeams)return findDkOddsForCompetitors(kind,g._eventTeams.home,g._eventTeams.away);
-  // Fallback: create light pseudo-competitors from known team/opponent names.
   const ours={team:{displayName:t.name,abbreviation:t.abbr}};
   const opp={team:{displayName:g.opp,abbreviation:""}};
   return g.ha==="AWAY"?findDkOddsForCompetitors(kind,opp,ours):findDkOddsForCompetitors(kind,ours,opp);
@@ -562,7 +624,7 @@ function upCard(u){
     <div class="time">${u.time}</div>
     ${score}
     <div class="chips"><span class="chip">${u.where}</span>${u.tv?`<span class="chip tvchip">📺 ${u.tv}</span>`:""}</div>
-    ${(u._liveEvent&&["cubs","gb","buf","ind","nd"].includes(u.id))?dkOddsStrip(findDkOddsForCompetitors(u.id==="cubs"?"mlb":u.id==="nd"?"cfb":"nfl",u._liveEvent.home,u._liveEvent.away)):""}
+    ${(()=>{const k=dkKindForTeam(t);if(!k)return "";if(u._liveEvent)return dkOddsStrip(findDkOddsForCompetitors(k,u._liveEvent.home,u._liveEvent.away));return dkOddsStrip(dkOddsForScheduleGame(t,uiNextGame(t)));})()}
     ${sxm}
   </article>`;
 }
@@ -590,14 +652,43 @@ function uiUpcomingDate(g){
 }
 function rebuildHomeUpcoming(){
   const order=["payton","amundsen","amundsenvarsity","nd","wisc","lfc","gb","buf","cubs"];
-  const picked=[],seen=new Set(),today=uiToday(),h=new Date(today);h.setDate(h.getDate()+7);
-  const add=(t,g)=>{const k=`${t.id}|${g.date||""}|${g.opp||""}`;if(seen.has(k))return;seen.add(k);picked.push({t,g,ms:scheduleDateValue(g)})};
-  order.forEach(id=>{const t=byId[id];if(!t)return;const g=(t.schedule||[]).find(x=>uiEligible(t,x));if(g)add(t,g)});
-  order.forEach(id=>{const t=byId[id];if(!t)return;(t.schedule||[]).forEach(g=>{if(!uiEligible(t,g))return;const d=uiGameDate(g);if(d&&d<=h)add(t,g)})});
+  const picked=[];
+
+  for(const id of order){
+    const t=byId[id];
+    if(!t)continue;
+
+    // Prefer an active/live game for this team.
+    let g=(t.schedule||[]).find(x=>x?._score?.live);
+
+    // Otherwise use only the next eligible future game.
+    if(!g){
+      g=(t.schedule||[]).find(x=>uiEligible(t,x));
+    }
+
+    if(!g)continue;
+
+    picked.push({
+      t,
+      g,
+      ms:Number.isFinite(scheduleDateValue(g))?scheduleDateValue(g):Number.MAX_SAFE_INTEGER
+    });
+  }
+
+  // Sort the one-per-team cards by when the game occurs.
   picked.sort((a,b)=>a.ms-b.ms);
-  D.upcoming=picked.slice(0,14).map(({t,g})=>({
-    id:t.id,date:uiUpcomingDate(g),opp:`${g.ha==="AWAY"?"@":"vs"} ${g.opp||""}`,time:g.time||"",tv:g.tv||"",where:g.ha||"",
-    _score:g._score,_eventId:g._eventId,_sportKind:g._sportKind,_liveEvent:g._eventTeams
+
+  D.upcoming=picked.map(({t,g})=>({
+    id:t.id,
+    date:uiUpcomingDate(g),
+    opp:`${g.ha==="AWAY"?"@":"vs"} ${g.opp||""}`,
+    time:g.time||"",
+    tv:g.tv||"",
+    where:g.ha||"",
+    _score:g._score,
+    _eventId:g._eventId,
+    _sportKind:g._sportKind,
+    _liveEvent:g._eventTeams
   }));
 }
 function renderHomeUpcoming(){
@@ -605,16 +696,20 @@ function renderHomeUpcoming(){
   const box=document.getElementById("upcoming");if(!box)return;
   if(!D.upcoming.length){box.innerHTML=`<div class="league-empty">No upcoming events.</div>`;return}
   const f=D.upcoming[0],t=byId[f.id],rest=D.upcoming.slice(1);
+  const kind=dkKindForTeam(t);
+  const heroOdds=kind?(f._liveEvent?findDkOddsForCompetitors(kind,f._liveEvent.home,f._liveEvent.away):dkOddsForScheduleGame(t,uiNextGame(t))):null;
   box.innerHTML=`<div class="home-next">
-    <div class="ui-kicker">Next Up</div>
+    <div class="ui-kicker">Soonest Game</div>
     <div class="home-next-title">${t?.name||""} · ${f.opp||""}</div>
     <div class="ui-meta"><span class="chip">${f.date||""}</span><span class="chip">${f.time||""}</span>${f.tv?`<span class="chip tvchip">📺 ${f.tv}</span>`:""}</div>
+    ${kind?dkOddsStrip(heroOdds):""}
   </div><div class="home-rest">${rest.map(upCard).join("")}</div>`;
 }
 function compactTeamRow(t){
-  const g=uiNextGame(t);
+  const g=uiNextGame(t),kind=dkKindForTeam(t),odds=kind?dkOddsForScheduleGame(t,g):null,s=odds?dkMarketSummary(odds):null;
+  const betting=s?`<div class="compact-team-odds">DK${s.spText?` · ${s.spText}`:""}${s.tText?` · O/U ${s.tText}`:""}</div>`:"";
   return `<div class="compact-team gotoSchedule" data-team="${t.id}">${logo(t,true)}
-    <div><div class="compact-team-name">${t.name}</div><div class="compact-team-next">${g?.opp?`${g.ha==="AWAY"?"@":"vs"} ${g.opp} · ${g.date||""} ${g.time||""}`:"No upcoming game"}</div></div>
+    <div><div class="compact-team-name">${t.name}</div><div class="compact-team-next">${g?.opp?`${g.ha==="AWAY"?"@":"vs"} ${g.opp} · ${g.date||""} ${g.time||""}`:"No upcoming game"}</div>${betting}</div>
     <div class="compact-team-record">${t.record||""}</div></div>`;
 }
 function renderCompactTeams(){
@@ -627,7 +722,7 @@ function uiScheduleCard(t,g){
     <div class="game-top"><span class="game-date">${g.date||""}</span><span class="game-time">${g.time||""}</span></div>
     <div class="game-main">${logo(t)}<div><div class="game-title">${g.ha==="AWAY"?"@ ":""}${g.opp||""}</div><div class="game-sub">${g.event||""}</div>${score}</div></div>
     <div class="game-bottom"><div><div class="chips"><span class="chip">${g.ha||""}</span>${g.conference?`<span class="chip">CONFERENCE</span>`:""}</div>${g.venue?`<div class="venue" style="margin-top:7px">📍 ${g.venue}</div>`:""}</div><div class="broadcast">${g.tv?`📺 ${g.tv}`:""}</div></div>
-    ${["cubs","gb","buf","ind","nd"].includes(t.id)?dkOddsStrip(dkOddsForScheduleGame(t,g)):""}
+    ${dkKindForTeam(t)?dkOddsStrip(dkOddsForScheduleGame(t,g)):""}
   </article>`;
 }
 function uiMonth(g){const m=String(g.date||"").match(/^([A-Z][a-z]{2})/);return m?m[1]:"Later"}
@@ -730,7 +825,7 @@ function renderEplEvent(e){
   const score=(st.state==="in"||st.completed||st.state==="post")?`${home.score??""}–${away.score??""}`:"vs";
   const tv=(c.broadcasts||[]).flatMap(b=>b.names||[]).filter(Boolean).join(" / ");
   const live=st.state==="in"?` · ${st.shortDetail||"LIVE"}`:(st.completed||st.state==="post"?" · FINAL":"");
-  return `<div class="epl-fixture game-clickable" data-event-id="${e.id||""}" data-sport-kind="soccer"><div class="epl-fixture-date">${fmtEplTime(e.date)}${live}</div><div class="epl-matchup"><div class="epl-home">${compTeamName(home)}</div><div class="epl-score">${score}</div><div class="epl-away">${compTeamName(away)}</div></div><div class="epl-tv">${tv?`📺 ${tv}`:""}</div></div>`;
+  return `<div class="epl-fixture game-clickable" data-event-id="${e.id||""}" data-sport-kind="soccer"><div class="epl-fixture-date">${fmtEplTime(e.date)}${live}</div><div class="epl-matchup"><div class="epl-home">${compTeamName(home)}</div><div class="epl-score">${score}</div><div class="epl-away">${compTeamName(away)}</div></div><div class="epl-tv">${tv?`📺 ${tv}`:""}</div>${dkOddsStrip(findDkOddsForCompetitors("epl",home,away))}</div>`;
 }
 async function loadEplWeek(offset=0,silent=false){
   eplWeekOffset=offset;
@@ -897,7 +992,7 @@ function renderLeagueGame(e,kind){
       <div class="league-away">${awayLabel}</div>
     </div>
     <div class="league-broadcast">${tv?`📺 ${tv}`:""}${siriusXmButton(kind,home,away,state,"sxm-row-link")}</div>
-    ${["cfb","nfl"].includes(kind)?dkOddsStrip(findDkOddsForCompetitors(kind,home,away)):""}
+    ${dkSportForKind(kind)?dkOddsStrip(findDkOddsForCompetitors(kind,home,away)):""}
   </div>`;
 }
 const CFB_CONFERENCES={
@@ -1363,7 +1458,7 @@ function renderGameDetail(j,kind){
       <div class="game-info-card"><div class="game-info-label">Venue</div><div class="game-info-value">${esc(venue||"TBD")}</div></div>
       <div class="game-info-card"><div class="game-info-label">Attendance</div><div class="game-info-value">${esc(attendance||"—")}</div></div>
     </div>
-    ${["mlb","nfl","cfb","cvb"].includes(kind)?dkOddsDetail(kind,home,away):""}
+    ${["mlb","nfl","cfb","cvb","soccer"].includes(kind)?dkOddsDetail(kind,home,away):""}
     ${kind==="mlb"?renderBaseballLinescore(j,home,away):""}
     ${renderKeyStats(j,home,away)}
     ${renderScoring(j)}

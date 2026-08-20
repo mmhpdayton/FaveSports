@@ -694,9 +694,14 @@ DK_EVENTGROUP_IDS = {
 }
 
 DK_API_TEMPLATES = [
-    "https://sportsbook.draftkings.com/sites/US-SB/api/v5/eventgroups/{group}?format=json",
-    "https://sportsbook-us-il.draftkings.com/sites/US-IL-SB/api/v5/eventgroups/{group}?format=json",
-    "https://sportsbook-nash.draftkings.com/sites/US-SB/api/v5/eventgroups/{group}?format=json",
+    "https://sportsbook.draftkings.com/sites/US-IL-SB/api/v1/eventgroup/{group}/full?format=json",
+    "https://sportsbook.draftkings.com/sites/US-NJ-SB/api/v1/eventgroup/{group}/full?format=json",
+    "https://sportsbook.draftkings.com/sites/US-SB/api/v1/eventgroup/{group}/full?format=json",
+]
+
+DK_EPL_DISCOVERY = [
+    "https://sportsbook.draftkings.com/leagues/soccer/english-premier-league",
+    "https://sportsbook.draftkings.com/sports/soccer",
 ]
 
 DK_VOLLEYBALL_DISCOVERY = [
@@ -900,37 +905,41 @@ def dk_plain_text(raw):
     raw = html_lib.unescape(raw)
     return "\n".join(re.sub(r"\s+"," ",x).strip() for x in raw.splitlines() if x.strip())
 
-def dk_discover_college_volleyball_group():
-    """
-    Look for an NCAA/college women's volleyball event-group ID in DK's volleyball navigation.
-    If DraftKings is not offering that league, return None.
-    """
-    for page in DK_VOLLEYBALL_DISCOVERY:
+def dk_discover_group_from_pages(pages, required_terms):
+    for page in pages:
         try:
             raw = fetch_text(page)
         except Exception:
             continue
-
-        # Search links/API references where the surrounding text says college/NCAA volleyball.
-        for m in re.finditer(r'href=["\']([^"\']+)["\'][^>]*>(.*?)</a>', raw, flags=re.I|re.S):
-            href, label_html = m.group(1), m.group(2)
-            label = dk_plain_text(label_html).lower()
-            joined = (href + " " + label).lower()
-            if "volleyball" not in joined:
-                continue
-            if not any(k in joined for k in ("college","ncaa","women","womens")):
-                continue
-            gid = re.search(r"(?:eventgroups?/|eventgroup=)(\d{4,10})", joined)
-            if gid:
-                return gid.group(1)
+        low = raw.lower()
+        for pat in (
+            r'eventgroup/(\d{3,10})',
+            r'eventgroup(?:id)?["\':=\s]+(\d{3,10})',
+            r'13l(\d{3,10})q',
+        ):
+            for m in re.finditer(pat, low, flags=re.I):
+                window = low[max(0,m.start()-600):min(len(low),m.end()+600)]
+                if all(term.lower() in window for term in required_terms):
+                    return m.group(1)
     return None
+
+def dk_discover_epl_group():
+    return dk_discover_group_from_pages(DK_EPL_DISCOVERY, ["premier"])
+
+def dk_discover_college_volleyball_group():
+    return dk_discover_group_from_pages(DK_VOLLEYBALL_DISCOVERY, ["volleyball"])
+
 
 def refresh_draftkings_odds(data):
     all_games = []
     source_pages = {}
+    errors = {}
     seen = set()
 
     groups = dict(DK_EVENTGROUP_IDS)
+    epl_group = dk_discover_epl_group()
+    if epl_group:
+        groups["epl"] = epl_group
     cvb_group = dk_discover_college_volleyball_group()
     if cvb_group:
         groups["cvb"] = cvb_group
@@ -941,38 +950,32 @@ def refresh_draftkings_odds(data):
             if source_url:
                 source_pages[sport] = source_url
             for g in games:
-                key = (
-                    sport,
-                    dk_clean_team(g.get("away")).lower(),
-                    dk_clean_team(g.get("home")).lower(),
-                    str(g.get("startDate") or "")[:10],
-                )
+                key = (sport, dk_clean_team(g.get("away")).lower(), dk_clean_team(g.get("home")).lower(), str(g.get("startDate") or "")[:10])
                 if key in seen:
                     continue
                 seen.add(key)
                 all_games.append(g)
         except Exception as exc:
-            print(f"DraftKings {sport}: no usable event-group feed ({exc})")
+            errors[sport] = str(exc)
+            print(f"DraftKings {sport}: current feed unavailable ({exc})")
 
-    previous = data.get("draftkingsOdds") or {}
+    # Never preserve an old odds snapshot as if it were current.
+    data["draftkingsOdds"] = {
+        "updatedAt": datetime.now(timezone.utc).isoformat(),
+        "source": "DraftKings",
+        "primarySource": "DraftKings Sportsbook v1 event-group feed",
+        "sourcePages": source_pages,
+        "errors": errors,
+        "eplDiscovered": bool(epl_group),
+        "collegeVolleyballDiscovered": bool(cvb_group),
+        "games": all_games,
+        "status": "ok" if all_games else "unavailable",
+    }
 
-    if all_games:
-        data["draftkingsOdds"] = {
-            "updatedAt": datetime.now(timezone.utc).isoformat(),
-            "source": "DraftKings",
-            "primarySource": "DraftKings Sportsbook event-group feed",
-            "sourcePages": source_pages,
-            "collegeVolleyballDiscovered": bool(cvb_group),
-            "games": all_games,
-        }
-        counts = {}
-        for g in all_games:
-            counts[g["sport"]] = counts.get(g["sport"], 0) + 1
-        print(f"DraftKings odds refreshed: {counts}")
-    else:
-        print("DraftKings returned no usable game lines; preserving last-good odds.")
-        if previous:
-            data["draftkingsOdds"] = previous
+    counts = {}
+    for g in all_games:
+        counts[g["sport"]] = counts.get(g["sport"], 0) + 1
+    print(f"DraftKings current odds refresh: {counts or 'no current lines returned'}")
 
 
 def main():
