@@ -218,14 +218,9 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
 }
 
 
-.cvb-week-nav{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin:10px 0}
-.cvb-week-title{text-align:center;font-size:12px;font-weight:900;color:#d9e6f1}
 .cvb-rank{color:#d6b267;font-weight:950}
 .cvb-wisc{background:#d6b2670d}
-@media(max-width:640px){
-  .cvb-week-nav{grid-template-columns:auto 1fr auto}
-  .cvb-week-title{font-size:11px}
-}
+
 
 </style>
 </head>
@@ -336,12 +331,6 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
       <button class="cfb-filter cvb-filter" type="button" data-cvb-filter="wcc">WCC</button>
     </div>
     <div id="cvbFilterLabel" class="cfb-filter-label">Showing: Top 25 + Wisconsin</div>
-
-    <div class="cvb-week-nav">
-      <button id="cvbPrevWeek" class="mini-btn" type="button">← Previous</button>
-      <div id="cvbWeekTitle" class="cvb-week-title">Current Week</div>
-      <button id="cvbNextWeek" class="mini-btn" type="button">Next →</button>
-    </div>
     <div id="cvbWeeks" class="league-weeks"></div>
   </section>
 
@@ -395,7 +384,7 @@ nav{display:flex;gap:7px;flex-wrap:wrap}nav button,.team-chip{border:1px solid v
   </div>
 </div>
 
-<div class="footer">Dayton Sports · V13.6.3.2</div>
+<div class="footer">Dayton Sports · V13.7.3.2</div>
 </div>
 
 <script src="sports-data.js"></script>
@@ -967,10 +956,7 @@ async function autoRefreshLeagueScores(){
       await loadNflDivisionTables();
       badge?.classList.remove("refreshing");
     }else if(view==="collegevolleyball"){
-      const badge=document.getElementById("cvbStatus");
-      badge?.classList.add("refreshing");
-      await renderCvbWeek({force:true});
-      badge?.classList.remove("refreshing");
+      await refreshOpenCvbPanels();
     }
   }catch(e){}
 }
@@ -985,7 +971,6 @@ document.querySelectorAll('nav button[data-view]').forEach(btn=>{
       // Product rule: always enter College Football on Top 25.
       setCfbFilter("top25").then(()=>setTimeout(autoRefreshLeagueScores,100));
     }else if(target==="collegevolleyball"){
-      cvbWeekOffset=0;
       setCvbFilter("top25").then(()=>setTimeout(autoRefreshLeagueScores,100));
     }else if(["premier","nfl"].includes(target)){
       setTimeout(autoRefreshLeagueScores,100);
@@ -1308,19 +1293,21 @@ CUBS_LIVE.timer=setInterval(refreshCubsLive,30000);
 
 // ---- College Volleyball league tab ----
 const CVB_CACHE={};
+
+// ESPN's non-football NCAA group IDs are used for conference-specific feeds.
+// 50 = all Division I.
 const CVB_CONFERENCES={
-  bigten:{label:"B1G",names:["big ten","b1g"]},
-  sec:{label:"SEC",names:["sec","southeastern"]},
-  acc:{label:"ACC",names:["acc","atlantic coast"]},
-  big12:{label:"Big 12",names:["big 12","big twelve"]},
-  bigeast:{label:"Big East",names:["big east"]},
-  a10:{label:"Atlantic 10",names:["atlantic 10","a-10"]},
-  mvc:{label:"MVC",names:["missouri valley","mvc"]},
-  mwc:{label:"Mountain West",names:["mountain west"]},
-  wcc:{label:"WCC",names:["west coast","wcc"]}
+  bigten:{label:"B1G",group:"7"},
+  sec:{label:"SEC",group:"23"},
+  acc:{label:"ACC",group:"2"},
+  big12:{label:"Big 12",group:"8"},
+  bigeast:{label:"Big East",group:"4"},
+  a10:{label:"Atlantic 10",group:"3"},
+  mvc:{label:"MVC",group:"18"},
+  mwc:{label:"Mountain West",group:"44"},
+  wcc:{label:"WCC",group:"29"}
 };
 let cvbFilter="top25";
-let cvbWeekOffset=0;
 
 function cvbMondayForOffset(offset=0){
   const now=ctNow();
@@ -1341,34 +1328,15 @@ function isWisconsinVolleyball(c){
   const text=(leagueTeamName(c)+" "+(c?.team?.abbreviation||"")).toLowerCase();
   return text.includes("wisconsin")||/\bwisc\b/.test(text);
 }
-function cvbConferenceText(c){
-  const t=c?.team||{};
-  return [
-    c?.conference?.name,c?.conference?.shortName,c?.conference?.abbreviation,
-    t?.conference?.name,t?.conference?.shortName,t?.conference?.abbreviation
-  ].filter(Boolean).join(" ").toLowerCase();
-}
-function cvbInConference(c,key){
-  const cfg=CVB_CONFERENCES[key];
-  if(!cfg)return false;
-  const text=cvbConferenceText(c);
-  return cfg.names.some(n=>text.includes(n));
-}
 function cvbFilterEvents(events){
   const list=events||[];
-  if(cvbFilter==="d1")return list;
   if(cvbFilter==="top25"){
     return list.filter(e=>{
       const {home,away}=eventTeams(e);
       return cvbRank(home)||cvbRank(away)||isWisconsinVolleyball(home)||isWisconsinVolleyball(away);
     });
   }
-  if(CVB_CONFERENCES[cvbFilter]){
-    return list.filter(e=>{
-      const {home,away}=eventTeams(e);
-      return cvbInConference(home,cvbFilter)||cvbInConference(away,cvbFilter);
-    });
-  }
+  // All D-I and conference feeds are already filtered server-side.
   return list;
 }
 function cvbTeamLabel(c){
@@ -1384,6 +1352,7 @@ function cvbEventHtml(e){
     ? `${away.score??""}–${home.score??""}`:"vs";
   const tv=broadcastText(comp);
   const featured=isWisconsinVolleyball(home)||isWisconsinVolleyball(away);
+
   return `<div class="league-game game-clickable ${featured?"cvb-wisc":""}" data-event-id="${e.id||""}" data-sport-kind="cvb">
     <div class="league-game-time">${formatLeagueDate(e,"cvb")}${live?` · ${esc(live)}`:""}</div>
     <div class="league-matchup">
@@ -1394,12 +1363,18 @@ function cvbEventHtml(e){
     <div class="league-broadcast">${tv?`📺 ${esc(tv)}`:""}</div>
   </div>`;
 }
+function cvbGroupParam(){
+  if(cvbFilter==="top25"||cvbFilter==="d1")return "50";
+  return CVB_CONFERENCES[cvbFilter]?.group||"50";
+}
 async function fetchCvbWeek(offset=0,force=false){
   const start=cvbMondayForOffset(offset);
   const end=new Date(start);end.setDate(end.getDate()+6);
-  const key=`${cvbYmd(start)}-${cvbYmd(end)}`;
+  const group=cvbGroupParam();
+  const key=`${cvbFilter}:${group}:${cvbYmd(start)}-${cvbYmd(end)}`;
   if(!force&&CVB_CACHE[key])return CVB_CACHE[key];
-  const url=`https://site.api.espn.com/apis/site/v2/sports/volleyball/womens-college-volleyball/scoreboard?dates=${cvbYmd(start)}-${cvbYmd(end)}&limit=500`;
+
+  const url=`https://site.api.espn.com/apis/site/v2/sports/volleyball/womens-college-volleyball/scoreboard?dates=${cvbYmd(start)}-${cvbYmd(end)}&groups=${group}&limit=500`;
   const r=await fetch(url,{cache:"no-store"});
   if(!r.ok)throw new Error(r.status);
   const j=await r.json();
@@ -1412,63 +1387,129 @@ function cvbFilterDisplay(){
   return CVB_CONFERENCES[cvbFilter]?.label||"Top 25 + Wisconsin";
 }
 function updateCvbFilterUi(){
-  document.querySelectorAll(".cvb-filter").forEach(b=>b.classList.toggle("active",b.dataset.cvbFilter===cvbFilter));
+  document.querySelectorAll(".cvb-filter").forEach(b=>{
+    b.classList.toggle("active",b.dataset.cvbFilter===cvbFilter);
+  });
   const label=document.getElementById("cvbFilterLabel");
   if(label)label.textContent=`Showing: ${cvbFilterDisplay()}`;
 }
-async function renderCvbWeek({force=false}={}){
-  const box=document.getElementById("cvbWeeks");
-  if(!box)return;
-  const start=cvbMondayForOffset(cvbWeekOffset);
+function cvbPanelHtml(offset,state){
+  const start=cvbMondayForOffset(offset);
   const end=new Date(start);end.setDate(end.getDate()+6);
   const fmt=new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"});
-  document.getElementById("cvbWeekTitle").textContent=`${fmt.format(start)} – ${fmt.format(end)}`;
+  const label=`${fmt.format(start)} – ${fmt.format(end)}`;
+  const isCurrent=state==="current";
+  const kicker=isCurrent?"Current Week":state==="past"?"Previous Results":"Future Week";
+
+  return `<div class="week-panel ${isCurrent?"current open":""}" data-cvb-offset="${offset}">
+    <button class="week-toggle" type="button" aria-expanded="${isCurrent?"true":"false"}">
+      <div class="week-title-wrap">
+        <div>
+          <div class="week-kicker">${kicker}</div>
+          <div class="week-name">${label}</div>
+        </div>
+        <span class="week-meta">${isCurrent?"Loading…":"Tap to load"}</span>
+      </div>
+      <span class="week-chevron">›</span>
+    </button>
+    <div class="week-games">${isCurrent?`<div class="league-empty">Loading volleyball…</div>`:""}</div>
+  </div>`;
+}
+async function loadCvbPanel(panel,{force=false}={}){
+  const offset=Number(panel.dataset.cvbOffset||0);
+  const box=panel.querySelector(".week-games");
+  const meta=panel.querySelector(".week-meta");
   box.innerHTML=`<div class="league-empty">Loading volleyball…</div>`;
-  const status=document.getElementById("cvbStatus");
-  status?.classList.add("refreshing");
+
   try{
-    let events=await fetchCvbWeek(cvbWeekOffset,force);
+    let events=await fetchCvbWeek(offset,force);
     events=cvbFilterEvents(events);
     events.sort((a,b)=>new Date(a.date)-new Date(b.date));
-    box.innerHTML=events.length?events.map(cvbEventHtml).join(""):`<div class="league-empty">No games in this view.</div>`;
+    meta.textContent=`${events.length} match${events.length===1?"":"es"}`;
+    box.innerHTML=events.length
+      ? events.map(cvbEventHtml).join("")
+      : `<div class="league-empty">No matches in this view.</div>`;
   }catch(e){
+    meta.textContent="Feed unavailable";
     box.innerHTML=`<div class="league-empty">College volleyball schedule is temporarily unavailable.</div>`;
-  }finally{
-    status?.classList.remove("refreshing");
+  }
+}
+function wireCvbPanels(){
+  const root=document.getElementById("cvbWeeks");
+  root?.querySelectorAll(".week-panel").forEach(panel=>{
+    const btn=panel.querySelector(".week-toggle");
+    btn.addEventListener("click",async()=>{
+      const opening=!panel.classList.contains("open");
+      panel.classList.toggle("open",opening);
+      btn.setAttribute("aria-expanded",opening?"true":"false");
+      if(opening && !panel.dataset.loaded){
+        panel.dataset.loaded="1";
+        await loadCvbPanel(panel);
+      }
+    });
+  });
+}
+async function renderCvbWeeks(){
+  const root=document.getElementById("cvbWeeks");
+  if(!root)return;
+
+  // Two prior weeks + current week + sixteen future weeks covers the
+  // regular season and conference/postseason window without a next button.
+  const panels=[];
+  for(let offset=-2;offset<=16;offset++){
+    const state=offset<0?"past":offset===0?"current":"future";
+    panels.push(cvbPanelHtml(offset,state));
+  }
+  root.innerHTML=panels.join("");
+  wireCvbPanels();
+
+  const current=root.querySelector('.week-panel[data-cvb-offset="0"]');
+  if(current){
+    current.dataset.loaded="1";
+    await loadCvbPanel(current);
   }
 }
 async function setCvbFilter(next){
   cvbFilter=next||"top25";
   updateCvbFilterUi();
-  await renderCvbWeek({force:false});
+  await renderCvbWeeks();
+}
+async function refreshOpenCvbPanels(){
+  const status=document.getElementById("cvbStatus");
+  status?.classList.add("refreshing");
+  const root=document.getElementById("cvbWeeks");
+  const openPanels=[...(root?.querySelectorAll(".week-panel.open")||[])];
+  for(const p of openPanels){
+    await loadCvbPanel(p,{force:true});
+  }
+  status?.classList.remove("refreshing");
 }
 function mirrorCvbRankings(){
   const target=document.getElementById("cvbRankingsMirror");
   if(!target)return;
-  // Reuse the existing volleyball rankings content if present.
   const source=document.querySelector("#rankings [data-ranking-section='volleyball'], #rankings .volleyball-ranking, #rankings #volleyball-rankings");
-  if(source)target.innerHTML=source.innerHTML;
-  else{
-    const rows=(D.rankings?.avca||D.rankings?.volleyball||[]);
-    if(Array.isArray(rows)&&rows.length){
-      target.innerHTML=`<div class="ranking-list">${rows.map((r,i)=>{
-        const name=r.team||r.name||r.school||"";
-        const rank=r.rank||i+1;
-        const hi=/wisconsin/i.test(name)?" highlight":"";
-        return `<div class="ranking-row${hi}"><span>${rank}</span><span>${esc(name)}</span></div>`;
-      }).join("")}</div>`;
-    }else{
-      target.innerHTML=`<div class="league-empty">AVCA rankings unavailable.</div>`;
-    }
+  if(source){
+    target.innerHTML=source.innerHTML;
+    return;
+  }
+
+  const rows=(D.rankings?.avca||D.rankings?.volleyball||[]);
+  if(Array.isArray(rows)&&rows.length){
+    target.innerHTML=`<div class="ranking-list">${rows.map((r,i)=>{
+      const name=r.team||r.name||r.school||"";
+      const rank=r.rank||i+1;
+      const hi=/wisconsin/i.test(name)?" highlight":"";
+      return `<div class="ranking-row${hi}"><span>${rank}</span><span>${esc(name)}</span></div>`;
+    }).join("")}</div>`;
+  }else{
+    target.innerHTML=`<div class="league-empty">AVCA rankings unavailable.</div>`;
   }
 }
 document.querySelectorAll(".cvb-filter").forEach(btn=>{
   btn.addEventListener("click",()=>setCvbFilter(btn.dataset.cvbFilter));
 });
-document.getElementById("cvbPrevWeek")?.addEventListener("click",()=>{cvbWeekOffset--;renderCvbWeek();});
-document.getElementById("cvbNextWeek")?.addEventListener("click",()=>{cvbWeekOffset++;renderCvbWeek();});
 updateCvbFilterUi();
-renderCvbWeek();
+renderCvbWeeks();
 mirrorCvbRankings();
 
 // ---- Automatic scores / live results ----

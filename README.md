@@ -1,56 +1,49 @@
-# Dayton Sports V13.6
+# Dayton Sports V13.7
 
-Adds a full College Volleyball tab modeled after the College Football experience.
+Fixes College Volleyball schedules and changes volleyball to an expand/collapse weekly model.
 
-## College Volleyball tab
-Default view:
-- Top 25 + Wisconsin
+## Schedule-source fix
+The prior volleyball tab was fetching ESPN's default scoreboard payload and then trying to filter it locally. That payload can be incomplete / ranked-team oriented.
 
-Filters:
-- Top 25
-- All Division I
-- B1G
-- SEC
-- ACC
-- Big 12
-- Big East
-- Atlantic 10
-- Missouri Valley
-- Mountain West
-- WCC
+V13.7 requests the correct NCAA group directly:
+- Top 25 + Wisconsin: full Division I feed (`groups=50`) and then filters ranked teams + Wisconsin locally
+- All D-I: `groups=50`
+- ACC: `groups=2`
+- Big Ten: `groups=7`
+- Big 12: `groups=8`
+- SEC: `groups=23`
+- Big East: `groups=4`
+- Atlantic 10: `groups=3`
+- MVC: `groups=18`
+- Mountain West: `groups=44`
+- WCC: `groups=29`
 
-## Weekly schedule
-- Current week is shown immediately
-- Previous / Next controls move week-by-week
-- Results remain visible for completed matches
-- Future matches show date/time/TV when ESPN provides them
-- Wisconsin matches are highlighted
-- Top-25 rankings are shown inline beside ranked teams
-- Live scores refresh automatically every 60 seconds while the tab is active
+Each query uses `limit=500`.
 
-## Game detail
-Volleyball games are clickable into the same in-app game-detail overlay used by football, MLB and soccer.
-The detail view uses ESPN's women's college-volleyball summary feed and shows available score/status, venue, broadcast and team stats.
+## Expand/collapse by week
+College Volleyball now matches the College Football browsing model:
+- current week expanded automatically
+- previous weeks collapsed with results
+- future weeks collapsed
+- tap/click any week to expand it
+- no Previous / Next buttons
 
-## Rankings
-The AVCA Top 25 is mirrored beneath the schedule with Wisconsin highlighted when ranking data is available.
+The tab renders two prior weeks, the current week, and sixteen future weeks.
 
-## DraftKings
-No DraftKings NCAA women's-volleyball markets are forced into this tab. Dayton Sports will not substitute another sportsbook or fabricate unavailable lines.
+## Live scoring
+Every open volleyball week refreshes automatically every 60 seconds while the College Volleyball tab is active.
 
-## Everything from V13.5 is included
-- DraftKings NFL / College Football / MLB lines
-- 30-minute GitHub update workflow
-- Amundsen Varsity Football
-- Cubs live score fix
-- SiriusXM priority-team audio
-- College Football All FBS / conference fixes
-- live game pages
+## Preserved
+- Wisconsin highlighting
+- Top 25 default every time the tab is opened
+- AVCA Top 25 beneath the schedule
+- clickable volleyball game-detail pages
+- all V13.5/V13.6 football, MLB, DraftKings, SiriusXM, Amundsen Varsity and Cubs fixes
 
-## Upgrade from V13.5
+## Upgrade from V13.6
 Replace:
 - index.html
 - sports-data.json
 - sports-data.js
 
-The V13.5 updater script and workflow are unchanged.
+V13.5 `scripts/update_data.py` and `.github/workflows/update-data.yml` remain unchanged.
